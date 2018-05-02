@@ -1,0 +1,17 @@
+importFrom("stats", "approx", "na.omit", "sd", "spline")
+
+export(
+calcCOD,
+cumBg,
+interp,
+mass2vol,
+molMass,
+planBMP,
+predBg,
+stdVol,
+summBg,
+vol2mass,
+vol2mol
+)
+
+
