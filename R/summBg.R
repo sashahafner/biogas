@@ -1,5 +1,3 @@
-# Modified: 
-
 summBg <- function(
   vol,
   setup,
@@ -42,7 +40,7 @@ summBg <- function(
   # First for backward compatability
   if(length(when) == 1 && when == '1p') when <- '1p3d'
   if(length(when) == 1 && when == '0.5p') when <- '0.5p3d'
-  pdwhen <- gsub('[0-9.]', '', when) == 'pd'
+  pdwhen <- length(when) == 1 && gsub('[0-9.]', '', when) == 'pd'
   pdnotyet <- NULL
 
   # Warning on show.rates

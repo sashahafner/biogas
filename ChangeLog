@@ -4,13 +4,19 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+2 May 2018 Sasha D. hafner
+Version 1.10.2
+
+summBg.R
+Fixed pdwhen if statement so comparison length > 1 warning (soon error) is
+gone. Response to email form Kurt Hornik.
+
 20 April 2018 Sasha D. hafner
 Version 1.10.1
+
 summBg.R
 Fixed bug that threw error after selecting latest pd time for replicates if a
 single replicate didn't extend far enough. 
-
-
 
 2 March 2018 Sasha D. Hafner
 Version 1.10.1

@@ -1,4 +1,13 @@
 biogas 1.10.0
+2018 March 2
+---------------------------------------------------------------------
+BUG FIXES
+
+*summBg()
+Corrected another problem with if() check with length > 1.
+
+
+biogas 1.10.0
 2018 February 5
 ---------------------------------------------------------------------
 BUG FIXES
