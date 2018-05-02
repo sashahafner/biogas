@@ -1,0 +1,468 @@
+%% Next 2 lines needed for non-Sweave vignettes
+%\VignetteEngine{knitr::knitr} 
+%\VignetteIndexEntry{Getting started with the biogas package}
+
+\documentclass{article}
+
+%%\usepackage[version=3]{mhchem} %chemical formulas
+\usepackage[colorlinks = true, urlcolor = blue]{hyperref} % Must be loaded as the last package
+
+<<include=FALSE, cache=FALSE>>=
+library(knitr)
+#opts_chunk$set(cache=FALSE,tidy=FALSE,highlight=FALSE)
+opts_chunk$set(cache = FALSE, tidy = FALSE, fig.align = "center")
+library(biogas)
+  options(width=75)
+@
+
+\title{Getting started with the biogas package}
+\author{Charlotte Rennuit and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Anaerobic digestion is a popular technology for production of renewable energy and stabilisation of organic wastes, and research on the topic is carried out in laboratories in many countries.
+Transformation of raw data collected in laboratory experiments into quantities and rates of methane (CH$_4$) production requires a sequence of simple calculations.
+Although conceptually simple, these steps are time-consuming, and seldom described in detail in publications, so results may not be reproducible among laboratories or experiments.
+We developped the biogas package to address these issues.
+This document provides a brief introduction to the biogas package for new users.
+We have assumed that readers are familiar with biogas data collection and R.
+
+\section{Overview of functions}
+The package includes seven ``low-level'' functions (Table \ref{tab:lowfunctionsummary}) and three ``high-level'' functions (Table \ref{tab:highfunctionsummary}).
+To go from data collected in the laboratory to biogas and methane (CH$_4$) production or biochemical methane potential (BMP), two high-level functions are needed: \texttt{cumBg()} and \texttt{summBg()}.
+Comparing results to theory is facilitated by the remaining high-level function: \texttt{predBg()}.
+The low-level functions support the calculations carried out by the high-level functions, and may also be useful for some simple operations (e.g., converting reported biogas volumes to different standard conditions).
+This document describes the use of the high-level functions.
+% High level functions are design for a quick and efficient calculation with few function calls. The calculations carried out by the high-level functions are supported by calls to low-level functions. Direct call to low-level functions may be useful for some simple operations (e.g., converting reported biogas volumes to different standard conditions).
+% 
+% To go from data collected in the laboratory to biogas and methane (CH$_4$) production or biochemical methane potential (BMP), two high-level functions are needed: \texttt{cumBg()} and \texttt{summBg()}.
+% Comparing results to theory is facilitated by the remaining high-level function: \texttt{predBg()}.
+% This document describes the use of the high-level functions.
+
+\begin{table}[h!]
+  \begin{center}
+  \caption{Operations done with the low-level functions in the biogas package. All functions are vectorized. See help files for more details.}
+  \label{tab:lowfunctionsummary}
+  \vspace{3pt}
+  
+  \begin{tabular}{ll}
+    \hline
+    Operation                                    &   Function \\
+    \hline
+    Standardise gas volume                       &   \texttt{stdVol()} \\
+    Interpolate composition etc.                 &   \texttt{interp()} \\
+    Calculate oxygen demand of a compound        &   \texttt{calcCOD()} \\
+    Calculate molar mass of a compound           &   \texttt{molMass()} \\
+    Calculate biogas volume from mass loss       &   \texttt{mass2vol()} \\
+    Calculate mass loss from biogas volume       &   \texttt{vol2mass()} \\ 
+    Convert gas volume to moles                  &   \texttt{vol2mol()} \\ 
+		\hline
+  \end{tabular}
+  \end{center}
+\end{table}
+
+\begin{table}[h!]
+  \caption{Operations done with the high-level functions in the biogas package. The \texttt{cumBg()} and \texttt{summBg()} functions can handle data from any number of bottles. \texttt{predBg()} is vectorized.}
+  \label{tab:highfunctionsummary}
+  \vspace{3pt}
+  \begin{tabular}{ll}
+    \hline
+    Operation                                                                          & Function            \\
+    \hline
+    Calculate cumulative CH$_4$ production and rates from volume (mass), composition & \texttt{cumBg()}      \\
+    Calculate biochemical methane potential, summarise cumulative production or rates  & \texttt{summBg()}     \\
+    Predict biogas production based on substrate composition                           & \texttt{predBg()}     \\
+    \hline
+  \end{tabular}
+\end{table}
+  
+  
+\section{An example: calculation and prediction of biochemical methane potential}
+Calculation of biochemical methane potential (BMP) typically requires three data frames: initial mass, biogas quantity (volume, pressure, or bottle mass loss), and biogas composition.
+Input data may be structured in one of three ways: ``long'', ``wide'', or ``combined''.
+In a ``long'' format (\texttt{data.struct = 'long'}, the default), the measured variable (e.g., biogas volume) is in a single column (Fig. \ref{fig:timedata}).
+In this case columns with unique bottle IDs and time allow the \texttt{biogas} functions to link observations in the two data frames\footnote{
+  But observations need not be for the same times. 
+  Interpolation by \texttt{interp} takes care of this.
+  Note that the time columns can be date/time objects as well as numeric or integer.
+}.
+Any order of observations can be used in input data frames.
+
+\vspace{5mm}
+
+\begin{figure}[h!]
+  
+    \begin{center}
+    \begin{tabular}{c c}
+  
+      {
+          \begin{tabular}{c c c}
+              \hline 
+                           &      & Response variable\\
+              Reactor ID   & Time & (volume or mass) \\
+              \hline
+	             R1 & 1 & $y_{1,1}$ \\
+               R2 & 1 & $y_{2,1}$ \\
+	            ... & ... & ... \\
+	            $R_n$ & 1 & $y_{i,1}$ \\
+              R1 & 2 & $y_{1,2}$ \\
+              R2 & 2 & $y_{2,2}$ \\
+	            $R_n$ & 2 & $y_{i,2}$ \\
+	            ... & ... & ... \\
+	            $R_n$ & $t_k$ & $y_{n,k}$ \\
+              \hline 
+          \end{tabular}
+      } &  {  
+      \begin{tabular}{c c c}
+              \hline 
+                           &      & Response variable\\
+              Reactor ID   & Time & (Composition) \\
+              \hline
+              R1 & 2 & $y_{1,2}$ \\
+              R2 & 2 & $y_{2,2}$ \\
+	      ... & ... & ... \\
+	      R$_n$ & 2 & $y_{n,2}$ \\
+	      ... & ... & ... \\
+	      R$_n$ & $t_k$ & $y_{n,k}$ \\
+              \hline 
+          \end{tabular} 
+      }  
+    \end{tabular}
+    \end{center}
+    \caption{General structure of time-dependent data frames for the \texttt{dat} (left) and \texttt{comp} (right) arguments to the \texttt{cumBg()} function.} \label{fig:timedata}
+\end{figure}
+
+\vspace{5mm}
+
+The third data frame on initial conditions is used by the \texttt{summBg()} function. 
+It should contain at least a bottle ID column and a description of the bottle contents.
+If the contribution of an inoculum is to be subtrated (as in the BMP test), the mass of inoculum added should be included here.
+Any measurements to be used to normalise biogas or CH$_4$ production are included here, using a ``wide'' format (Fig. \ref{fig:inidata}).
+Note that there is no time column in this data frame--these values are independent of time.
+
+With the ``wide'' data structure (\texttt{data.struct = 'wide'}) the biogas quantity data frame contains a separate column for each bottle.
+And in the ``combined'' option (\texttt{data.struct = 'longcombo'}) a single data frame contains both biogas quantity and composition in a ``long'' structure.
+
+\vspace{5mm}
+
+\begin{figure}[h!]
+      \begin{center}
+          \begin{tabular}{c c c c c}
+          
+              \hline   
+              Reactor ID  & Description & Substrate VS mass   & Inoculum total mass& ...  \\
+              \hline
+              R1 & Substrate A    & 10.2 & 302 & ...\\
+              R2 & Substrate A    & 9.85 & 301 & ...\\
+              R3 & Substrate A    & 10.3 & 298 & ...\\
+              R4 & Substrate B    & 8.5 & 300 & ...\\
+	      ... & ...           & ... & ... & ... \\
+              R6 & Inoculum only  &  & 502 & ... \\
+	      ... & ...           & ... & ... & ... \\
+	      R$_n$ & ...           & ... & ... & ... \\
+              \hline
+          \end{tabular} 
+      \end{center}
+      \caption{General structure of initial conditions data frame for the \texttt{setup} argument to the \texttt{summBg()} function.} \label{fig:inidata}
+\end{figure}
+
+\newpage
+
+In this example, we will use the example data sets included with the package: \texttt{vol} for biogas volumes, \texttt{comp} for composition, and \texttt{setup} for grouping and substrate and inoculum masses.
+These data are from a BMP test that was carried out on two different substrates A and B, and cellulose (included as a ``control'').
+The experiment included 12 batch bottles:
+\begin{itemize}
+  \item 3 bottles with substrate A and inoculum
+  \item 3 bottles with substrate B and inoculum
+  \item 3 bottles with cellulose and inoculum
+  \item 3 bottles with inoculum only
+\end{itemize}
+Reactors consisted of 500 mL or 1.0 L glass bottles, and were sealed with a butyl rubber septum and a screw cap.
+Initial substrate and inoculum masses were determined.
+A typical volumetric method was used to measure biogas production: accumulated biogas was measured and removed intermittently using syringes, and composition was measured for some of these samples. 
+
+<<>>=  
+library(biogas)
+  
+data("vol")
+
+dim(vol)
+
+head(vol)
+
+summary(vol)
+@
+
+<<>>=
+data("comp")
+
+dim(comp)
+
+head(comp)
+
+summary(comp)
+@
+
+<<>>=
+data("setup")
+
+setup
+@
+
+\subsection{Cumulative production}
+The first step in processing these data is to calculate cumulative production of biogas and CH$_4$ and production rates.
+We can do this with the \texttt{cumBg()} function, using \texttt{vol} and \texttt{comp} data frames as input.
+The arguments for the function are:
+
+% Next line won't wrap correctly. Width doesn't affect args(). Done manually below by copying and editing output in .tex file.
+<<cumBgargs>>=
+  args(cumBg)
+@
+
+
+Most of the arguments have default values, but to calculate CH$_4$ production we must provide values for at least \texttt{dat} (we will use \texttt{vol}), \texttt{comp} (we will use \texttt{comp}), \texttt{temp} (biogas temperature), and \texttt{pres} (biogas pressure)\footnote{
+  By default, temperature is in $^\circ$C and pressure in atm, but these can be changed in the function call with the \texttt{temp.unit} and \texttt{pres.unit} arguments, or globally with \texttt{options}.
+}, along with the names of a few columns in our input data frames.
+We need to specify the name of the time column in \texttt{vol} and \texttt{comp} using the \texttt{time.name} argument.
+This name must be the same in both data frames.
+Similarly, there is an \texttt{id.name} argument for the bottle ID column (used to match up volume and composition data), but we can use the default value (\texttt{"id"}) here because it matches the column name in \texttt{vol} and \texttt{comp}.
+And, the \texttt{comp.name} argument is used to indicate which column within the \texttt{comp} data frame contains the CH$_4$ content (as mole fraction in dry biogas, normalised so the sum of mole fractions of CH$_4$ and CO$_2$ sum to unity).
+We can use the default (\texttt{"xCH4"}) because it matches the name in \texttt{comp}.
+Lastly, the name of the column that contains the response variable in the \texttt{dat} data frame (\texttt{vol} here) can be specified with the \texttt{dat.name} argument.
+Here too we can use the default (\texttt{"vol"} for volumetric measurements or \texttt{"mass"} for gravimetric).
+By default (\texttt{cmethod = "removed"}) the function calculates volumes following \cite{richards_methods_1991} as the product of standardised volume of biogas removed and normalised CH$_4$ content. 
+%%We don"t have biogas composition from the begining of the experiment (compare the heads of the \texttt{vol} and \texttt{comp} data frames) so will need to extrapolate, in addition to interpolation for later observations.
+%%Therefore, we need to set \texttt{extrap = TRUE}.
+  
+<<>>=
+cum.prod <- cumBg(vol, comp = comp, time.name = "days", temp = 35, pres = 1, 
+		  extrap = TRUE)
+@
+
+Note the message about standard temperature and pressure--it is important to make sure these values are correct, therefore users are reminded by a message\footnote{
+  Remember that standard conditions can be set in the function call with \texttt{temp.std} and \texttt{pres.std}, or globally with \texttt{options()}. 
+}.
+The output looks like this:
+
+<<>>=
+head(cum.prod)
+
+dim(cum.prod)
+@
+
+The data frame that is returned has all the original columns in \texttt{vol}, plus others. 
+In these columns, \texttt{v} stands for (standardised) volume, \texttt{cv} (standardised) cumulative volume, \texttt{rv} stands for (standardised) volume production rate, and \texttt{Bg} and \texttt{CH4} for biogas and methane.
+So \texttt{cvCH4} contains standardised cumulative CH$_4$ production.
+It is probably easier to understand the data in the output graphically.
+Here we'll use the \texttt{qplot} function from the \texttt{ggplot2} package to plot it.
+
+<<fig.width=6, fig.height=4, fig.align="center">>=
+library(ggplot2)
+
+qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)", 
+      ylab = "Cumulative methane production (mL)", color = id, 
+      geom = "line")
+@
+
+\subsection{Other data structures}
+As of biogas version 1.5.0, the "long" data structures described above is not the only option.
+In addition, "wide" and combined "long" structures are possible.
+We can compare the three possible approaches using the same dataset.
+
+Let's load data on biogas production from three bottles with wastewater sludge.
+
+<<<>>=
+data("s3voll")
+data("s3compl")
+data("s3volw")
+data("s3compw")
+data("s3lcombo")
+@
+
+The "long" structure described above looks like this:
+
+<<>>=
+s3voll
+s3compl
+@
+
+The "wide" format contains (mostly) the same data, but there are separate columns for each bottle.
+
+<<>>=
+s3volw
+s3compw
+@
+
+Note the missing composition value in \texttt{s3compw}.
+With the "long" structure, a row was simply omitted.
+Both approaches will result in the same output though.
+With the "wide" approach all bottles must be measured at the same times.
+
+Finally, in the combined approach both volume and composition are in the same "long" data frame.
+
+<<>>=
+s3lcombo
+@
+
+Each of these structures can be used by \texttt{cumBg} by changing the \texttt{comp} argument.
+
+<<>>=
+cpl <- cumBg(s3lcombo, comp = s3compl, temp = 25, pres = 1,
+             id.name = 'id', time.name = 'time.d',
+             dat.name = 'vol.ml', comp.name = 'xCH4',
+             extrap = TRUE)
+
+cpw <- cumBg(s3volw, comp = s3compw, temp = 25, pres = 1,
+             time.name = 'time.d',
+             data.struct = 'wide',
+             dat.name = 'D', comp.name = 'D',
+             extrap = TRUE)
+
+cpc <- cumBg(s3lcombo, temp = 25, pres = 1,
+             id.name = 'id', time.name = 'time.d',
+             data.struct = 'longcombo',
+             dat.name = 'vol.ml', comp.name = 'xCH4',
+             extrap = TRUE)
+@
+
+Output is nearly identical here.
+The small differences result from the use of unique times for each bottle in the long formats.
+
+<<>>=
+head(cpl)
+
+head(cpw)
+
+head(cpc)
+@
+
+\subsection{Calculating BMP from cumulative production}
+To calculate BMP we need to substract the contribution of the inoculum to CH$_4$ production for each bottle, normalise by substrate volatile solids (VS), and calculate means and standard deviations.
+This is done by the \texttt{summBg()} function using the results from \texttt{cumBg()}, along with the \texttt{setup} data frame.
+The arguments for \texttt{summBg()} are:
+
+<<summBgargs>>=
+  args(summBg)
+@
+
+This is a flexible function, and is useful for more than just calculating BMP.
+For example, to simply determine the mean cumulative CH$_4$ production for each substrate at 30 d, we could use:
+
+<<cprod30>>=
+summBg(cum.prod, setup = setup, time.name = "days", descrip.name = "descrip", 
+       when = 30)
+@
+
+Here, the response variable was \texttt{cvCH4} (cumulative CH$_4$ production, the default--but \texttt{vol.name} could be used to specify any column).
+The argument \texttt{descrip.name} is the name of the column in \texttt{setup} that gives a description of the bottle.
+Here it is used for grouping bottles.
+We could have used the default value in this call.
+
+To calculate BMP, we need to provide information on where inoculum and substrate VS masses can be found.
+To subtract the inoculum contribution, we need to provide a value for the \texttt{inoc.name} argument, which should be the value in the \texttt{setup\$descrip.name} column that indicates that the bottle contained inoculum only.
+In our \texttt{setup} data frame, the value is \texttt{"inoc"}.
+Inoculum mass is given in the \texttt{minoc} column, and we need to provide this information using the \texttt{inoc.m.name} argument (although here also, we could use the default value).
+The last step is normalisation of cumulative CH$_4$ production, based on substrate VS mass.
+This mass must be stored in the \texttt{setup} data frame and the name of column is given using the \texttt{norm.name} argument.
+Here, it is \texttt{"mvs.sub"}.
+We will evaluate CH$_4$ production at at time selection by the function when relative methane production drops below 1\% of cumulative (after subtracting inoculum production) per day for at least 3 days (\texttt{when} argument).
+
+<<>>=
+BMP <- summBg(cum.prod, setup = setup, time.name = "days", inoc.name = "inoc", 
+	      inoc.m.name = "minoc", norm.name = "mvs.sub", when = "1p3d")
+BMP
+@
+
+Note the messages--because any response variable could be used and subtraction of an inoculum contribution and normalisation are optional, it is important to check these messages and be sure that \texttt{summBg()} did what you think it did.
+Additionally, it is good practice to view and save results from individual bottles, and check the apparent contribution of the inoculum to each bottle's biogas production.
+This additional information can be returned by setting \texttt{show.obs = TRUE}.
+
+\subsection{Predicting methane production}
+The function \texttt{predBg()} provides a flexible approach for predicting methane potential, and in our example can be used to quickly check our experimental values.
+Predictions can be based on an empirical chemical formula, chemical oxygen demand (COD), or macromolecule composition.
+
+Our BMP test included cellulose as a control.
+Using its chemical formula (C$_6$H$_10$O$_5$), we can calculate theoretical methane potential to compare to our measurements\footnote{
+  In this case, the calculation is based on Eq. (13.5) in Rittmann and McCarty \cite{rittmann_environmental_2001}.
+  When the input is COD, it is based on the COD of CH$_4$, as described in \cite{rittmann_environmental_2001}.
+}.
+
+<<>>=
+predBg("C6H10O5")
+@
+
+So we see that theoretical methane potential of cellulose is 414 mL g$^{-1}$. 
+Comparing expected cellulose BMP to measurements is an important way to check BMP experiments.
+How does this compare to our measurements?
+<<cellbmpcomp>>=
+BMP
+@
+
+The measured value is a bit lower, which is reasonable.
+It is common to assume that $5-10\%$ of substrate is used to produce microbial biomass, and so not converted to biogas.
+We can incorporate this assumption into our prediction using the \texttt{fs} argument, which is the fraction of substrate electrons used for cell synthesis.
+
+<<>>=
+predBg("C6H10O5", fs = 0.1)
+@
+
+Measured and predicted values are close after making this correction.
+
+We don't have empirical formulas for substrates A and B, but we can predict theoretical potential by using the COD.
+Initial COD masses are in the \texttt{setup} data frame, and from these we can calculate COD:VS ratios for substrates A and B of 1.439 and 1.561 {g g$^{-1}$. 
+Cellulose has a calculated oxygen demand (COD$'$)\footnote{
+  Oxygen demand can be calculated with the \texttt{calcCOD} function.  
+}
+ of 1.184 g g$^{-1}$.
+Predicted CH$_4$ production per g VS is therefore:
+
+<<>>=
+predBg(COD = c(A = 1.439, B = 1.561, cellu = 1.184))
+@
+
+Measured BMP was substantially lower for substrates A and B, indicating very low degradability.
+In fact, we could use \texttt{predBg()} to estimate effective degradability (ignoring synthesis of microbial biomass).
+
+<<>>=
+  BMP$mean/predBg(COD = c(A = 1.439, B = 1.561, cellu = 1.184))
+@
+
+We see that substrates A and B had low degradability, while degradability of cellulose was high.
+Both substrates A and B were digestate from digesters, i.e., they had already been anaerobically digested once before these measurements, and so we should expect low degradability.
+
+\section{Continuing with the biogas package}
+The three functions demonstrated in this document can be used in other ways not described here.
+For example, \texttt{cumBg()} can be used with measurements of bottle mass over time to determine biogas production\cite{hafner_validation_2015}, \texttt{summBg()} can return results for multiple times, and \texttt{predBg()} function can predict microbial nitrogen requirements and biogas composition.
+More details can be found in the help files for these functions, or, for \texttt{predBg}, in the \texttt{predBg} vignette.
+The low-level functions are straight-forward to use, and details can also be found in the help files.
+
+To receive updates on the biogas package, you can subscribe to a mailing list by sending an e-mail to either of us.
+And please send us a message if you find a bug or have a suggestion for improving an existing function or adding a new one. 
+ 
+\bibliographystyle{plain}  
+\begin{thebibliography}{1}
+
+\bibitem{hafner_validation_2015}
+S.D. Hafner, C.~Rennuit, J.M.~Triolo, and B.K.~Richards.
+\newblock Validation of a simple gravimetric method for measuring biogas
+  production in laboratory experiments.
+\newblock {\em Biomass and Bioenergy}, 83:297--301, 2015.
+
+\bibitem{richards_methods_1991}
+B.K.~Richards, R.J.~Cummings, T.E.~White, and W.J.~Jewell.
+\newblock Methods for kinetic-analysis of methane fermentation in high solids
+  biomass digesters.
+\newblock {\em Biomass \& Bioenergy}, 1(2):65--73, 1991.
+
+\bibitem{rittmann_environmental_2001}
+B.~E. Rittmann and P.~L. McCarty.
+\newblock {\em Environmental Biotechnology: Principles and Applications}.
+\newblock {McGraw}-{Hill} series in water resources and environmental
+  engineering. McGraw-Hill, Boston, 2001.
+
+\end{thebibliography}
+\end{document}
+
