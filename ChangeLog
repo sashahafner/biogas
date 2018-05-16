@@ -4,6 +4,15 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+16 May 2018 Sasha D. Hafner
+version 1.10.3
+
+biogas-package.Rd
+Deleted
+
+startup.R
+Deleted
+
 2 May 2018 Sasha D. hafner
 Version 1.10.2
 

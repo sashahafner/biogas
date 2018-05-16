@@ -1,3 +1,10 @@
+biogas 1.10.2
+2018 May 16 
+---------------------------------------------------------------------
+MINOR CHANGES
+biogas package help file and startup message have been removed.
+
+
 biogas 1.10.0
 2018 March 2
 ---------------------------------------------------------------------
