@@ -12,6 +12,7 @@ summBg <- function(
   imethod = 'linear',
   extrap = FALSE,
   when = 30,
+  rate.crit = 'net',
   show.obs = FALSE, 
   show.rates = FALSE, 
   show.more = FALSE,
@@ -32,6 +33,7 @@ summBg <- function(
   # Skip imethod, since it is checked in interp()
   checkArgClassValue(extrap, 'logical')
   checkArgClassValue(when, c('numeric', 'integer', 'character', 'NULL'))
+  checkArgClassValue(rate.crit, 'character', c('net', 'gross', 'total', 'VDI2016'))
   checkArgClassValue(show.obs, 'logical')
   checkArgClassValue(sort, 'logical')
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,6 +112,7 @@ summBg <- function(
 
   # Remove inoc ids
   if(!is.null(inoc.name)) {
+    ids.all <- ids
     ids <- setup[setup[, descrip.name]!=inoc.name, id.name]
     ids.inoc <- setup[setup[, descrip.name]==inoc.name, id.name]
   }
@@ -172,7 +175,12 @@ summBg <- function(
   #} else if(length(when) == 1 && when %in% c('meas', '1p', '0.5p')) { # Return values for all measurement times, which may differ among reactors
   } else if(length(when) == 1 && (when == 'meas' | pdwhen)) { 
 
-    summ1 <- vol[vol[, id.name] %in% ids, c(id.name, time.name, vol.name)]
+    # Only substrate ids for net, all (include inoculum) for gross
+    if(rate.crit == 'net') {
+      summ1 <- vol[vol[, id.name] %in% ids, c(id.name, time.name, vol.name)]
+    } else if(rate.crit %in% c('gross', 'total', 'VDI2016')) {
+      summ1 <- vol[vol[, id.name] %in% ids.all, c(id.name, time.name, vol.name)]
+    }
 
   } else  {
 
@@ -296,10 +304,18 @@ summBg <- function(
     summ1$rrvCH4 <- NA
 
     # Calculate relative rates
-    for(i in ids) {
+    ii <- unique(summ1[, id.name]) # Because is ids.all for rate.crit %in% c('gross', 'total', 'VDI2016') otherwise ids (substrate only)
+
+    for(i in ii) {
       dd <- summ1[summ1[, id.name] == i, ]
       dd <- dd[order(dd[, time.name]), ]
-      rr <- c(NA, diff(dd[, vol.name])/diff(dd[, time.name]))/dd[, vol.name]
+
+      if(rate.crit == 'net') {
+        rr <- c(NA, diff(dd[, vol.name])/diff(dd[, time.name]))/dd[, vol.name]
+      } else if(rate.crit %in% c('total', 'VDI2016', 'gross')) {
+        rr <- c(NA, diff(dd[, paste0(vol.name, '.tot')])/diff(dd[, time.name]))/dd[, paste0(vol.name, '.tot')]
+      }
+
       # Add rates to summ1 only for exporting with show.rates = TRUE
       summ1[summ1[, id.name] == i, 'rrvCH4'] <- signif(100*rr, 4)
     }
@@ -311,7 +327,7 @@ summBg <- function(
     }
 
     # Back to working with rates (after show.rates option above)
-    for(i in ids) {
+    for(i in ii) {
       dd <- summ1[summ1[, id.name] == i, ]
 
       rr <- dd$rrvCH4/100
@@ -361,8 +377,15 @@ summBg <- function(
     # Check for different times for bottles with same descrip
     summ1temp <- data.frame()
 
+    if(rate.crit %in% c('gross', 'total', 'VDI2016')) {
+      tt <- max(s1times[, time.name])
+    }
+
     for(i in unique(s1times[, descrip.name])) {
-      tt <- max(s1times[s1times[, descrip.name] == i, time.name])
+
+      if(rate.crit == 'net') {
+        tt <- max(s1times[s1times[, descrip.name] == i, time.name])
+      } 
 
       for(j in unique(summ1[summ1[, descrip.name] == i, id.name])) {
 
@@ -382,6 +405,11 @@ summBg <- function(
     }
 
     summ1 <- summ1temp
+
+    # Drop inoculum if present
+    if(rate.crit %in% c('gross', 'total', 'VDI2016')) {
+      summ1 <- summ1[summ1[, id.name] %in% ids, ]
+    }
 
   } 
 

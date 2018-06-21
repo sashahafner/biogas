@@ -4,6 +4,12 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+21 June 2018 Sasha D. Hafner
+Version 1.11.0
+
+summBg.R
+Added rate.crit argument for VDI 2016 gross 1% etc. criteria.
+
 16 May 2018 Sasha D. Hafner
 version 1.10.3
 
