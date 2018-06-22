@@ -378,7 +378,7 @@ summBg <- function(
     summ1temp <- data.frame()
 
     if(rate.crit %in% c('gross', 'total', 'VDI2016')) {
-      tt <- max(s1times[, time.name])
+      tt <- max(25, max(s1times[, time.name]))
     }
 
     for(i in unique(s1times[, descrip.name])) {
