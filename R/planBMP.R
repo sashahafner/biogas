@@ -41,13 +41,15 @@ planBMP <- function(
       m.tot <- m.inoc + m.sub
 
   } else {
-      stop('Not enough input arguments. You must provide either:
+
+      stop('Not enough input arguments. You must provide:
            vs.inoc, vs.sub, isr, and m.tot OR
            vs.inoc, vs.sub, isr, and m.sub OR
            vs.inoc, vs.sub, isr, and m.inoc OR
            vs.inoc, vs.sub, isr, and m.vs.sub OR
            vs.inoc, vs.sub, m.inoc, and m.sub'
            )
+
   }
 
   # Get inoculum VS mass, total VS mass, and total VS concentration
@@ -56,6 +58,7 @@ planBMP <- function(
   vs.mix <- m.vs.tot/m.tot
   
   if(warn) {
+    if(any(vs.inoc > 1, vs.sub > 1)) warning('One or more VS concentration is > 1 g/g (1000 g/kg).')
     if(any(isr < 2)) warning('Inoculum-to-substrate ratio (isr argument) is < 2.')
     if(any(isr > 4)) warning('Inoculum-to-substrate ratio (isr argument) is > 4.')
     if(any(vs.mix < 0.02) | any(vs.mix > 0.06)) warning('Mixture VS concentration is not within 0.02 - 0.06 g/g (20 - 60 g/kg).')
