@@ -1,5 +1,3 @@
-# Modified: 
-
 cumBg <- function(
   # Main arguments
   dat,
@@ -617,7 +615,12 @@ cumBg <- function(
     # Check for pressure and temperature--required, but default is NULL (for use of volumetric method without standardization) so must check here 
     if(is.null(temp)) stop('temp argument missing but is required for gravimetric method.')
     if(is.null(pres)) stop('pres argument missing but is required for gravimetric method.')
-    if(is.null(comp)) stop('comp argument missing but is required for gravimetric method.')
+    # With longcombo separate comp data frame is not needed, only comp.name is needed in main data frame
+    if(data.struct == 'longcombo') {
+      if(is.null(comp.name)) stop('comp.name argument missing but is required for gravimetric method.')
+    } else {
+      if(is.null(comp)) stop('comp argument missing but is required for gravimetric method.')
+    }
 
     # In this section main data frame is saved to `dat`, and name of response (mass) to `mass.name`
     mass <- dat
@@ -676,8 +679,10 @@ cumBg <- function(
 
     # Sort and return results
     mass <- mass[order(mass[, id.name], mass[, time.name]), ]
-    if(is.null(comp)) {
-      vol <- vol[, !names(vol) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
+    # Drop comp-related columns if comp not provided
+    # With longcombo separate comp data frame is not needed, only comp.name is needed in main data frame
+    if((data.struct != 'longcombo' & is.null(comp)) | (data.struct == 'longcombo' & is.null(comp.name))) {
+      mass <- mass[, !names(mass) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
     }
     rownames(mass) <- 1:nrow(mass)
     

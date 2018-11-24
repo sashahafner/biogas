@@ -4,6 +4,13 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+24 Nov 2018 SDH
+Version 1.11.1
+
+cumBg.R
+Fix need for comp with data.struct = longcombo even though it wasn't used. Fix
+related error with use of vol instead of mass object in grav code.
+
 21 and 22 June 2018 Sasha D. Hafner
 Version 1.11.0
 
