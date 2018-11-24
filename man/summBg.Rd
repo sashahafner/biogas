@@ -103,11 +103,23 @@ See \sQuote{Examples}.
 }
 \value{
   a data frame, with the colums:
-  \item{descrip}{from the input data frames}
-  \item{mean}{mean of the response variable \code{vol.name}}
+  \item{descrip}{from the input data frame setup}
+  \item{mean}{mean of the response variable \code{vol.name}, typically after subtraction of inoculum contribution and normalization by substrate mass}
   \item{sd}{standard deviation of the response variable \code{vol.name}}
   \item{se}{standard error of the response variable \code{vol.name}}
   \item{n}{number of bottles}
+  If \code{show.more = TRUE} additional columns are returned:
+      summ2 <- summ2[ , c(descrip.name, time.name, 'mean', 'se', 'sd', 'n', 'rsd.inoc', 'fv.inoc', 'se1', 'se2', 'se3')]
+  \item{rsd.inoc}{relative standard deviation in specific \code{vol.name} (methane) production by inouclum among replicates} 
+  \item{fv.inoc}{(mean) fraction of bottle \code{vol.name} (methane) estimated to have come from inoculum} 
+  \item{se1}{standard error contribution from variation among replicate substrate bottles} 
+  \item{se2}{standard error contribution from variation among inoculum-only bottles} 
+  \item{se2}{standard error contribution from uncertainty in substrate mass addition} 
+  If \code{show.obs = TRUE} even more columns are returned:
+  \item{cvCH4.tot}{name based on \code{vol.name}, total \code{vol.name} produced by bottle, normalization applied as for \code{vol.name} (and may be nonsensical)} 
+  \item{cvCH4.inoc}{name based on \code{vol.name}, \code{vol.name} produced by bottle estimated as coming from inoculum, normalization applied as for \code{vol.name} (and may be nonsensical)} 
+  \item{se.inoc}{standard error from inoculum used to calculate \code{se2}} 
+  \item{cvCH4.se}{name based on \code{vol.name}, standard error from substrate mass used to calculate \code{se3}} 
 }
 \author{
   Sasha D. Hafner and Charlotte Rennuit

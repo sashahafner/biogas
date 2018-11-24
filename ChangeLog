@@ -7,6 +7,12 @@ biogas package
 24 Nov 2018 SDH
 Version 1.11.1
 
+summBg.Rd
+Add description of optional output.
+
+summBg.R
+Change name of vol.mi.rsd to rsd.inoc for output with show.obs.
+
 cumBg.R
 Fix need for comp with data.struct = longcombo even though it wasn't used. Fix
 related error with use of vol instead of mass object in grav code.

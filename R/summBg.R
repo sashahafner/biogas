@@ -254,7 +254,7 @@ summBg <- function(
     }
 
     names(inoc.vol) <- c(time.name, 'vol.mi.mn', 'vol.mi.se', 'n')
-    inoc.vol$vol.mi.rsd <- 100*inoc.vol$vol.mi.se/inoc.vol$vol.mi.mn*sqrt(inoc.vol$n)
+    inoc.vol$rsd.inoc <- 100*inoc.vol$vol.mi.se/inoc.vol$vol.mi.mn*sqrt(inoc.vol$n)
     # inoc.vol has mean and se vol per unit mass inoc for all times
 
   }
@@ -270,7 +270,7 @@ summBg <- function(
     summ1 <- merge(summ1, inoc.vol, by = time.name)
 
     # Calculate and substract inoc contribution
-    # Next three lines only for returning additional info when show.rates = TRUE
+    # Next three for returning additional info when show.rates = TRUE and for VDI rate criterion (rate.crit = net)
     summ1[, paste0(vol.name, '.tot')] <- summ1[, vol.name]
     summ1[, paste0(vol.name, '.inoc')] <- summ1$vol.mi.mn*summ1[, inoc.m.name]
     summ1[, 'fv.inoc'] <- summ1[, paste0(vol.name, '.inoc')]/summ1[, paste0(vol.name, '.tot')]
@@ -460,7 +460,7 @@ summBg <- function(
         summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'sd'] <- summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'se']*sqrt(nrow(ddd))
         summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'n'] <- sum(!is.na(ddd[, vol.name]))  
 	if(!is.null(inoc.name)) {
-          summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'rsd.inoc'] <- ddd[1, 'vol.mi.rsd']
+          summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'rsd.inoc'] <- ddd[1, 'rsd.inoc']
           summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'fv.inoc'] <- mean(na.omit(ddd[, 'fv.inoc']))
           summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'se1'] <- sd(na.omit(ddd[, vol.name]))/sqrt(nrow(ddd))
 	  ##summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'sd2'] <- mean(ddd[, 'sd.inoc'])
