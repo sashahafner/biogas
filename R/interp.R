@@ -11,9 +11,9 @@ interp <- function(times, y, time.out, method = 'linear', extrap = FALSE) {
   #if(extrap & (max(time.out)>max(times) | min(time.out)<min(times))) warning('Some results are extrapolated. Set extrap = FALSE to prevent this.')
 
   if(method=='linear') {
-    y.out <- approx(times, y, xout = time.out, rule = ifelse(extrap, 2, 1))$y
+    y.out <- approx(times, y, xout = time.out, method = 'linear', rule = ifelse(extrap, 2, 1))$y
   } else if(tolower(method) == 'f1') { 
-    y.out <- approx(times, y, xout = time.out, rule = ifelse(extrap, 2, 1), f = 1)$y
+    y.out <- approx(times, y, xout = time.out, method = 'constant', rule = 2, f = 1)$y
   } else { 
     # Or for natural, hyman, or fmm methods (others will return an error)
     y.out <- spline(times, y, xout = time.out, method = method)$y
