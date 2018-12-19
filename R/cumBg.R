@@ -440,6 +440,7 @@ cumBg <- function(
     }
 
     # Calculate interval (or cum if interval = FALSE) gas production
+    # NTS: this will not be correct for cmethod = 'total'. Shouldn't we remove the molar vol correction?
     dat$vCH4 <- dat$vBg*dat[, comp.name]*vol.mol['CH4'] / (dat[, comp.name]*vol.mol['CH4'] +(1 - dat[, comp.name])*vol.mol['CO2'])  # CH4 and CO2 molar volumes in ml/mol
     ##if(gas == 'CH4') {
     ##  dat$vCH4 <- dat$vBg*dat[, comp.name]*vol.mol['CH4'] / (dat[, comp.name]*vol.mol['CH4'] +(1 - dat[, comp.name])*vol.mol['CO2'])  # CH4 and CO2 molar volumes in ml/mol
