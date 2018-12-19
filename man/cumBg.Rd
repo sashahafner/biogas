@@ -74,6 +74,7 @@ cumBg(
     \code{interval = FALSE} means measured gas volume or pressure is cumulative.
     Applies to volumetric (\code{dat.type = "vol"}) and manometric methods (\code{dat.type = "pres"}). 
     The gravimetric method (\code{dat.type = "mass"}) is cumulative by nature and the \code{interval} argument is not used.
+    For mixed manometric measurements (some observations vented, some not), use \code{interval = TRUE}, include a column for \code{pres.resid}, and, if composition was only measured for vented observations, use \code{imethod = "f1"}.
     Default is \code{TRUE}.
   }
 

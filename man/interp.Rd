@@ -27,6 +27,7 @@ interp(times, y, time.out, method = "linear", extrap = FALSE)
   \item{method}{
     method used for interpolation.
     Default is \code{"linear"}, which uses the \code{\link{approx}} function.
+    Use \code{"f1"} for to always use nearest value to right (see \code{f = 1} argument in \code{\link{approx}}).
     For spline interpolation, use \code{"ffm"} or the other options available (see \code{\link{spline}}).
 }
   \item{extrap}{
@@ -40,6 +41,7 @@ interp(times, y, time.out, method = "linear", extrap = FALSE)
   For cumulative production, which (usually) must monotonically increase, \code{method = "hyman"} is the best choice.
   Extrapolation behavior depends on \code{method}.
   For \code{method = "linear"}, \code{extrap = TRUE} simply returns the value of the closest \code{y}.
+  For manometric measurement with mix of venting/no venting with composition measurements only when venting use \code{method = "f1"}.
   See \code{\link{approx}} and \code{\link{spline}} for more information.
 }
 \value{
