@@ -27,6 +27,7 @@ cumBg(
   cmethod = 'removed', imethod = 'linear', extrap = FALSE,
   addt0 = TRUE, showt0 = TRUE, 
   dry = FALSE,
+  empty.name = NULL,
   # Warnings and messages
   std.message = TRUE, check = TRUE,
   # Units and standard conditions
@@ -221,6 +222,13 @@ cumBg(
     set to \code{TRUE} is volume data are standardised to dry conditions (e.g., AMPTS II data). 
     Only applies to volumetric data (dat.type = 'vol').
     The default (\code{FALSE}) means biogas is assumed to be saturated with water vapor.
+  }
+
+  \item{empty.name}{
+    column containing a binary (logical, or integer or numeric (1 or 0)) variable indicating when accumulated biogas was emptied. 
+    Use for mix of cumulative/interval data.
+    Only applies to volumetric data (dat.type = 'vol').
+    If used, \code{interval} is ignored.
   }
 
   \item{std.message}{

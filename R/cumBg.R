@@ -5,7 +5,7 @@ cumBg <- function(
   comp = NULL, # Leave NULL for wide and both combos
   temp = NULL,
   pres = NULL,
-  interval = TRUE,
+  interval = TRUE, # When empty.name is used, there is a mix, and interval is ignored
   data.struct = 'long', # long, wide, longcombo, widecombo
   # Column names for volumetric method
   id.name = 'id',
@@ -31,8 +31,9 @@ cumBg <- function(
   extrap = FALSE,
   addt0 = TRUE,
   showt0 = TRUE,
-  # Additional argument for volumetric data only (when data are already standardized to dry conditions)
+  # Additional argument for volumetric data only 
   dry = FALSE,
+  empty.name = NULL, # Column name for binary/logical column for when cum vol was reset to zero
   ##gas = 'CH4',
   # Warnings and messages
   std.message = TRUE,
@@ -74,6 +75,7 @@ cumBg <- function(
   checkArgClassValue(addt0, 'logical')
   checkArgClassValue(showt0, 'logical')
   checkArgClassValue(dry, 'logical')
+  checkArgClassValue(empty.name, 'character')
   checkArgClassValue(std.message, 'logical')
   checkArgClassValue(check, 'logical')
   checkArgClassValue(absolute, 'logical')
@@ -117,7 +119,7 @@ cumBg <- function(
     if(is.null(pres.init)) stop('dat.type is set to \"pres\" but \"pres.init\" is not provided.')
   }
 
-  # Check for input errors
+  # Check for other input errors
   if(!is.null(id.name) & id.name %in% names(dat)) {
     if(any(is.na(dat[, id.name]))) {
       w <- which(is.na(dat[, id.name]))
@@ -125,7 +127,33 @@ cumBg <- function(
     }
   }
 
-  # For dat (vol, etc) missing values are OK if they are cumulative
+  # And more
+  if(!is.null(empty.name) & !class(dat[, empty.name]) %in% c('logical', 'integer', 'numeric')) {
+    stop('The empty.name column must be integer, numeric, or logical.')
+  }
+
+  if(!is.null(empty.name) & length(unique(dat[, empty.name])) > 2) {
+    stop('The empty.name column must be binary.')
+  }
+
+  if(!is.null(empty.name) & !data.struct %in% c('long', 'longcombo')) {
+    stop('You can only use mixed interval/cumulative data (empty.name argument) with long or longcombo data structure')
+  }
+
+  # Convert date.type to lowercase so it is more flexible for users
+  dat.type <- tolower(dat.type)
+  if(dat.type == 'volume') dat.type <- 'vol'
+
+  if(!is.null(empty.name) & dat.type != 'vol') {
+    stop('You can only use empty.name argument with volumetric data')
+  }
+
+  # Set interval to FALSE (cumulative) if there is a mix of cumulative and interval volume data (intermittent emptying hanging water columns etc.)
+  if(!is.null(empty.name)) {
+    interval <- FALSE
+  }
+
+  # For dat (vol, etc) missing values are OK if they are cumulative (NTS: why OK if cumulative? Interpolated?)
   # Applies to wide data
   # But now wide data excepted totally
   if(!is.null(dat.name)) {
@@ -162,10 +190,7 @@ cumBg <- function(
   ##  }
   ##}
 
-  # Convert date.type to lowercase so it is more flexible for users
-  dat.type <- tolower(dat.type)
-
-  # Rearrange wide data
+  # Rearrange wide data (NTS: what about widecombo?)
   if(data.struct == 'wide') {
 
     which.first.col <- which(names(dat) == dat.name)
@@ -225,6 +250,27 @@ cumBg <- function(
 
     data.struct <- 'long'
 
+  }
+
+  # Now that all data are in long structure (NTS: also for widecombo?) sort out mixed interval/cumulative data
+  if(!is.null(empty.name)) {
+    # Sort by id and time
+    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
+
+    # Make empty.name logical
+    dat[, empty.name] <- as.logical(dat[, empty.name])
+
+    # Get final values before emptying
+ 
+    # Sum final volumes
+    for(i in unique(dat[, id.name])) {
+      emptyvols <- dat[dat[, id.name]==i, empty.name] * dat[dat[, id.name]==i, dat.name]
+      dat[dat[, id.name]==i, dnn <- paste0(dat.name, '.cumulative')] <- c(0, cumsum(emptyvols)[- length(emptyvols)]) + dat[dat[, id.name]==i, dat.name]
+    }
+
+    dat.name <- dnn
+
+    # And continue below with cumulative data (interval = FALSE)
   }
 
   # Remove missing values for cumulative data only

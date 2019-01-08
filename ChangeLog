@@ -4,6 +4,12 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+08 Jan 2019 SDH
+Version 1.11.2
+
+cumBg.R, cumBg.Rd
+Add empty.name argument for mixed cumulative/interval volumetric data.
+
 24 Nov 2018 SDH
 Version 1.11.1
 
