@@ -4,6 +4,14 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+12 Jan 2019 SDH
+Version 1.11.3
+
+cumBg.R
+Fixes. Handles NAs in empty.name column now. Switch to interval data for
+calculations with empty.name (mixed cum/interval) because composition is interval.
+
+
 08 Jan 2019 SDH
 Version 1.11.2
 

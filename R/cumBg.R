@@ -148,10 +148,10 @@ cumBg <- function(
     stop('You can only use empty.name argument with volumetric data')
   }
 
-  # Set interval to FALSE (cumulative) if there is a mix of cumulative and interval volume data (intermittent emptying hanging water columns etc.)
-  if(!is.null(empty.name)) {
-    interval <- FALSE
-  }
+  ### Set interval to TRUE (interval) if there is a mix of cumulative and interval volume data (intermittent emptying hanging water columns, eudiometer, etc.)
+  ##if(!is.null(empty.name)) {
+  ##  interval <- FALSE
+  ##}
 
   # For dat (vol, etc) missing values are OK if they are cumulative (NTS: why OK if cumulative? Interpolated?)
   # Applies to wide data
@@ -260,17 +260,22 @@ cumBg <- function(
     # Make empty.name logical
     dat[, empty.name] <- as.logical(dat[, empty.name])
 
+    # Set missing values to FALSE
+    dat[is.na(dat[, empty.name]), empty.name] <- FALSE
+
     # Get final values before emptying
  
-    # Sum final volumes
+    # Sum final volumes to get cumulative volumes, then interval from them (must have interval data here, because that is what biogas composition is for)
     for(i in unique(dat[, id.name])) {
       emptyvols <- dat[dat[, id.name]==i, empty.name] * dat[dat[, id.name]==i, dat.name]
-      dat[dat[, id.name]==i, dnn <- paste0(dat.name, '.cumulative')] <- c(0, cumsum(emptyvols)[- length(emptyvols)]) + dat[dat[, id.name]==i, dat.name]
+      dat[dat[, id.name]==i, paste0(dat.name, '.cumulative')] <- ccvv <- c(0, cumsum(emptyvols)[- length(emptyvols)]) + dat[dat[, id.name]==i, dat.name]
+      dat[dat[, id.name]==i, dnn <- paste0(dat.name, '.interval')] <- diff(c(0, ccvv))
     }
 
     dat.name <- dnn
 
-    # And continue below with cumulative data (interval = FALSE)
+    # And continue below with interval data (interval = TRUE)
+    interval <- TRUE
   }
 
   # Remove missing values for cumulative data only
