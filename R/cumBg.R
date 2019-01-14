@@ -75,7 +75,7 @@ cumBg <- function(
   checkArgClassValue(addt0, 'logical')
   checkArgClassValue(showt0, 'logical')
   checkArgClassValue(dry, 'logical')
-  checkArgClassValue(empty.name, 'character')
+  checkArgClassValue(empty.name, c('character', 'NULL'))
   checkArgClassValue(std.message, 'logical')
   checkArgClassValue(check, 'logical')
   checkArgClassValue(absolute, 'logical')
