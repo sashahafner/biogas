@@ -190,6 +190,9 @@ cumBg <- function(
   ##  }
   ##}
 
+  # Create standardized binary variable that indicates when vBg has been standardized
+  standardized <- FALSE
+
   # Rearrange wide data (NTS: what about widecombo?)
   if(data.struct == 'wide') {
 
@@ -250,32 +253,6 @@ cumBg <- function(
 
     data.struct <- 'long'
 
-  }
-
-  # Now that all data are in long structure (NTS: also for widecombo?) sort out mixed interval/cumulative data
-  if(!is.null(empty.name)) {
-    # Sort by id and time
-    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-
-    # Make empty.name logical
-    dat[, empty.name] <- as.logical(dat[, empty.name])
-
-    # Set missing values to FALSE
-    dat[is.na(dat[, empty.name]), empty.name] <- FALSE
-
-    # Get final values before emptying
- 
-    # Sum final volumes to get cumulative volumes, then interval from them (must have interval data here, because that is what biogas composition is for)
-    for(i in unique(dat[, id.name])) {
-      emptyvols <- dat[dat[, id.name]==i, empty.name] * dat[dat[, id.name]==i, dat.name]
-      dat[dat[, id.name]==i, paste0(dat.name, '.cumulative')] <- ccvv <- c(0, cumsum(emptyvols)[- length(emptyvols)]) + dat[dat[, id.name]==i, dat.name]
-      dat[dat[, id.name]==i, dnn <- paste0(dat.name, '.interval')] <- diff(c(0, ccvv))
-    }
-
-    dat.name <- dnn
-
-    # And continue below with interval data (interval = TRUE)
-    interval <- TRUE
   }
 
   # Remove missing values for cumulative data only
@@ -402,6 +379,34 @@ cumBg <- function(
     }
   }
 
+  # Now that all data are in long structure (NTS: also for widecombo?) sort out mixed interval/cumulative data
+  if(!is.null(empty.name)) {
+    # Sort by id and time
+    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
+
+    # Make empty.name logical
+    dat[, empty.name] <- as.logical(dat[, empty.name])
+
+    # Set missing values to FALSE
+    dat[is.na(dat[, empty.name]), empty.name] <- FALSE
+
+    # Standardize biogas volume (needed in order to get interval production, and cannot use cum prod because composition wouldn't work)
+    dat[, paste0(dat.name, '.std')] <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, pres.std = pres.std, 
+                      temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, std.message = std.message)
+ 
+    # Sum final volumes to get cumulative volumes, then interval from them (must have interval data here, because that is what biogas composition is for)
+    for(i in unique(dat[, id.name])) {
+      emptyvols <- dat[dat[, id.name]==i, empty.name] * dat[dat[, id.name]==i, paste0(dat.name, '.std')]
+      ccvv <- c(0, cumsum(emptyvols)[- length(emptyvols)]) + dat[dat[, id.name]==i, paste0(dat.name, '.std')]
+      dat[dat[, id.name]==i, dnn <- paste0(dat.name, '.std.interval')] <- diff(c(0, ccvv))
+    }
+
+    dat.name <- dnn
+
+    # And continue below with interval data (interval = TRUE)
+    standardized <- TRUE
+    interval <- TRUE
+  }
 
   # Volumetric
   # Function will work with vol and add columns
@@ -412,13 +417,17 @@ cumBg <- function(
     # Note that temperature and pressure units are not converted at all in cumBg (but are in stdVol of course)
     if(dat.type %in% c('vol', 'volume')) {
       message('Working with volume data, applying volumetric method.')
-      if(!is.null(temp) & !is.null(pres)) {
-        dat$vBg <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, pres.std = pres.std, 
-                          temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
-                          std.message = std.message)
+      if(!standardized) {
+        if(!is.null(temp) & !is.null(pres)) {
+          dat$vBg <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, pres.std = pres.std, 
+                            temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
+                            std.message = std.message)
+        } else {
+          dat$vBg <- dat[, dat.name]
+          message('Either temperature or presure is missing (temp and pres arguments) so volumes are NOT standardized.')
+        }
       } else {
-        dat$vBg <- dat[, dat.name]
-        message('Either temperature or presure is missing (temp and pres arguments) so volumes are NOT standardized.')
+          dat$vBg <- dat[, dat.name]
       }
     } 
 
