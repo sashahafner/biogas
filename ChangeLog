@@ -4,6 +4,13 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+14 Feb 2019 SDH
+Version 1.11.4
+
+summBg.R summBg.Rd
+Add option for multiple sets/experiments/methods, etc. by using a list of data
+frames for vol argument.
+
 12 Jan 2019 SDH
 Version 1.11.3
 
