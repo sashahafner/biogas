@@ -15,7 +15,7 @@ summBg(vol, setup, id.name = "id", time.name = "time",
        norm.name = NULL, norm.se.name = NULL,  vol.name = "cvCH4", 
        imethod = "linear", extrap = FALSE, when = 30, 
        show.obs = FALSE, show.rates = FALSE, show.more = FALSE,
-       sort = TRUE, quiet = FALSE)
+       sort = TRUE, set.name = 'exper', quiet = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -83,6 +83,9 @@ summBg(vol, setup, id.name = "id", time.name = "time",
 }
   \item{sort}{
     controls sorting of results, which is by \code{descrip.name} and then \code{time.name} by default. Set to \code{FALSE} to use order of \code{descrip.name} from the \code{setup} data frame. Default is \code{TRUE}.
+}
+  \item{set.name}{
+    column name in result for experiment or set of observations, corresponding to elements in \code{vol} when it is a list.
 }
   \item{quiet}{
     use to suppress messages. Default is \code{FALSE}.

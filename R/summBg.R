@@ -17,8 +17,62 @@ summBg <- function(
   show.rates = FALSE, 
   show.more = FALSE,
   sort = TRUE,
-  quiet = FALSE) 
+  set.name = 'exper', 
+  quiet = FALSE)
 {
+
+  # For "vectorized" calls, lapply-like behavior
+  if(class(vol)[1] == 'list') {
+
+    # NTS: need to add more reserved names to check
+    if (any(set.name == c(names(vol), names(setup), c('mean', 'sd', 'se', 'n')))) {
+      stop('Argument set.name matches another column name')
+    }
+
+    if(class(setup)[1] == 'data.frame') {
+
+      res <- data.frame()
+
+      for (i in 1:length(vol)) {
+
+        sb <- summBg(vol = vol[[i]],
+                     setup = setup,
+                     id.name = id.name,
+                     time.name = time.name,
+                     descrip.name = descrip.name,
+                     inoc.name = inoc.name,
+                     inoc.m.name = inoc.m.name,
+                     norm.name = norm.name,
+                     norm.se.name = norm.se.name,
+                     vol.name = vol.name,
+                     imethod = imethod,
+                     extrap = extrap,
+                     when = when,
+                     rate.crit = rate.crit,
+                     show.obs = show.obs,
+                     show.rates = show.rates,
+                     show.more = show.more,
+                     sort = sort,
+                     quiet = quiet)
+
+        # Add experiment as first column
+        sb[, set.name] <- names(vol)[i]
+        sb <- sb[, c(ncol(sb), 1:(ncol(sb) - 1))]
+        res <- rbind(res, sb)
+
+      }
+
+      return(res)
+
+    } else {
+
+      stop('Error  xueru187')
+
+    }
+
+  }
+
+  # Main function
 
   # Argument checks~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   checkArgClassValue(vol, 'data.frame')
