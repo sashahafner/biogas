@@ -4,6 +4,13 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+1 March 2019 SDH
+Version 1.11.5
+
+cumBg.R
+Add rh.resid argument to override the calculation of residual relative
+humidity if desired (e.g., for comparison).
+
 14 Feb 2019 SDH
 Version 1.11.4
 

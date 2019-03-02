@@ -16,6 +16,7 @@ cumBg <- function(
   pres.resid = NULL,
   temp.init = NULL,
   pres.init = NULL,
+  rh.resid = NULL,
   rh.resid.init = 1,
   headspace = NULL,
   vol.hs.name = 'vol.hs',
@@ -456,8 +457,12 @@ cumBg <- function(
 
       # Add residual rh (after pressure measurement and venting)
       if(interval) {
-        dat$rh.resid <- dat[, pres.resid]/dat[, dat.name]
-        dat$rh.resid[dat$rh.resid > 1] <- 1
+        if(is.null(rh.resid)) {
+          dat$rh.resid <- dat[, pres.resid]/dat[, dat.name]
+          dat$rh.resid[dat$rh.resid > 1] <- 1
+        } else {
+          dat$rh.resid <- rh.resid
+        }
       }
 
       # Sort to add *previous* residual pressure, rh, and temperature columns

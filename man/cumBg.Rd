@@ -18,6 +18,7 @@ cumBg(
   comp.name = 'xCH4', 
   # Additional arguments for manometric and gravimetric methods
   pres.resid = NULL, temp.init = NULL, pres.init = NULL,
+  rh.resid = NULL,
   rh.resid.init = 1, headspace = NULL, 
   vol.hs.name = 'vol.hs', headcomp = 'N2',
   absolute = TRUE, pres.amb = NULL,
@@ -125,6 +126,14 @@ cumBg(
     Used in manometric method only (\code{dat.type = "pres"}).
     Can be absolute (default) or gauge depending on the value of \code{absolute}.
     Length one numeric vector.
+}
+
+ \item{rh.resid}{
+    relative humidity of the gas in the headspace after venting.
+    If NULL (default), it is calculated for each interval as the ratio of post- to pre-venting pressure (equivalent to assuming relative water vapor concentration (mixing ratio) is the same before and after venting.
+    If entered, typically should be 1.0.
+    Length one numeric vector.
+    Used in manometric method only (\code{dat.type = "pres"}).
 }
 
  \item{rh.resid.init}{
