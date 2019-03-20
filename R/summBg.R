@@ -17,13 +17,14 @@ summBg <- function(
   show.rates = FALSE, 
   show.more = FALSE,
   sort = TRUE,
-  set.name = 'exper', 
+  set.name = 'set', 
   quiet = FALSE)
 {
 
   # For "vectorized" calls, lapply-like behavior
   if(class(vol)[1] == 'list') {
 
+    # Check reserved names
     # NTS: need to add more reserved names to check
     if (any(set.name == c(names(vol), names(setup), c('mean', 'sd', 'se', 'n')))) {
       stop('Argument set.name matches another column name')
@@ -69,6 +70,56 @@ summBg <- function(
       stop('Error  xueru187')
 
     }
+
+  }
+
+  # When called with multiple response variables
+  if(length(vol.name) > 1) {
+
+    # Loop through all, but output structure depends on show.obs
+    res <- data.frame()
+    for (i in 1:length(vol.name)) {
+
+      sb <- summBg(vol = vol,
+                   setup = setup,
+                   id.name = id.name,
+                   time.name = time.name,
+                   descrip.name = descrip.name,
+                   inoc.name = inoc.name,
+                   inoc.m.name = inoc.m.name,
+                   norm.name = norm.name,
+                   norm.se.name = norm.se.name,
+                   vol.name = vol.name[i],
+                   imethod = imethod,
+                   extrap = extrap,
+                   when = when,
+                   rate.crit = rate.crit,
+                   show.obs = show.obs,
+                   show.rates = show.rates,
+                   show.more = show.more,
+                   sort = sort,
+                   quiet = quiet)
+
+
+      if (show.obs) {
+        # Drop columns that cannot be merged (same name, different values for each vol.name)
+        sb <- sb[, !names(sb) %in% c('vol.mi.mn', 'vol.mi.se', 'rsd.inoc', 'fv.inoc', 'se.inoc')]
+        if (i == 1) {
+          res <- sb
+        } else {
+          # Merge, excluding vol.name i (current) from left one (cumulative data frame) and all others from right one (new one)
+          res <- merge(res[, !names(res) %in% vol.name[i]], sb[, !names(sb) %in% vol.name[c(1:length(vol.name))[-i]]])
+          #res[, vol.name[i]] <- sb[, vol.name[i]]
+        }
+      } else {
+        sb[, 'vol.name'] <- vol.name[i]
+        sb <- sb[, c(ncol(sb), 1:(ncol(sb) - 1))]
+        res <- rbind(res, sb)
+      }
+
+    }
+
+    return(res)
 
   }
 

@@ -15,7 +15,7 @@ summBg(vol, setup, id.name = "id", time.name = "time",
        norm.name = NULL, norm.se.name = NULL,  vol.name = "cvCH4", 
        imethod = "linear", extrap = FALSE, when = 30, 
        show.obs = FALSE, show.rates = FALSE, show.more = FALSE,
-       sort = TRUE, set.name = 'exper', quiet = FALSE)
+       sort = TRUE, set.name = 'set', quiet = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -23,6 +23,8 @@ summBg(vol, setup, id.name = "id", time.name = "time",
     a data frame with the columns bottle identification code; time of measurement (as \code{numeric}, or \code{POSIX}); and the response variable biogas volume or cumulative volume.
     The names of these columns can be specified with \code{id.name}, \code{time.name}, and \code{vol.name}. Or, the default names can be used. 
     Additional columns can be present-- these will be returned in the output data frame.
+    Optional: as of version 1.11.5, \code{vol} can be a list of suitable data frames.
+    This is convenient for comparing different approaches for calculating methane production, for example.
 }
   \item{setup}{ %maybe could be shorned by just giving the column names (descriptions) of the columns are afterwards
     a data frame containing information to summarise, substract inoculum effect or normalise the data. Should contain at least the column \code{id.name} (bottle identification code), and the additional columns depending on the operations desired. See \sQuote{Details} for more information.
@@ -54,6 +56,8 @@ summBg(vol, setup, id.name = "id", time.name = "time",
   \item{vol.name}{
     the name of the column in \code{vol} that contains the response variable used for the summary--typically cumulative methane volume. 
     The default is \code{"cvCH4"} for \emph{c}umulative \emph{v}olume of methane (CH4).
+    Optional: as of version 1.12.0, \code{vol.name} may be a vector with length > 1.
+    In this case each response variable will be used and results will be returned for all, together in a single data frame.
 }
   \item{imethod}{
     the interpolation method to be used. 
@@ -85,7 +89,7 @@ summBg(vol, setup, id.name = "id", time.name = "time",
     controls sorting of results, which is by \code{descrip.name} and then \code{time.name} by default. Set to \code{FALSE} to use order of \code{descrip.name} from the \code{setup} data frame. Default is \code{TRUE}.
 }
   \item{set.name}{
-    column name in result for experiment or set of observations, corresponding to elements in \code{vol} when it is a list.
+    column name in result for set of observations, corresponding to elements in \code{vol} when it is a list.
 }
   \item{quiet}{
     use to suppress messages. Default is \code{FALSE}.

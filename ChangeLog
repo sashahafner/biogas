@@ -4,6 +4,13 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+20 March 2019 SDH
+Version 1.12.0
+
+summBg.R
+Can handle vol.name with length > 1, i.e., multiple response variables in the
+same call.
+
 1 March 2019 SDH
 Version 1.11.5
 
