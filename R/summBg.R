@@ -467,7 +467,7 @@ summBg <- function(
         ##s1times <- rbind(s1times, ss)
         # Set to latest time, but keep track of this
         ss <- dd[nrow(dd), ]
-        pdnotyet <- c(pdnotyet, i, ', ')
+        pdnotyet <- c(pdnotyet, i)
       }
       s1times <- rbind(s1times, ss)
 
@@ -497,7 +497,7 @@ summBg <- function(
         # Check to make sure time extends far enough, if not, set to max for this rep
         if(max(summ1[summ1[, id.name] == j, time.name]) < tt) {
           tt <- max(summ1[summ1[, id.name] == j, time.name])
-          pdnotyet <- c(pdnotyet, j, ', ')
+          pdnotyet <- c(pdnotyet, j)
         }
 
         # Select times >= max time for this decrip.name level
@@ -564,15 +564,19 @@ summBg <- function(
                                                                               (sqrt(sum(ddd[, paste0(vol.name,'.se')]^2)/nrow(ddd)))^2) 
         summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'sd'] <- summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'se']*sqrt(nrow(ddd))
         summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'n'] <- sum(!is.na(ddd[, vol.name]))  
-	if(!is.null(inoc.name)) {
+	      if(!is.null(inoc.name)) {
           summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'rsd.inoc'] <- ddd[1, 'rsd.inoc']
           summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'fv.inoc'] <- mean(na.omit(ddd[, 'fv.inoc']))
           summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'se1'] <- sd(na.omit(ddd[, vol.name]))/sqrt(nrow(ddd))
-	  ##summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'sd2'] <- mean(ddd[, 'sd.inoc'])
+	        ##summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'sd2'] <- mean(ddd[, 'sd.inoc'])
           ##summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'sd2'] <- mean(ddd[, 'sd.inoc'])
           summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'se2'] <- sqrt(sum(ddd[, 'se.inoc']^2)/nrow(ddd))
           summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'se3'] <- sqrt(sum(ddd[, paste0(vol.name,'.se')]^2)/nrow(ddd))
-	}
+	      }
+
+        if(!is.null(pdnotyet)) {
+          summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'rate.crit.met'] <- !any(ddd[, id.name] %in% pdnotyet)
+        }
       }
     }
   } else { # If show.obs = TRUE, just return individual observations
@@ -600,13 +604,21 @@ summBg <- function(
   }
 
   # Select columns
+  s2cols <- c(descrip.name, time.name, 'mean', 'se', 'sd', 'n')
   if(!show.obs) {
+
     if(show.more) {
-      summ2 <- summ2[ , c(descrip.name, time.name, 'mean', 'se', 'sd', 'n', 'rsd.inoc', 'fv.inoc', 'se1', 'se2', 'se3')]
-    } else {
-      summ2 <- summ2[ , c(descrip.name, time.name, 'mean', 'se', 'sd', 'n')]
+      s2cols <- c(s2cols, 'rsd.inoc', 'fv.inoc', 'se1', 'se2', 'se3')
+    } 
+    
+    if(pdwhen) {
+      s2cols <- c(s2cols, 'rate.crit.met')
     }
+
+    summ2 <- summ2[ , s2cols]
+
   } 
+
 
   # Sort result
   if(sort) {
