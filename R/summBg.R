@@ -12,6 +12,7 @@ summBg <- function(
   imethod = 'linear',
   extrap = FALSE,
   when = 30,
+  when.min = Inf,
   rate.crit = 'net',
   show.obs = FALSE, 
   show.rates = FALSE, 
@@ -511,6 +512,11 @@ summBg <- function(
 
     summ1 <- summ1temp
 
+    # Set times to minimum time if used
+    if(when.min < Inf) {
+      summ1[summ1[, time.name] < when.min, time.name] <- when.min
+    }
+
     # Drop inoculum if present
     if(rate.crit %in% c('gross', 'total', 'VDI2016')) {
       summ1 <- summ1[summ1[, id.name] %in% ids, ]
@@ -576,6 +582,8 @@ summBg <- function(
 
         if(!is.null(pdnotyet)) {
           summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'rate.crit.met'] <- !any(ddd[, id.name] %in% pdnotyet)
+        } else {
+          summ2[summ2[, descrip.name]==i & summ2[, time.name]==j, 'rate.crit.met'] <- TRUE
         }
       }
     }
@@ -642,7 +650,7 @@ summBg <- function(
   if(is.null(pdnotyet)) {
       pdnotyet <- ''
   } else {
-      warning('You selected ', when, ' option for \"when\" argument but there are no observations that meet the criterion for the following bottles. Instead, the latest time was selected. ', pdnotyet)
+      warning('You selected ', when, ' option for \"when\" argument but there are no observations that meet the criterion for the following bottles. Instead, the latest time was selected. ', paste(pdnotyet, collapse = ', '))
   }
 
   attr(summ2, 'rate.not.met') <- pdnotyet
