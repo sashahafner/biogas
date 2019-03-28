@@ -30,12 +30,14 @@ cumBg(
   dry = FALSE,
   empty.name = NULL,
   # Warnings and messages
-  std.message = TRUE, check = TRUE,
+  std.message = !quiet, 
+  check = TRUE,
   # Units and standard conditions
   temp.std = getOption('temp.std', as.numeric(NA)), 
   pres.std = getOption('pres.std', as.numeric(NA)),
   unit.temp = getOption('unit.temp', 'C'),
-  unit.pres = getOption('unit.pres', 'atm')
+  unit.pres = getOption('unit.pres', 'atm'),
+  quiet = FALSE
   ) 
 }
 %- maybe also "usage" for other objects documented here.
@@ -275,6 +277,9 @@ cumBg(
     %Options are \code{"atm"}, \code{"Pa"}, \code{"kPa"}, \code{"hPa"}, and \code{"bar"}. 
     Default is \code{"atm"}.
     Argument is passed to \code{\link{stdVol}}.
+}
+  \item{quiet}{
+    use to suppress messages. Default is \code{FALSE}.
 }
 
 }

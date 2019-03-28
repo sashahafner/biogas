@@ -37,13 +37,14 @@ cumBg <- function(
   empty.name = NULL, # Column name for binary/logical column for when cum vol was reset to zero
   ##gas = 'CH4',
   # Warnings and messages
-  std.message = TRUE,
+  std.message = !quiet,
   check = TRUE,
   # Units and standard conditions
   temp.std = getOption('temp.std', as.numeric(NA)),
   pres.std = getOption('pres.std', as.numeric(NA)),
   unit.temp = getOption('unit.temp', 'C'),
-  unit.pres = getOption('unit.pres', 'atm')##,
+  unit.pres = getOption('unit.pres', 'atm'),
+  quiet = FALSE ##,
   ##unit.vol = getOption('unit.vol', 'ml'),
   ##unit.mass = getOption('unit.mass', 'g')
 ){
@@ -332,14 +333,14 @@ cumBg <- function(
       }
     } else if (!is.null(comp) && class(comp) %in% c('numeric', 'integer') && length(comp)==1) {
       # Or if a single value is given, use it
-      message('Only a single value was provided for biogas composition (', comp, '), so applying it to all observations.')
+      if (!quiet) message('Only a single value was provided for biogas composition (', comp, '), so applying it to all observations.')
       dat[, comp.name] <- comp
     } else if (dat.type != 'gca') {
       # If no composition data is given, just use NA
       dat[, comp.name] <- NA 
     }
-    if(mssg.no.time) message('A time column was not found in comp (', deparse(substitute(comp)), '), and a single value was used for each reactor.')
-    if(mssg.interp) message('Biogas composition is interpolated.')
+    if(!quiet & mssg.no.time) message('A time column was not found in comp (', deparse(substitute(comp)), '), and a single value was used for each reactor.')
+    if(!quiet & mssg.interp) message('Biogas composition is interpolated.')
 
   } 
 
@@ -417,7 +418,7 @@ cumBg <- function(
     # Standardize total gas volumes
     # Note that temperature and pressure units are not converted at all in cumBg (but are in stdVol of course)
     if(dat.type %in% c('vol', 'volume')) {
-      message('Working with volume data, applying volumetric method.')
+      if(!quiet) message('Working with volume data, applying volumetric method.')
       if(!standardized) {
         if(!is.null(temp) & !is.null(pres)) {
           dat$vBg <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, pres.std = pres.std, 
@@ -433,7 +434,7 @@ cumBg <- function(
     } 
 
     if(dat.type %in% c('pres', 'pressure')) {
-       message('Working with pressure data, pressure measurements are', if (absolute) ' ABSOLUTE' else ' GAUGE', 
+       if(!quiet) message('Working with pressure data, pressure measurements are', if (absolute) ' ABSOLUTE' else ' GAUGE', 
               ' If this is incorrect, change \'absolute\' argument to ', !absolute, '.')
 
       # Add pres.resid to dat if it isn't already present
@@ -519,7 +520,7 @@ cumBg <- function(
     if(cmethod=='total') {
       if(dat.type %in% c('vol', 'volume')) {
         # NTS: message needs to be fixed due to change in temp to column in dat
-        message('For cmethod = \"total\", headspace temperature is taken as temp (', temp, unit.temp, '), pressure as \"pres\" (', pres, unit.pres, '), and relative humidity as 1.0 (100%).')
+        if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as temp (', temp, unit.temp, '), pressure as \"pres\" (', pres, unit.pres, '), and relative humidity as 1.0 (100%).')
         # NTS: small problem with rh assumption here. Will actually be < 1 after gas removal
         # Also assume vol meas pressure pres = residual headspace pressure
         dat$vhsCH4 <- dat[, comp.name]*
@@ -676,7 +677,7 @@ cumBg <- function(
   } else if(dat.type=='mass') {
     # Gravimetric
     # Work with mass
-    message('Working with mass data (applying gravimetric approach).')
+    if(!quiet) message('Working with mass data (applying gravimetric approach).')
 
     # Check for pressure and temperature--required, but default is NULL (for use of volumetric method without standardization) so must check here 
     if(is.null(temp)) stop('temp argument missing but is required for gravimetric method.')

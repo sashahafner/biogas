@@ -4,6 +4,14 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+28 March 2019 SDH
+Version 1.13.0
+
+cumBg.R
+Add quiet argument to suppress messages.
+
+
+
 20 March 2019 SDH
 Version 1.12.0
 
