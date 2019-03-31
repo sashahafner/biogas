@@ -121,8 +121,44 @@ summBg <- function(
     }
 
     return(res)
-
   }
+
+  # When called with list or vector for when
+  if(length(when) > 1) {
+
+    # Loop through all, but output structure depends on show.obs
+    res <- data.frame()
+
+    for (i in 1:length(when)) {
+
+      sb <- summBg(vol = vol,
+                   setup = setup,
+                   id.name = id.name,
+                   time.name = time.name,
+                   descrip.name = descrip.name,
+                   inoc.name = inoc.name,
+                   inoc.m.name = inoc.m.name,
+                   norm.name = norm.name,
+                   norm.se.name = norm.se.name,
+                   vol.name = vol.name,
+                   imethod = imethod,
+                   extrap = extrap,
+                   when = when[[i]],
+                   rate.crit = rate.crit,
+                   show.obs = show.obs,
+                   show.rates = show.rates,
+                   show.more = show.more,
+                   sort = sort,
+                   quiet = quiet)
+
+      sb[, 'when'] <- when[[i]]
+      sb <- sb[, c(ncol(sb), 1:(ncol(sb) - 1))]
+      res <- rbindf(res, sb)
+
+    }
+    return(res)
+  }
+
 
   # Main function
 
