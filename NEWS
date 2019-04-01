@@ -1,3 +1,45 @@
+biogas 1.14.0
+2019 May 31
+---------------------------------------------------------------------
+NEW FEATURES
+
+*cumBg()
+Mixed cumulative/interval volumetric calculations with argument 
+empty.name.
+
+New 'rh.resid' argument can be used for different assumptions about 
+relative humidity in bottle headspace after venting in manometric
+calculations.
+
+A new 'quiet' argument suppresses messages, and is useful when 
+processing a large number of data sets at once.
+
+*summBg()
+New argument 'rate.crit' allows use of gross production rates in 
+relative duration calculations (e.g., following VDI).
+
+Relative and fixed duration criteria can be combined with arguments
+'when' and 'when.min' (a new argument). For example, perhaps you want
+"1p3d" but at least 20 days.
+
+Now it is possible to calculate BMP (or other summaries) for multiple
+cumulative methane data frames simultaneously by using a list
+for the vol argument. Useful for evaluation of uncertainty in 
+cumulative methane calculations.
+
+The vol.name argument can now be used for multiple response 
+variables (e.g., both cumulative methane and biogas) in one call.
+
+
+BUG FIXES
+
+*cumBg()
+Corrected problem with error message when comp was requested for 
+data.struct = "longcombo" even though it was not needed.
+
+Other minor bug fixes in cumBg().
+
+
 biogas 1.10.3
 2018 May 16 
 ---------------------------------------------------------------------

@@ -54,10 +54,11 @@ summBg(vol, setup, id.name = "id", time.name = "time",
     Length one character vector. Default is \code{"minoc"}. 
 }
   \item{vol.name}{
-    the name of the column in \code{vol} that contains the response variable used for the summary--typically cumulative methane volume. 
+    the name of the column(s) in \code{vol} that contains the response variable used for the summary--typically cumulative methane volume. 
     The default is \code{"cvCH4"} for \emph{c}umulative \emph{v}olume of methane (CH4).
     Optional: as of version 1.12.0, \code{vol.name} may be a vector with length > 1.
     In this case each response variable will be used and results will be returned for all, together in a single data frame.
+    Character vector.
 }
   \item{imethod}{
     the interpolation method to be used. 
@@ -74,7 +75,7 @@ summBg(vol, setup, id.name = "id", time.name = "time",
     To select a time for each bottle based on the methane production rate, use, e.g., \code{"1p3d"} for 1\% per day for at least 3 d (any values can be used, even something impractical like \code{"0.1p10d"}).
     In this case, the earliest time where production rate drops below 1\% of cumulative production per day for at least 3 days will be used.
     Where this time differs for multiple bottles with the same \code{descrip.name}, the latest one will be used.
-    Numeric or character vector.
+    Numeric or character vector or list (use a list for, e.g., \code{list("1p3d", "end", 30)}).
 }
   \item{show.obs}{
     set to \code{TRUE} to return all observations, otherwise means and standard deviations are returned. Default is \code{FALSE}. 

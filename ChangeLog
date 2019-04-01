@@ -5,12 +5,17 @@ biogas package
 ########################################
 
 28 March 2019 SDH
+Version 1.14.0
+
+summBg.R
+Add recursive loop for multiple-element when argument.
+Add when.min argument.
+
+28 March 2019 SDH
 Version 1.13.0
 
 cumBg.R
 Add quiet argument to suppress messages.
-
-
 
 20 March 2019 SDH
 Version 1.12.0
