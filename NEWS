@@ -1,11 +1,11 @@
 biogas 1.14.0
-2019 May 31
+2019 April 10
 ---------------------------------------------------------------------
 NEW FEATURES
 
 *cumBg()
 Mixed cumulative/interval volumetric calculations with argument 
-empty.name.
+empty.name and "f1" option of imethod argument.
 
 New 'rh.resid' argument can be used for different assumptions about 
 relative humidity in bottle headspace after venting in manometric
