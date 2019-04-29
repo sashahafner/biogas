@@ -4,6 +4,12 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+10 April 2019 SDH
+Version 1.14.1
+
+cumBg.R
+Add [1] for dealing with legnth 2 logical results in && comparisons.
+
 28 March 2019 SDH
 Version 1.14.0
 
