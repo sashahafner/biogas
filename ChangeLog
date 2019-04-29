@@ -4,6 +4,13 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+29 April 2019 SDH
+Version 1.15
+
+cumBg.R
+Switch to new manometric calculations based on discussion with Pierre B
+(INSA).
+
 10 April 2019 SDH
 Version 1.14.1
 
