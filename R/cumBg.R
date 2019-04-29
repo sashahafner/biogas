@@ -472,79 +472,67 @@ cumBg <- function(
       # Finally, calculate volume of gas in bottle headspace
       if(interval) {
 
-        # Add previous residual pressure, residual rh, and previous temperature columns
+        # Add previous residual pressure, residual rh, temperature, and residual xCH4 columns
         for(i in unique(dat[, id.name])) {
           pr <- dat[dat[, id.name]==i, pres.resid]
           tt <- dat[dat[, id.name]==i, temp]
           rhr <- dat[dat[, id.name]==i, 'rh.resid']
+          xr <- dat[dat[, id.name]==i, comp.name]
           dat[dat[, id.name]==i, 'pres.resid.prev'] <- c(pres.init, pr[-length(pr)])
           dat[dat[, id.name]==i, 'rh.resid.prev'] <- c(rh.resid.init, rhr[-length(rhr)])
           dat[dat[, id.name]==i, 'temp.prev'] <- c(temp.init, tt[-length(tt)])
+          xCH4.prev <- c(0, xr[-length(xr)])
         }
+
+        # Standardized headspace volume
+        # NTS: inconsistent behavior: some columns added to dat, some not
+        vHS <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, dat.name], rh = rh, 
+                      pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
+                      unit.pres = unit.pres, std.message = FALSE, warn = FALSE) 
+
+        # Residual headspace volume at end of previous interval
+        vHSr <- stdVol(dat[, vol.hs.name], temp = dat[, 'temp.prev'], pres = dat$pres.resid.prev, rh = dat$rh.resid.prev,  
+                       pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
+                       unit.pres = unit.pres, std.message = std.message)
+
+        # Initial headspace volume
+        vHSi <- stdVol(dat[, vol.hs.name], temp = temp.init, pres = pres.init, rh = rh.resid.init,  
+                       pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
+                       unit.pres = unit.pres, std.message = std.message, warn = FALSE)
 
         # Second call (subtracted bit) is standardized volume in bottle headspace at end of previous measurement (after venting)
         # Result then may not be exactly volume vented in current measurement, but total new gas volume since last measurement (only differ if pres.resid differs)
-        dat$vBg <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, dat.name], rh = rh, 
-                          pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                          unit.pres = unit.pres, std.message = FALSE, warn = FALSE) - 
-                   stdVol(dat[, vol.hs.name], temp = dat[, 'temp.prev'], pres = dat$pres.resid.prev, rh = dat$rh.resid.prev,  
-                          pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                          unit.pres = unit.pres, std.message = std.message)
+        dat$vBg <- vHS - vHSr
+
+        if(cmethod == 'total') {
+          dat$vCH4 <- vHS*dat[, comp.name] - vHSr*xCH4.prev
+        } else {
+          dat$vCH4 <- dat$vBg*dat[, comp.name]
+        }
+
       } else {
         # Second call (subtracted bit) is original bottle headspace (standardized), assumed to start at first pres.resid 
-        dat$vBg <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, dat.name], rh = rh, 
-                          pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                          unit.pres = unit.pres, std.message = FALSE, warn = FALSE) - 
-                   stdVol(dat[, vol.hs.name], temp = temp.init, pres = pres.init, rh = rh.resid.init,  
-                          pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                          unit.pres = unit.pres, std.message = std.message, warn = FALSE)
-# NTS: when did next block ever work? Changed 15 Dec 2016. Is above correct?
-#                   stdVol(dat[, vol.hs.name], temp = dat[, temp.init], pres = pres.init, rh = rh.resid.init,  
-#                          pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-#                          unit.pres = unit.pres, std.message = std.message, warn = FALSE)
+        dat$vBg <- vHS - vHSi
+        dat$vCH4 <- dat$vBg*dat[, comp.name]
       }
     }
 
     # Calculate interval (or cum if interval = FALSE) gas production
-    # NTS: this will not be correct for cmethod = 'total'. Shouldn't we remove the molar vol correction?
-    dat$vCH4 <- dat$vBg*dat[, comp.name]*vol.mol['CH4'] / (dat[, comp.name]*vol.mol['CH4'] +(1 - dat[, comp.name])*vol.mol['CO2'])  # CH4 and CO2 molar volumes in ml/mol
-    ##if(gas == 'CH4') {
-    ##  dat$vCH4 <- dat$vBg*dat[, comp.name]*vol.mol['CH4'] / (dat[, comp.name]*vol.mol['CH4'] +(1 - dat[, comp.name])*vol.mol['CO2'])  # CH4 and CO2 molar volumes in ml/mol
-    ##} else {
-    ##  dat$vCH4 <- dat$vBg*dat[, comp.name]*vol.mol['H2'] / (dat[, comp.name]*vol.mol['H2'] +(1 - dat[, comp.name])*vol.mol['CO2'])  # H2 and CO2 molar volumes in ml/mol
-    ##}
-
-    ##if(addt0) dat[dat[, time.name]==0, 'vCH4'] <- 0 # Not clear why this was ever needed
-
     # For cmethod = 'total', calculate headspace CH4 to add for total below
-    if(cmethod=='total') {
-      if(dat.type %in% c('vol', 'volume')) {
+    if(dat.type %in% c('vol', 'volume')) {
+
+      dat$vCH4 <- dat$vBg*dat[, comp.name]
+
+      if(cmethod=='total') {
         # NTS: message needs to be fixed due to change in temp to column in dat
-        if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as temp (', temp, unit.temp, '), pressure as \"pres\" (', pres, unit.pres, '), and relative humidity as 1.0 (100%).')
-        # NTS: small problem with rh assumption here. Will actually be < 1 after gas removal
+        #if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as temp (', temp, unit.temp, '), pressure as \"pres\" (', pres, unit.pres, '), and relative humidity as 1.0 (100%).')
+        # NTS: problem with rh assumption here. Will actually be < 1 after gas removal
         # Also assume vol meas pressure pres = residual headspace pressure
         dat$vhsCH4 <- dat[, comp.name]*
                       stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres], rh = 1, pres.std = pres.std, 
                             temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
                             std.message = std.message)
       }
-
-      if(dat.type %in% c('pres', 'pressure')) {
-
-        if(interval) {
-          dat$vhsCH4 <- dat[, comp.name]*
-                        stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[ , pres.resid], rh = dat$rh.resid,  
-                               pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                               unit.pres = unit.pres, std.message = std.message)
-        } else {
-          # For interval = FALSE, 
-          dat$vhsCH4 <- dat[, comp.name]*
-                        stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[ , pres.resid], rh = 1,
-                               pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                               unit.pres = unit.pres, std.message = std.message)
-        }
-      }
-
       # vhsCH4 is added to cvCH4 below
       # Calculations are up here to avoid t0 issues
     } 
@@ -593,7 +581,7 @@ cumBg <- function(
     }
 
     # For cmethod = 'total', add headspace CH4 to cvCH4
-    if(cmethod == 'total') {
+    if(dat.type %in% c('vol', 'volume') & cmethod == 'total') {
       dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
     }
 
@@ -608,7 +596,7 @@ cumBg <- function(
 
     # When cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
     # vBg is not affected by cmethod = 'total'
-    if(cmethod == 'total') {
+    if(dat.type %in% c('vol', 'volume') & cmethod == 'total') {
       for(i in unique(dat[, id.name])) {
         dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
       }
