@@ -469,6 +469,12 @@ cumBg <- function(
       # Sort to add *previous* residual pressure, rh, and temperature columns
       dat <- dat[order(dat[, id.name], dat[, time.name]), ]
 
+      # Standardized headspace volume
+      # NTS: inconsistent behavior: some columns added to dat, some not
+      vHS <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, dat.name], rh = rh, 
+                    pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
+                    unit.pres = unit.pres, std.message = FALSE, warn = FALSE) 
+
       # Finally, calculate volume of gas in bottle headspace
       if(interval) {
 
@@ -484,21 +490,10 @@ cumBg <- function(
           xCH4.prev <- c(0, xr[-length(xr)])
         }
 
-        # Standardized headspace volume
-        # NTS: inconsistent behavior: some columns added to dat, some not
-        vHS <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, dat.name], rh = rh, 
-                      pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                      unit.pres = unit.pres, std.message = FALSE, warn = FALSE) 
-
         # Residual headspace volume at end of previous interval
         vHSr <- stdVol(dat[, vol.hs.name], temp = dat[, 'temp.prev'], pres = dat$pres.resid.prev, rh = dat$rh.resid.prev,  
                        pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
                        unit.pres = unit.pres, std.message = std.message)
-
-        # Initial headspace volume
-        vHSi <- stdVol(dat[, vol.hs.name], temp = temp.init, pres = pres.init, rh = rh.resid.init,  
-                       pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                       unit.pres = unit.pres, std.message = std.message, warn = FALSE)
 
         # Second call (subtracted bit) is standardized volume in bottle headspace at end of previous measurement (after venting)
         # Result then may not be exactly volume vented in current measurement, but total new gas volume since last measurement (only differ if pres.resid differs)
@@ -511,6 +506,12 @@ cumBg <- function(
         }
 
       } else {
+        # Initial headspace volume
+        vHSi <- stdVol(dat[, vol.hs.name], temp = temp.init, pres = pres.init, rh = rh.resid.init,  
+                       pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
+                       unit.pres = unit.pres, std.message = std.message, warn = FALSE)
+
+
         # Second call (subtracted bit) is original bottle headspace (standardized), assumed to start at first pres.resid 
         dat$vBg <- vHS - vHSi
         dat$vCH4 <- dat$vBg*dat[, comp.name]
