@@ -469,8 +469,7 @@ cumBg <- function(
       # Sort to add *previous* residual pressure, rh, and temperature columns
       dat <- dat[order(dat[, id.name], dat[, time.name]), ]
 
-      # Standardized headspace volume
-      # NTS: inconsistent behavior: some columns added to dat, some not
+      # Standardized headspace volume before venting
       vHS <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, dat.name], rh = rh, 
                     pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
                     unit.pres = unit.pres, std.message = FALSE, warn = FALSE) 
@@ -487,7 +486,7 @@ cumBg <- function(
           dat[dat[, id.name]==i, 'pres.resid.prev'] <- c(pres.init, pr[-length(pr)])
           dat[dat[, id.name]==i, 'rh.resid.prev'] <- c(rh.resid.init, rhr[-length(rhr)])
           dat[dat[, id.name]==i, 'temp.prev'] <- c(temp.init, tt[-length(tt)])
-          xCH4.prev <- c(0, xr[-length(xr)])
+          dat[dat[, id.name]==i, paste0(comp.name, '.prev')] <- c(0, xr[-length(xr)])
         }
 
         # Residual headspace volume at end of previous interval
@@ -495,12 +494,11 @@ cumBg <- function(
                        pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
                        unit.pres = unit.pres, std.message = std.message)
 
-        # Second call (subtracted bit) is standardized volume in bottle headspace at end of previous measurement (after venting)
-        # Result then may not be exactly volume vented in current measurement, but total new gas volume since last measurement (only differ if pres.resid differs)
+        # vBg is biogas *production*
         dat$vBg <- vHS - vHSr
 
         if(cmethod == 'total') {
-          dat$vCH4 <- vHS*dat[, comp.name] - vHSr*xCH4.prev
+          dat$vCH4 <- vHS * dat[, comp.name] - vHSr * dat[, paste0(comp.name, '.prev')]
         } else {
           dat$vCH4 <- dat$vBg*dat[, comp.name]
         }
@@ -513,8 +511,9 @@ cumBg <- function(
 
 
         # Second call (subtracted bit) is original bottle headspace (standardized), assumed to start at first pres.resid 
+        # These are actually cv cumulative volumes, changed below (set to cv here once this is in a cumBgMan() function)
         dat$vBg <- vHS - vHSi
-        dat$vCH4 <- dat$vBg*dat[, comp.name]
+        dat$vCH4 <- dat$vBg * dat[, comp.name]
       }
     }
 
