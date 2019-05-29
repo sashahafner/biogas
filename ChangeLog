@@ -4,6 +4,12 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+29 May 2019 SDH
+Version 1.16
+
+gasDens.R, GDComp.R, cumBgGD.R
+New functions
+
 29 April 2019 SDH
 Version 1.15
 
