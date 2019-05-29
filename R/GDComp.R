@@ -1,5 +1,5 @@
 # Function for calculating biogas composition from gas density
-# Jacob R. Mortensen
+# Jacob R. Mortensen and Sasha Hafner
 
 # NTS: do we need two pres arguments, for grav calcs and (mH2O) and vol std?
 
@@ -43,21 +43,21 @@ GDComp <- function(
   # Set biogas molar volume to 22300 mL/mol since difference between CO2 and CH4 is small
   mvBg <- 22300
     
-  # Set density of N2 (g/ml) at 1 atm and 0C
-  dN2 <- 0.0012504
+  # Set density of headspace gas (g/ml) at 1 atm and 0C
+  dhs <- gasDens(comp = headcomp)
      
   # Main calculations~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Calculate water vapor mass
   pH2O <- rh*watVap(temp.k = temp.k)
   mH2O <- (molMass('H2O')*pH2O)/((pres.pa - pH2O)*mvBg)
   
-  # Correct mass loss and measured volume for N2 
-  # Note: assumes all N2 has been removed and headspace contains only biogas at fixed composition under same temperature and pressure as vol
+  # Correct mass loss and measured volume for headspace flushing gas 
+  # Note: assumes all flushing gas has been removed and headspace contains only biogas at fixed composition under same temperature and pressure as vol
   if(!is.null(vol.hs)) {
-    message('Headspace correction included. . . (needs work)')
+    message('Initial headspace gas (flushing gas) correction included.')
 
-    vol.N2 <- stdVol(vol.hs, temp = temp.init.k, pres = pres.init.pa, rh = 0, temp.std = 273.15, pres.std = 101325, unit.pres = 'Pa', unit.temp = 'K', std.message = FALSE)
-    mass <- mass - (vol.N2 * dN2)
+    vol.hs <- stdVol(vol.hs, temp = temp.init.k, pres = pres.init.pa, rh = 0, temp.std = 273.15, pres.std = 101325, unit.pres = 'Pa', unit.temp = 'K', std.message = FALSE)
+    mass <- mass - (vol.hs * dhs)
 
     vol <- vol - vol.hs
   }
