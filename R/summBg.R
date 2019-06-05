@@ -12,7 +12,7 @@ summBg <- function(
   imethod = 'linear',
   extrap = FALSE,
   when = 30,
-  when.min = Inf,
+  when.min = 0,
   rate.crit = 'net',
   show.obs = FALSE, 
   show.rates = FALSE, 
@@ -175,7 +175,7 @@ summBg <- function(
   # Skip imethod, since it is checked in interp()
   checkArgClassValue(extrap, 'logical')
   checkArgClassValue(when, c('numeric', 'integer', 'character', 'NULL'))
-  checkArgClassValue(rate.crit, 'character', c('net', 'gross', 'total', 'VDI2016'))
+  checkArgClassValue(rate.crit, 'character', c('net', 'gross', 'total'))
   checkArgClassValue(show.obs, 'logical')
   checkArgClassValue(sort, 'logical')
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -320,7 +320,7 @@ summBg <- function(
     # Only substrate ids for net, all (include inoculum) for gross
     if(rate.crit == 'net') {
       summ1 <- vol[vol[, id.name] %in% ids, c(id.name, time.name, vol.name)]
-    } else if(rate.crit %in% c('gross', 'total', 'VDI2016')) {
+    } else if(rate.crit %in% c('gross', 'total')) {
       summ1 <- vol[vol[, id.name] %in% ids.all, c(id.name, time.name, vol.name)]
     }
 
@@ -412,7 +412,7 @@ summBg <- function(
     summ1 <- merge(summ1, inoc.vol, by = time.name)
 
     # Calculate and substract inoc contribution
-    # Next three for returning additional info when show.rates = TRUE and for VDI rate criterion (rate.crit = net)
+    # Next three for returning additional info when show.rates = TRUE and for rate.crit = gross (??)
     summ1[, paste0(vol.name, '.tot')] <- summ1[, vol.name]
     summ1[, paste0(vol.name, '.inoc')] <- summ1$vol.mi.mn*summ1[, inoc.m.name]
     summ1[, 'fv.inoc'] <- summ1[, paste0(vol.name, '.inoc')]/summ1[, paste0(vol.name, '.tot')]
@@ -446,7 +446,7 @@ summBg <- function(
     summ1$rrvCH4 <- NA
 
     # Calculate relative rates
-    ii <- unique(summ1[, id.name]) # Because is ids.all for rate.crit %in% c('gross', 'total', 'VDI2016') otherwise ids (substrate only)
+    ii <- unique(summ1[, id.name]) # Because is ids.all for rate.crit %in% c('gross', 'total') otherwise ids (substrate only)
 
     for(i in ii) {
       dd <- summ1[summ1[, id.name] == i, ]
@@ -454,7 +454,7 @@ summBg <- function(
 
       if(rate.crit == 'net') {
         rr <- c(NA, diff(dd[, vol.name])/diff(dd[, time.name]))/dd[, vol.name]
-      } else if(rate.crit %in% c('total', 'VDI2016', 'gross')) {
+      } else if(rate.crit %in% c('gross', 'total')) {
         rr <- c(NA, diff(dd[, paste0(vol.name, '.tot')])/diff(dd[, time.name]))/dd[, paste0(vol.name, '.tot')]
       }
 
@@ -519,19 +519,19 @@ summBg <- function(
     # Check for different times for bottles with same descrip
     summ1temp <- data.frame()
 
-    if(rate.crit %in% c('gross', 'total', 'VDI2016')) {
-      tt <- max(25, max(s1times[, time.name]))
-    }
+    #if(rate.crit %in% c('gross', 'total')) {
+    #  tt <- max(25, max(s1times[, time.name]))
+    #}
 
     for(i in unique(s1times[, descrip.name])) {
 
-      if(rate.crit == 'net') {
-        tt <- max(s1times[s1times[, descrip.name] == i, time.name])
-      } 
+      #if(rate.crit == 'net') {
+        tt <- max(s1times[s1times[, descrip.name] == i, time.name], when.min)
+      #} 
 
       for(j in unique(summ1[summ1[, descrip.name] == i, id.name])) {
 
-        # Check to make sure time extends far enough, if not, set to max for this rep
+        # Check to make sure measured time extends far enough (i.e., trial did not end too early), if not, set to max for this rep
         if(max(summ1[summ1[, id.name] == j, time.name]) < tt) {
           tt <- max(summ1[summ1[, id.name] == j, time.name])
           pdnotyet <- c(pdnotyet, j)
@@ -548,13 +548,8 @@ summBg <- function(
 
     summ1 <- summ1temp
 
-    # Set times to minimum time if used
-    if(when.min < Inf) {
-      summ1[summ1[, time.name] < when.min, time.name] <- when.min
-    }
-
     # Drop inoculum if present
-    if(rate.crit %in% c('gross', 'total', 'VDI2016')) {
+    if(rate.crit %in% c('gross', 'total')) {
       summ1 <- summ1[summ1[, id.name] %in% ids, ]
     }
 

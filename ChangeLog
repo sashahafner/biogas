@@ -4,6 +4,17 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+5 June 2019 SDH
+Version 1.16.2
+
+summBg.R
+Fix bugs in when = 'total', remove 'VDI2016' option and automatic 25 d minimum
+(now must be set through when.min).
+
+summBg.R
+Correct when.min so it actually returns BMP from minimum time, not just
+changes time.
+
 29 May 2019 SDH
 Version 1.16
 
