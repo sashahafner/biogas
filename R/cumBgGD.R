@@ -160,7 +160,7 @@ cumBgGD <- function(
                                          vol = sum(dat[which.id, std.vol.name]), 
                                          temp = dat[which.id, temp.grav], pres = dat[which.id, pres.grav], 
                                          vol.hs = dat[which.id, vol.hs.name],
-                                         temp.init = 
+                                         temp.init = temp.init,
                                          unit.temp = unit.temp, unit.pres = unit.pres, fill.value = 0)
     } 
   }
