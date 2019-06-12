@@ -13,10 +13,10 @@ cumBgGD <- function(
   comp.name = 'xCH4',      # Name of xCH4 column *added* to the data frame
   vented.mass = TRUE,      # Which type of mass loss to use in calculations for xCH4 (vented or total) 
   averaging = 'interval',  # Interval, cumulative, or final mass loss for calculating xCH4?
-  temp.init = NULL,        # NTS: needs work or deletion. Used for grav calcs
-  headspace = NULL,        # 
-  vol.hs.name = 'vol.hs',  
-  headcomp = 'N2',         # For gravimetric calculations
+  temp.init = NULL,        # For GDcomp()
+  headspace = NULL,        # for GDcomp()
+  vol.hs.name = 'vol.hs',  # for GDcomp()
+  headcomp = 'N2',         # 
   # Calculation method and other settings
   vmethod = 'vol',         # Method for biogas calculations, vol or grav or both. NTS: Return warning if vol and venting mass loss is used (or leakage is present)
   comp.lim = c(0, 1),      # Allowed limits on xCH4
@@ -152,12 +152,15 @@ cumBgGD <- function(
 
   } else {
 
+    # Note that headspace correction is only applied for final averaging
     for(i in unique(dat[, id.name])) {
       which.id <- which(dat[, id.name]==i)
 
       dat[which.id, comp.name] <- GDComp(mass = sum(dat[which.id, mass.name]), 
                                          vol = sum(dat[which.id, std.vol.name]), 
                                          temp = dat[which.id, temp.grav], pres = dat[which.id, pres.grav], 
+                                         vol.hs = dat[which.id, vol.hs.name],
+                                         temp.init = 
                                          unit.temp = unit.temp, unit.pres = unit.pres, fill.value = 0)
     } 
   }

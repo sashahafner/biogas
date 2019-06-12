@@ -4,6 +4,12 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+12 June 2019 SDH
+Vresion 1.16.3
+
+cumBgGD.R
+Add code for vol.hs and temp.init to be used for headspace correction.
+
 5 June 2019 SDH
 Version 1.16.2
 
