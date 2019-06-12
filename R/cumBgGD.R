@@ -14,6 +14,7 @@ cumBgGD <- function(
   vented.mass = TRUE,      # Which type of mass loss to use in calculations for xCH4 (vented or total) 
   averaging = 'interval',  # Interval, cumulative, or final mass loss for calculating xCH4?
   temp.init = NULL,        # For GDcomp()
+  pres.init = NULL,        # For GDcomp()
   headspace = NULL,        # for GDcomp()
   vol.hs.name = 'vol.hs',  # for GDcomp()
   headcomp = 'N2',         # 
@@ -160,7 +161,7 @@ cumBgGD <- function(
                                          vol = sum(dat[which.id, std.vol.name]), 
                                          temp = dat[which.id, temp.grav], pres = dat[which.id, pres.grav], 
                                          vol.hs = dat[which.id, vol.hs.name],
-                                         temp.init = temp.init,
+                                         temp.init = temp.init, pres.init = pres.init,
                                          unit.temp = unit.temp, unit.pres = unit.pres, fill.value = 0)
     } 
   }
