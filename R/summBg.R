@@ -50,6 +50,7 @@ summBg <- function(
                      imethod = imethod,
                      extrap = extrap,
                      when = when,
+                     when.min = when.min,
                      rate.crit = rate.crit,
                      show.obs = show.obs,
                      show.rates = show.rates,

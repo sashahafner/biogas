@@ -4,6 +4,12 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+13 June 2019 SDH
+Version 1.16.5
+
+summBg.R
+Pass when.min to subset call. Was omitted. 
+
 12 June 2019 SDH
 Vresion 1.16.3
 
