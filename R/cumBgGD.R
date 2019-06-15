@@ -159,8 +159,9 @@ cumBgGD <- function(
 
       dat[which.id, comp.name] <- GDComp(mass = sum(dat[which.id, mass.name]), 
                                          vol = sum(dat[which.id, std.vol.name]), 
-                                         temp = dat[which.id, temp.grav], pres = dat[which.id, pres.grav], 
-                                         vol.hs = dat[which.id, vol.hs.name],
+                                         temp = dat[which.id, temp.grav][1], pres = dat[which.id, pres.grav][1], 
+                                         vol.hs = dat[which.id, vol.hs.name][1],
+                                         headcomp = headcomp,
                                          temp.init = temp.init, pres.init = pres.init,
                                          unit.temp = unit.temp, unit.pres = unit.pres, fill.value = 0)
     } 
