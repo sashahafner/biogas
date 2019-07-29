@@ -1,7 +1,7 @@
 cumBg <- function(
   # Main arguments
   dat,
-  dat.type = 'vol',
+  dat.type = 'vol', #not necessary, as this is only for volumetric data
   comp = NULL, # Leave NULL for wide and both combos
   temp = NULL,
   pres = NULL,
@@ -12,27 +12,13 @@ cumBg <- function(
   time.name = 'time',
   dat.name = dat.type, # Will be used for first dat column for data.struct = 'wide'
   comp.name = 'xCH4',  # Use for first comp col for data.struct = 'wide'
-  # Additional arguments for manometric and gravimetric methods
-  pres.resid = NULL,
-  temp.init = NULL,
-  pres.init = NULL,
-  rh.resid = NULL,
-  rh.resid.init = 1,
-  headspace = NULL,
-  vol.hs.name = 'vol.hs',
-  headcomp = 'N2',
-  absolute = TRUE,
-  pres.amb = NULL,
-  # For GCA method
-  mol.f.name = NULL,
-  vol.syr = NULL,
   # Calculation method and other settings
   cmethod = 'removed',
   imethod = 'linear',
   extrap = FALSE,
   addt0 = TRUE,
   showt0 = TRUE,
-  # Additional argument for volumetric data only 
+  # Additional argument for volumetric data 
   dry = FALSE,
   empty.name = NULL, # Column name for binary/logical column for when cum vol was reset to zero
   ##gas = 'CH4',
@@ -50,7 +36,7 @@ cumBg <- function(
 ){
   # Check arguments
   checkArgClassValue(dat, 'data.frame')
-  checkArgClassValue(dat.type, 'character', expected.values = c('vol', 'mass', 'pres', 'volume', 'pressure', 'gca'), case.sens = FALSE)
+  checkArgClassValue(dat.type, 'character', expected.values = c('vol', 'volume'), case.sens = FALSE)
   checkArgClassValue(comp, c('data.frame', 'integer', 'numeric', 'NULL'))
   checkArgClassValue(temp, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(pres, c('integer', 'numeric', 'character', 'NULL'))
@@ -60,15 +46,9 @@ cumBg <- function(
   checkArgClassValue(time.name, 'character')
   checkArgClassValue(dat.name, 'character')
   checkArgClassValue(comp.name, c('character', 'NULL'))
-  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
-  checkArgClassValue(vol.hs.name, 'character')
-  checkArgClassValue(headcomp, 'character')
-  checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
+  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL')) #used when cmethod = "total"
   checkArgClassValue(temp.std, c('integer', 'numeric'))
   checkArgClassValue(pres.std, c('integer', 'numeric'))
-  checkArgClassValue(pres.resid, c('integer', 'numeric', 'character', 'NULL'))
-  checkArgClassValue(pres.init, c('integer', 'numeric', 'NULL'))
-  checkArgClassValue(rh.resid.init, c('integer', 'numeric', 'NULL'), expected.range = c(0, 1))
   checkArgClassValue(unit.temp, 'character')
   checkArgClassValue(unit.pres, 'character')
   checkArgClassValue(cmethod, 'character', expected.values = c('removed', 'total'))
@@ -80,9 +60,6 @@ cumBg <- function(
   checkArgClassValue(empty.name, c('character', 'NULL'))
   checkArgClassValue(std.message, 'logical')
   checkArgClassValue(check, 'logical')
-  checkArgClassValue(absolute, 'logical')
-  checkArgClassValue(pres.amb, c('integer', 'numeric', 'NULL'))
-  checkArgClassValue(vol.syr, c('integer', 'numeric', 'NULL'))
   
   # Hard-wire rh for now at least
   if(!dry) {
@@ -99,7 +76,7 @@ cumBg <- function(
     }
   }
   
-  # dat (volume or mass)
+  # dat (volume)
   if(data.struct %in% c('long', 'longcombo')) {
     if(any(missing.col <- !c(id.name, time.name, dat.name) %in% names(dat))){
       stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(id.name, time.name, dat.name)[missing.col], collapse = ', '), '.')
