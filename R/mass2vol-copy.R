@@ -1,12 +1,12 @@
 # Modified: 20 Feb 2016 SDH
 
-mass2vol <- function(
+mass2volx <- function(
   mass,
   xCH4,
   temp,
   pres,
-  temp.std = getOption('temp.std', 0.0),
-  pres.std = getOption('pres.std', 1.0),
+  temp.std = getOption('temp.std', as.numeric(NA)),
+  pres.std = getOption('pres.std', as.numeric(NA)),
   unit.temp = getOption('unit.temp', 'C'),
   unit.pres = getOption('unit.pres', 'atm'),
   value = "CH4",
@@ -94,3 +94,8 @@ mass2vol <- function(
     return(cbind(vBg = vBg, vCH4 = vCH4, vCO2 = vCO2))
   }
 }
+
+
+options(unit.pres = 'Pa')
+#options(unit.temp = 'K')
+mass2volx(0.001, 0.65, pres = 1500, temp = 32)
