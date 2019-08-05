@@ -38,7 +38,38 @@ cumBgGD <- function(
 ){
 
   # Check arguments
-  # NTS: add
+  checkArgClassValue(dat, 'data.frame')
+  checkArgClassValue(temp.vol, c('integer', 'numeric'))
+  checkArgClassValue(temp.grav, c('integer', 'numeric'))
+  checkArgClassValue(pres.vol, c('integer', 'numeric'))
+  checkArgClassValue(pres.grav, c('integer', 'numeric'))
+  checkArgClassValue(id.name, 'character')
+  checkArgClassValue(time.name, 'character')
+  #checkArgClassValue(vol.name, 'character')  
+  checkArgClassValue(m.pre.name, 'character')
+  checkArgClassValue(m.post.name, 'character')
+  #checkArgClassValue(comp.name, 'character')
+  checkArgClassValue(vented.mass, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(averaging, 'character', expected.values = c('int', 'fin', 'cum'))
+  checkArgClassValue(temp.init, c('integer, numeric, NULL'))
+  checkArgClassValue(pres.init, c('integer, numeric, NULL'))
+  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
+  checkArgClassValue(vol.hs.name, 'character')
+  checkArgClassValue(headcomp, 'character')
+  checkArgClassValue(vmethod, 'character', expected.values = c('vol', 'grav'))
+  checkArgClassValue(comp.lim, 'integer', 'numeric', expected.values = c(0, 1))
+  checkArgClassValue(comp.sub, 'logical', expected.values = NA)
+  # Skip imethod, checked in interp
+  checkArgClassValue(addt0, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(extrap, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(showt0, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(dry, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(std.message, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(check, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(temp.std, c('integer', 'numeric'))
+  checkArgClassValue(pres.std, c('integer', 'numeric'))
+  checkArgClassValue(unit.temp, 'character')
+  checkArgClassValue(unit.pres, 'character')
 
 
   # Sort out which mass and volume results to use
