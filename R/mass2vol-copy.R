@@ -97,5 +97,7 @@ mass2volx <- function(
 
 
 options(unit.pres = 'mbar')
-options(unit.temp = 'K')
-mass2volx(0.001, 0.65, pres = 1500, temp = 273.15)
+options(unit.temp = 'C')
+mass2volx(1.94, 0.65, pres = 1500, temp = 273.15)
+mass2volx(0.001, 0.65, pres = 1, temp = 32, unit.temp = 'C', unit.pres = "atm")
+mass2volx(0.001, 0.65, pres = 100, temp = 32, unit.temp = 'C', unit.pres = "kPa")
