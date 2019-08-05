@@ -76,8 +76,8 @@ mass2volx <- function(
   }
 
   # Standardize (based on molar volumes used above, so in the default case stdVol does nothing.)
-  #vBg <- stdVol(vBg, temp = unitConvert(x = 273.15, unit = 'K', to = unit.temp), pres = unitConvert(x = 101325, unit = 'Pa', to = unit.pres), rh = 0, temp.std = temp.std, pres.std = pres.std, unit.pres = unit.pres, unit.temp = unit.temp, std.message = std.message)
-  vBg <- stdVol(vBg, temp = 273.15, pres = 101325, rh = 0, temp.std = temp.std.k, pres.std = pres.std.pa, unit.pres = 'Pa', unit.temp = 'K', std.message = std.message)
+  vBg <- stdVol(vBg, temp = unitConvert(x = 273.15, unit = 'K', to = unit.temp), pres = unitConvert(x = 101325, unit = 'Pa', to = unit.pres), rh = 0, temp.std = temp.std, pres.std = pres.std, unit.pres = unit.pres, unit.temp = unit.temp, std.message = std.message)
+  #vBg <- stdVol(vBg, temp = 273.15, pres = 101325, rh = 0, temp.std = temp.std.k, pres.std = pres.std.pa, unit.pres = 'Pa', unit.temp = 'K', std.message = std.message)
   vCH4 <- xCH4*vBg*vol.mol['CH4']/mvBg
   vCH4 <- as.vector(vCH4)
   vCO2 <- (1 - xCH4)*vBg*vol.mol['CO2']/mvBg
@@ -96,6 +96,6 @@ mass2volx <- function(
 }
 
 
-options(unit.pres = 'Pa')
-#options(unit.temp = 'K')
-mass2volx(0.001, 0.65, pres = 1500, temp = 32)
+options(unit.pres = 'mbar')
+options(unit.temp = 'K')
+mass2volx(0.001, 0.65, pres = 1500, temp = 273.15)
