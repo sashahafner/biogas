@@ -5,8 +5,8 @@ mass2vol <- function(
   xCH4,
   temp,
   pres,
-  temp.std = getOption('temp.std', 0.0),
-  pres.std = getOption('pres.std', 1.0),
+  temp.std = getOption('temp.std', as.numeric(NA)),
+  pres.std = getOption('pres.std', as.numeric(NA)),
   unit.temp = getOption('unit.temp', 'C'),
   unit.pres = getOption('unit.pres', 'atm'),
   value = "CH4",
@@ -36,7 +36,7 @@ mass2vol <- function(
   checkArgClassValue(std.message, 'logical')
 
   # Unit conversions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Convert pressure to atm and temp to C
+  # Convert pressure to Pa and temp to K
   pres.pa <- unitConvert(x = pres, unit = unit.pres, to = 'Pa')
   temp.k <- unitConvert(x = temp, unit = unit.temp, to = 'K')
   if(!is.null(temp.init)) temp.init.k <- unitConvert(x = temp.init, unit = unit.temp, to = 'K')
@@ -76,8 +76,8 @@ mass2vol <- function(
   }
 
   # Standardize (based on molar volumes used above, so in the default case stdVol does nothing.)
-  #vBg <- stdVol(vBg, temp = unitConvert(x = 273.15, unit = 'K', to = unit.temp), pres = unitConvert(x = 101325, unit = 'Pa', to = unit.pres), rh = 0, temp.std = temp.std, pres.std = pres.std, unit.pres = unit.pres, unit.temp = unit.temp, std.message = std.message)
-  vBg <- stdVol(vBg, temp = 273.15, pres = 101325, rh = 0, temp.std = temp.std.k, pres.std = pres.std.pa, unit.pres = 'Pa', unit.temp = 'K', std.message = std.message)
+  vBg <- stdVol(vBg, temp = unitConvert(x = 273.15, unit = 'K', to = unit.temp), pres = unitConvert(x = 101325, unit = 'Pa', to = unit.pres), rh = 0, temp.std = temp.std, pres.std = pres.std, unit.pres = unit.pres, unit.temp = unit.temp, std.message = std.message)
+  #vBg <- stdVol(vBg, temp = 273.15, pres = 101325, rh = 0, temp.std = temp.std.k, pres.std = pres.std.pa, unit.pres = 'Pa', unit.temp = 'K', std.message = std.message)
   vCH4 <- xCH4*vBg*vol.mol['CH4']/mvBg
   vCH4 <- as.vector(vCH4)
   vCO2 <- (1 - xCH4)*vBg*vol.mol['CO2']/mvBg
