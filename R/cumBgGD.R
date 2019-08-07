@@ -57,8 +57,8 @@ cumBgGD <- function(
   checkArgClassValue(vol.hs.name, 'character')
   checkArgClassValue(headcomp, 'character')
   checkArgClassValue(vmethod, 'character', expected.values = c('vol', 'volume', 'grav'))
-  checkArgClassValue(comp.lim, 'integer', 'numeric', 'logical')
-  checkArgClassValue(comp.sub, 'logical', expected.values = c(NA, 'lim')
+  checkArgClassValue(comp.lim, c('integer', 'numeric', 'logical')
+  checkArgClassValue(comp.sub, 'logical', expected.values = c(NA, 'lim'))
   # Skip imethod, checked in interp
   checkArgClassValue(addt0, 'logical', expected.values = c(TRUE, FALSE))
   checkArgClassValue(extrap, 'logical', expected.values = c(TRUE, FALSE))
