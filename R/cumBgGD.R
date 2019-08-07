@@ -38,8 +38,38 @@ cumBgGD <- function(
 ){
 
   # Check arguments
-  # NTS: add
-
+  checkArgClassValue(dat, 'data.frame')
+  checkArgClassValue(temp.vol, c('integer', 'numeric', NULL))
+  checkArgClassValue(temp.grav, c('integer', 'numeric', NULL))
+  checkArgClassValue(pres.vol, c('integer', 'numeric', NULL))
+  checkArgClassValue(pres.grav, c('integer', 'numeric', NULL))
+  checkArgClassValue(id.name, 'character')
+  checkArgClassValue(time.name, 'character')
+  checkArgClassValue(vol.name, 'character')  
+  checkArgClassValue(m.pre.name, 'character') #(NTS: this argument should not be required)
+  checkArgClassValue(m.post.name, 'character')
+  checkArgClassValue(comp.name, 'character')
+  checkArgClassValue(vented.mass, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(averaging, 'character', expected.values = c('int', 'fin', 'cum'))
+  checkArgClassValue(temp.init, c('integer', 'numeric', NULL))
+  checkArgClassValue(pres.init, c('integer', 'numeric', NULL))
+  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', NULL))
+  checkArgClassValue(vol.hs.name, 'character')
+  checkArgClassValue(headcomp, 'character')
+  checkArgClassValue(vmethod, 'character', expected.values = c('vol', 'volume', 'grav'))
+  checkArgClassValue(comp.lim, 'integer', 'numeric', 'logical')
+  checkArgClassValue(comp.sub, 'logical', expected.values = c(NA, 'lim')
+  # Skip imethod, checked in interp
+  checkArgClassValue(addt0, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(extrap, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(showt0, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(dry, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(std.message, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(check, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(temp.std, c('integer', 'numeric'))
+  checkArgClassValue(pres.std, c('integer', 'numeric'))
+  checkArgClassValue(unit.temp, 'character')
+  checkArgClassValue(unit.pres, 'character')                   
 
   # Sort out which mass and volume results to use
   averaging <- substr(averaging, 1, 3)
