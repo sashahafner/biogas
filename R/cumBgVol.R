@@ -1,18 +1,17 @@
 cumBgVol <- function(
   # Main arguments
   dat,
-  #add dat.type if pressure is included
-  comp = NULL, # Leave NULL for wide and both combos
-  temp = NULL,             # Temperature for biogas volume measurement
-  pres = NULL,             # Pressure for gas volume measurement
-  interval = TRUE, # When empty.name is used, there is a mix, and interval is ignored
-  data.struct = 'long',    # long, wide, longcombo, widecombo
+  comp = NULL,              # Leave NULL for wide and both combos
+  temp = NULL,              # Temperature for biogas volume measurement
+  pres = NULL,              # Pressure for gas volume measurement
+  interval = TRUE,          # When empty.name is used, there is a mix, and interval is ignored
+  data.struct = 'long',     # long, wide, longcombo, widecombo
   id.name = 'id',
   time.name = 'time',
   dat.name = 'vol', # Will be used for first dat column for data.struct = 'wide'
-  comp.name = 'xCH4',      # Name of xCH4 column in the data frame. Use for first comp col for data.struct = 'wide'
-  headspace = NULL,        # Required if cmethod = 'total'
-  vol.hs.name = 'vol.hs',  # Name of column containing headspace volume data
+  comp.name = 'xCH4',       # Name of xCH4 column in the data frame. Use for first comp col for data.struct = 'wide'
+  headspace = NULL,         # Required if cmethod = 'total'
+  vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
   # Calculation method and other settings
   cmethod = 'removed',      # Method for calculation of cumulative methane production
   imethod = 'linear',       # Method for interpolation of xCH4
@@ -20,7 +19,7 @@ cumBgVol <- function(
   addt0 = TRUE,
   showt0 = TRUE,
   dry = FALSE,
-  empty.name = NULL, # Column name for binary/logical column for when cum vol was reset to zero
+  empty.name = NULL,        # Column name for binary/logical column for when cum vol was reset to zero
   # Warnings and messages
   std.message = !quiet,
   check = TRUE,
@@ -71,7 +70,7 @@ cumBgVol <- function(
     }
   }
   
-  # dat (volume)
+  # dat (vol, volume)
   if(data.struct %in% c('long', 'longcombo')) {
     if(any(missing.col <- !c(id.name, time.name, dat.name) %in% names(dat))){
       stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(id.name, time.name, dat.name)[missing.col], collapse = ', '), '.')
@@ -84,7 +83,6 @@ cumBgVol <- function(
   
   # Check for headspace argument if it is needed
   if(is.null(headspace) & cmethod=='total') stop('cmethod is set to \"total\" but headspace argument is not provided.')
-  
   
   # Check for other input errors
   if(!is.null(id.name) & id.name %in% names(dat)) {
@@ -106,11 +104,6 @@ cumBgVol <- function(
   if(!is.null(empty.name) & !data.struct %in% c('long', 'longcombo')) {
     stop('You can only use mixed interval/cumulative data (empty.name argument) with long or longcombo data structure')
   }
-  
-  # Convert date.type to lowercase so it is more flexible for users
-  dat.type <- tolower(dat.type) #This should be changed. Dat.type is no longer an argument, as this is only vol. 
-  if(dat.type == 'volume') dat.type <- 'vol'
-  
   
   ### Set interval to TRUE (interval) if there is a mix of cumulative and interval volume data (intermittent emptying hanging water columns, eudiometer, etc.)
   ##if(!is.null(empty.name)) {
@@ -216,7 +209,6 @@ cumBgVol <- function(
     }
     
     data.struct <- 'long'
-    
   }
   
   # Remove missing values for cumulative data only
@@ -260,7 +252,6 @@ cumBgVol <- function(
       pres <- 'pressure' 
     } 
   }
-  
   
   # Now that all data are in long structure (NTS: also for widecombo?) sort out mixed interval/cumulative data
   if(!is.null(empty.name)) {
@@ -318,7 +309,7 @@ cumBgVol <- function(
       # NTS: message needs to be fixed due to change in temp to column in dat
       #if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as temp (', temp, unit.temp, '), pressure as \"pres\" (', pres, unit.pres, '), and relative humidity as 1.0 (100%).')
       # NTS: problem with rh assumption here. Will actually be < 1 after gas removal
-      # Also assume vol meas pressure pres = residual headspace pressure
+      # Also assume vol meas pressure = residual headspace pressure
       dat$vhsCH4 <- dat[, comp.name]*
         stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres], rh = 1, pres.std = pres.std, 
                temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
