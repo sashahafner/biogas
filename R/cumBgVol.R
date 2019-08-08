@@ -10,7 +10,9 @@ cumBgVol <- function(
   id.name = 'id',
   time.name = 'time',
   dat.name = 'vol', # Will be used for first dat column for data.struct = 'wide'
-  comp.name = 'xCH4',    # Name of xCH4 column in the data frame. Use for first comp col for data.struct = 'wide'
+  comp.name = 'xCH4',      # Name of xCH4 column in the data frame. Use for first comp col for data.struct = 'wide'
+  headspace = NULL,        # Required if cmethod = 'total'
+  vol.hs.name = 'vol.hs',  # Name of column containing headspace volume data
   # Calculation method and other settings
   cmethod = 'removed',      # Method for calculation of cumulative methane production
   imethod = 'linear',       # Method for interpolation of xCH4
@@ -42,6 +44,8 @@ cumBgVol <- function(
   checkArgClassValue(time.name, 'character')
   checkArgClassValue(dat.name, 'character', expected.values = 'xCH4')
   checkArgClassValue(comp.name, c('character', 'NULL'))
+  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
+  checkArgClassValue(vol.hs.name, 'character')
   checkArgClassValue(cmethod, 'character', expected.values = c('removed', 'total'))
   # Skip imethod, checked in interp
   checkArgClassValue(extrap, 'logical')
