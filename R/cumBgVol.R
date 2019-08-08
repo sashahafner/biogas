@@ -282,7 +282,7 @@ cumBgVol <- function(
     interval <- TRUE
   }
   
-  # Volumetric
+  # Volumetric method I
   # Function will work with vol and add columns
     # vol dat needs id time vol
     
@@ -301,10 +301,11 @@ cumBgVol <- function(
       }
     } 
     
-    # Calculate interval (or cum if interval = FALSE) gas production
-    # For cmethod = 'total', calculate headspace CH4 to add for total below
+    # Calculate interval (or cum if interval = FALSE) methane production
     dat$vCH4 <- dat$vBg*dat[, comp.name]
-      
+    
+  # Volumetric method II  
+    # For cmethod = 'total', calculate headspace CH4 to add for total below
     if(cmethod=='total') {
       # NTS: message needs to be fixed due to change in temp to column in dat
       #if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as temp (', temp, unit.temp, '), pressure as \"pres\" (', pres, unit.pres, '), and relative humidity as 1.0 (100%).')
