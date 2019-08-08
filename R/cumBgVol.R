@@ -257,14 +257,6 @@ cumBgVol <- function(
     } 
   }
   
-  # Correct composition data if it seems to be a percentage
-  if (dat.type != 'gca') {
-    if (any(na.omit(dat[, comp.name] > 1))) {
-      dat[, comp.name] <- dat[, comp.name]/100
-      warning('Methane concentration was > 1.0 mol/mol for at least one observation, so is assumed to be a percentage, and was corrected by dividing by 100. ',
-              'Range of new values: ', min(na.omit(dat[, comp.name])), '-', max(na.omit(dat[, comp.name])))
-    }
-  }
   
   # Now that all data are in long structure (NTS: also for widecombo?) sort out mixed interval/cumulative data
   if(!is.null(empty.name)) {
@@ -297,110 +289,23 @@ cumBgVol <- function(
   
   # Volumetric
   # Function will work with vol and add columns
-  if(dat.type %in% c('vol', 'volume', 'pres', 'pressure')) {
+  if(dat.type %in% c('vol', 'volume')) {
     # vol dat needs id time vol
     
     # Standardize total gas volumes
-    # Note that temperature and pressure units are not converted at all in cumBg (but are in stdVol of course)
-    if(dat.type %in% c('vol', 'volume')) {
-      if(!quiet) message('Working with volume data, applying volumetric method.')
-      if(!standardized) {
-        if(!is.null(temp) & !is.null(pres)) {
+    # Note that temperature and pressure units are not converted at all in cumBgVol (but are in stdVol of course)
+    if(!standardized) {
+      if(!is.null(temp) & !is.null(pres)) {
           dat$vBg <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, pres.std = pres.std, 
                             temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
                             std.message = std.message)
-        } else {
+      } else {
           dat$vBg <- dat[, dat.name]
           message('Either temperature or presure is missing (temp and pres arguments) so volumes are NOT standardized.')
-        }
       } else {
         dat$vBg <- dat[, dat.name]
       }
     } 
-    
-    if(dat.type %in% c('pres', 'pressure')) {
-      if(!quiet) message('Working with pressure data, pressure measurements are', if (absolute) ' ABSOLUTE' else ' GAUGE', 
-                         ' If this is incorrect, change \'absolute\' argument to ', !absolute, '.')
-      
-      # Add pres.resid to dat if it isn't already present
-      if(is.numeric(pres.resid) | is.integer(pres.resid)) {
-        dat$pres.resid <- pres.resid
-        pres.resid <- 'pres.resid'
-      }
-      
-      # If absolute != TRUE, calculate absolute pressure and add to dat
-      if(!absolute) {
-        if(is.null(pres.amb)) stop('Pressure measurements are GAUGE but pres.amb argument was not provided.')
-        
-        dat[, aa <- paste0(dat.name, '.abs')] <- dat[, dat.name] + pres.amb
-        dat.name <- aa
-        
-        dat[, aa <- paste0(pres.resid, '.abs')] <- dat[, pres.resid] + pres.amb
-        pres.resid <- aa
-        
-        pres.init <- pres.init + pres.amb
-      }
-      
-      # Add residual rh (after pressure measurement and venting)
-      if(interval) {
-        if(is.null(rh.resid)) {
-          dat$rh.resid <- dat[, pres.resid]/dat[, dat.name]
-          dat$rh.resid[dat$rh.resid > 1] <- 1
-        } else {
-          dat$rh.resid <- rh.resid
-        }
-      }
-      
-      # Sort to add *previous* residual pressure, rh, and temperature columns
-      dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-      
-      # Standardized headspace volume before venting
-      vHS <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, dat.name], rh = rh, 
-                    pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                    unit.pres = unit.pres, std.message = FALSE, warn = FALSE) 
-      
-      # Finally, calculate volume of gas in bottle headspace
-      if(interval) {
-        
-        # Add previous residual pressure, residual rh, temperature, and residual xCH4 columns
-        for(i in unique(dat[, id.name])) {
-          pr <- dat[dat[, id.name]==i, pres.resid]
-          tt <- dat[dat[, id.name]==i, temp]
-          rhr <- dat[dat[, id.name]==i, 'rh.resid']
-          xr <- dat[dat[, id.name]==i, comp.name]
-          dat[dat[, id.name]==i, 'pres.resid.prev'] <- c(pres.init, pr[-length(pr)])
-          dat[dat[, id.name]==i, 'rh.resid.prev'] <- c(rh.resid.init, rhr[-length(rhr)])
-          dat[dat[, id.name]==i, 'temp.prev'] <- c(temp.init, tt[-length(tt)])
-          dat[dat[, id.name]==i, paste0(comp.name, '.prev')] <- c(0, xr[-length(xr)])
-        }
-        
-        # Residual headspace volume at end of previous interval
-        vHSr <- stdVol(dat[, vol.hs.name], temp = dat[, 'temp.prev'], pres = dat$pres.resid.prev, rh = dat$rh.resid.prev,  
-                       pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                       unit.pres = unit.pres, std.message = std.message)
-        
-        # vBg is biogas *production*
-        dat$vBg <- vHS - vHSr
-        
-        if(cmethod == 'total') {
-          dat$vCH4 <- vHS * dat[, comp.name] - vHSr * dat[, paste0(comp.name, '.prev')]
-        } else {
-          dat$vCH4 <- dat$vBg*dat[, comp.name]
-        }
-        
-      } else {
-        # Initial headspace volume
-        vHSi <- stdVol(dat[, vol.hs.name], temp = temp.init, pres = pres.init, rh = rh.resid.init,  
-                       pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                       unit.pres = unit.pres, std.message = std.message, warn = FALSE)
-        
-        
-        # Second call (subtracted bit) is original bottle headspace (standardized), assumed to start at first pres.resid 
-        # These are actually cv cumulative volumes, changed below (set to cv here once this is in a cumBgMan() function)
-        dat$vBg <- vHS - vHSi
-        dat$vCH4 <- dat$vBg * dat[, comp.name]
-      }
-    }
     
     # Calculate interval (or cum if interval = FALSE) gas production
     # For cmethod = 'total', calculate headspace CH4 to add for total below
