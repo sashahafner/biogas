@@ -5,10 +5,10 @@ cumBgVol <- function(
   temp = NULL,              # Temperature for biogas volume measurement
   pres = NULL,              # Pressure for gas volume measurement
   interval = TRUE,          # When empty.name is used, there is a mix, and interval is ignored
-  data.struct = 'long',     # long, wide, longcombo, widecombo
+  data.struct = 'long',     # long, wide, longcombo
   id.name = 'id',
   time.name = 'time',
-  dat.name = 'vol', # Will be used for first dat column for data.struct = 'wide'
+  dat.name = 'vol',         # Will be used for first dat column for data.struct = 'wide'
   comp.name = 'xCH4',       # Name of xCH4 column in the data frame. Use for first comp col for data.struct = 'wide'
   headspace = NULL,         # Required if cmethod = 'total'
   vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
@@ -92,7 +92,7 @@ cumBgVol <- function(
     }
   }
   
-  # And more
+  # Check for mixed interval/cumulative data
   if(!is.null(empty.name) & !class(dat[, empty.name])[1] %in% c('logical', 'integer', 'numeric')) {
     stop('The empty.name column must be integer, numeric, or logical.')
   }
@@ -107,10 +107,10 @@ cumBgVol <- function(
   
   ### Set interval to TRUE (interval) if there is a mix of cumulative and interval volume data (intermittent emptying hanging water columns, eudiometer, etc.)
   ##if(!is.null(empty.name)) {
-  ##  interval <- FALSE
+  ##  interval <- FALSE    NTS: Default is true. Is this argument relevant?
   ##}
   
-  # For dat (vol) missing values are OK if they are cumulative (NTS: why OK if cumulative? Interpolated?)
+  # For volumetric dat missing values are OK if they are cumulative (NTS: why OK if cumulative? Interpolated?)
   # Applies to wide data
   # But now wide data excepted totally
   if(!is.null(dat.name)) {
@@ -287,7 +287,7 @@ cumBgVol <- function(
     # vol dat needs id time vol
     
     # Standardize total gas volumes
-    # Note that temperature and pressure units are not converted at all in cumBgVol (but are in stdVol of course)
+    # Note that temperature and pressure units are not converted at all in cumBgVol (but are in stdVol)
     if(!standardized) {
       if(!is.null(temp) & !is.null(pres)) {
           dat$vBg <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, pres.std = pres.std, 
@@ -296,8 +296,8 @@ cumBgVol <- function(
       } else {
           dat$vBg <- dat[, dat.name]
           message('Either temperature or presure is missing (temp and pres arguments) so volumes are NOT standardized.')
-      } else {
-        dat$vBg <- dat[, dat.name]
+      #} else {
+       # dat$vBg <- dat[, dat.name]   # Is this necessary? Same code as just above
       }
     } 
     
@@ -444,4 +444,6 @@ cumBgVol <- function(
     
     return(dat)
     
+  } 
+
  
