@@ -41,8 +41,8 @@ cumBgVol <- function(
   checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
   checkArgClassValue(id.name, 'character')
   checkArgClassValue(time.name, 'character')
-  checkArgClassValue(dat.name, 'character', expected.values = 'xCH4')
-  checkArgClassValue(comp.name, c('character', 'NULL'))
+  checkArgClassValue(dat.name, 'character', expected.values = 'vol')
+  checkArgClassValue(comp.name, c('character', 'NULL'), expected.values = 'xCH4')
   checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
   checkArgClassValue(vol.hs.name, 'character')
   checkArgClassValue(cmethod, 'character', expected.values = c('removed', 'total'))
@@ -84,7 +84,7 @@ cumBgVol <- function(
   # Check for headspace argument if it is needed
   if(is.null(headspace) & cmethod=='total') stop('cmethod is set to \"total\" but headspace argument is not provided.')
   
-  # Check for other input errors
+  # Check for input errors in reactor identification code column
   if(!is.null(id.name) & id.name %in% names(dat)) {
     if(any(is.na(dat[, id.name]))) {
       w <- which(is.na(dat[, id.name]))
@@ -128,7 +128,7 @@ cumBgVol <- function(
   }
   
   # NTS: add checks for column types (catches problem with data read in incorrectly, e.g., from Excel with)
-  #if(!is.null(comp) && class(comp)=='data.frame' && data.struct == 'long' && any(is.na(comp[, comp.name]))) stop('Missing data in comp data frame. See rows ', paste(which(is.na(comp[, comp.name])), collapse = ', '), '.')
+  if(!is.null(comp) && class(comp)=='data.frame' && data.struct == 'long' && any(is.na(comp[, comp.name]))) stop('Missing data in comp data frame. See rows ', paste(which(is.na(comp[, comp.name])), collapse = ', '), '.')
   # Drop missing comp rows
   
   # NTS: Add other checks here (e.g., missing values elsewhere)
