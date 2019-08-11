@@ -1,7 +1,7 @@
 cumBgVol <- function(
   # Main arguments
   dat,
-  comp = NULL,              # Leave NULL for wide and both combos
+  comp = NULL,              # Leave NULL for wide and longcombo
   temp = NULL,              # Temperature for biogas volume measurement
   pres = NULL,              # Pressure for gas volume measurement
   interval = TRUE,          # When empty.name is used, there is a mix, and interval is ignored
