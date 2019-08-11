@@ -49,23 +49,23 @@ cumBgGD <- function(
   checkArgClassValue(m.pre.name, 'character') #(NTS: this argument should not be required)
   checkArgClassValue(m.post.name, 'character')
   checkArgClassValue(comp.name, 'character')
-  checkArgClassValue(vented.mass, 'logical', expected.values = c(TRUE, FALSE))
-  checkArgClassValue(averaging, 'character', expected.values = c('int', 'fin', 'cum'))
+  checkArgClassValue(vented.mass, 'logical')
+  checkArgClassValue(averaging, 'character', expected.values = c('int', 'fin', 'cum', 'interval', 'final', 'cumulative'))
   checkArgClassValue(temp.init, c('integer', 'numeric', NULL))
   checkArgClassValue(pres.init, c('integer', 'numeric', NULL))
-  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', NULL))
+  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', NULL)) # NTS: check
   checkArgClassValue(vol.hs.name, 'character')
   checkArgClassValue(headcomp, 'character')
-  checkArgClassValue(vmethod, 'character', expected.values = c('vol', 'volume', 'grav'))
-  checkArgClassValue(comp.lim, c('integer', 'numeric', 'logical'))
-  checkArgClassValue(comp.sub, 'logical', expected.values = c(NA, 'lim'))
+  checkArgClassValue(vmethod, 'character', expected.values = c('vol', 'volume', 'grav', 'gravimetric'))
+  checkArgClassValue(comp.lim, c('integer', 'numeric'))
+  checkArgClassValue(comp.sub, 'logical', expected.values = c(NA, 'lim', 'numeric'))
   # Skip imethod, checked in interp
-  checkArgClassValue(addt0, 'logical', expected.values = c(TRUE, FALSE))
-  checkArgClassValue(extrap, 'logical', expected.values = c(TRUE, FALSE))
-  checkArgClassValue(showt0, 'logical', expected.values = c(TRUE, FALSE))
-  checkArgClassValue(dry, 'logical', expected.values = c(TRUE, FALSE))
-  checkArgClassValue(std.message, 'logical', expected.values = c(TRUE, FALSE))
-  checkArgClassValue(check, 'logical', expected.values = c(TRUE, FALSE))
+  checkArgClassValue(addt0, 'logical')
+  checkArgClassValue(extrap, 'logical')
+  checkArgClassValue(showt0, 'logical')
+  checkArgClassValue(dry, 'logical')
+  checkArgClassValue(std.message, 'logical')
+  checkArgClassValue(check, 'logical')
   checkArgClassValue(temp.std, c('integer', 'numeric'))
   checkArgClassValue(pres.std, c('integer', 'numeric'))
   checkArgClassValue(unit.temp, 'character')
@@ -217,7 +217,7 @@ cumBgGD <- function(
   # NTS: This should ultimately be done in a separate function, also called by cumBg() or cumBgVol()
   # Volumetric
   # Function will work with vol and add columns
-  if(tolower(vmethod) %in% c('vol', 'volume')) {
+  if(vmethod %in% c('vol', 'volume')) {
     # vol dat needs id time vol
 
     # Interpolate xCH4 if needed
@@ -292,7 +292,7 @@ cumBgGD <- function(
 
     return(dat)
 
-  } else if(vmethod == 'grav') {
+  } else if(vmethod %in% c('grav', 'gravimetric')) {
 
     # Gravimetric
     message('Working with mass data (applying gravimetric approach).')
