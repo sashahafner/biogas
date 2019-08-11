@@ -1,4 +1,3 @@
-# Modified: 20 Feb 2016 SDH
 
 mass2vol <- function(
   mass,
