@@ -3,12 +3,12 @@ cumBgVol <- function(
   dat,
   comp = NULL,              # Leave NULL for wide and longcombo
   temp = NULL,              # Temperature for biogas volume measurement
-  pres = NULL,              # Pressure for gas volume measurement
+  pres = NULL,              # Pressure for biogas volume measurement
   interval = TRUE,          # When empty.name is used, there is a mix, and interval is ignored
   data.struct = 'long',     # long, wide, longcombo
   id.name = 'id',
   time.name = 'time',
-  dat.name = 'vol',         # Will be used for first dat column for data.struct = 'wide'
+  dat.name = 'vol',         # Name of column containing respons variable (volume measurements)
   comp.name = 'xCH4',       # Name of xCH4 column in the data frame. Use for first comp col for data.struct = 'wide'
   headspace = NULL,         # Required if cmethod = 'total'
   vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
@@ -54,6 +54,10 @@ cumBgVol <- function(
   checkArgClassValue(empty.name, c('character', 'NULL'))
   checkArgClassValue(std.message, 'logical')
   checkArgClassValue(check, 'logical')
+  checkArgClassValue(temp.std, c('integer', 'numeric'))
+  checkArgClassValue(pres.std, c('integer', 'numeric'))
+  checkArgClassValue(unit.temp, 'character')
+  checkArgClassValue(unit.pres, 'character') 
   
   # Hard-wire rh for now at least
   if(!dry) {
@@ -69,8 +73,7 @@ cumBgVol <- function(
       stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', c(id.name, comp.name)[missing.col], '.')
     }
   }
-  
-  # dat (vol, volume)
+
   if(data.struct %in% c('long', 'longcombo')) {
     if(any(missing.col <- !c(id.name, time.name, dat.name) %in% names(dat))){
       stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(id.name, time.name, dat.name)[missing.col], collapse = ', '), '.')
@@ -107,7 +110,7 @@ cumBgVol <- function(
   
   ### Set interval to TRUE (interval) if there is a mix of cumulative and interval volume data (intermittent emptying hanging water columns, eudiometer, etc.)
   ##if(!is.null(empty.name)) {
-  ##  interval <- FALSE    NTS: Default is true. Is this argument relevant?
+  ##  interval <- FALSE    NTS: Default is true. Is this argument relevant? Note above states that interval is ignored when empty.name is used. Meaning this code makes sense, but the statement above does not. 
   ##}
   
   # For volumetric dat missing values are OK if they are cumulative (NTS: why OK if cumulative? Interpolated?)
@@ -128,7 +131,7 @@ cumBgVol <- function(
   }
   
   # NTS: add checks for column types (catches problem with data read in incorrectly, e.g., from Excel with)
-  if(!is.null(comp) && class(comp)=='data.frame' && data.struct == 'long' && any(is.na(comp[, comp.name]))) stop('Missing data in comp data frame. See rows ', paste(which(is.na(comp[, comp.name])), collapse = ', '), '.')
+  # if(!is.null(comp) && class(comp)=='data.frame' && data.struct == 'long' && any(is.na(comp[, comp.name]))) stop('Missing data in comp data frame. See rows ', paste(which(is.na(comp[, comp.name])), collapse = ', '), '.')
   # Drop missing comp rows
   
   # NTS: Add other checks here (e.g., missing values elsewhere)
@@ -208,6 +211,7 @@ cumBgVol <- function(
       names(comp)[names(comp) == 'idxyz'] <- id.name
     }
     
+    # Convert data structure to long 
     data.struct <- 'long'
   }
   
@@ -216,12 +220,14 @@ cumBgVol <- function(
     dat <- dat[!is.na(dat[, dat.name]), ]
   }
   
-  # If there are missing values in a longcombo data frame, switch to long
-  # NTS: this is not the most efficient approach, maybe revisit
+  # Rearrange longcombo data to long
+   # If there are missing values in a longcombo data frame, switch to long
+   # NTS: this is not the most efficient approach, maybe revisit
   if(data.struct == 'longcombo' && any(is.na(dat[, comp.name]))) {
     comp <- dat[, c(id.name, time.name, comp.name)]
     dat <- dat[, names(dat) != comp.name]
     
+    # Convert data structure to long
     data.struct <- 'long'
   }
   
@@ -303,147 +309,149 @@ cumBgVol <- function(
     
     # Calculate interval (or cum if interval = FALSE) methane production
     dat$vCH4 <- dat$vBg*dat[, comp.name]
-    
-  # Volumetric method II  
-    # For cmethod = 'total', calculate headspace CH4 to add for total below
-    if(cmethod=='total') {
-      # NTS: message needs to be fixed due to change in temp to column in dat
-      #if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as temp (', temp, unit.temp, '), pressure as \"pres\" (', pres, unit.pres, '), and relative humidity as 1.0 (100%).')
-      # NTS: problem with rh assumption here. Will actually be < 1 after gas removal
-      # Also assume vol meas pressure = residual headspace pressure
-      dat$vhsCH4 <- dat[, comp.name]*
-        stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres], rh = 1, pres.std = pres.std, 
-               temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
-               std.message = std.message)
-    }
-      # vhsCH4 is added to cvCH4 below
-      # Calculations are up here to avoid t0 issues
+  
+  # Volumetric calculation method  
+    # Volumetric method II  
+      # For cmethod = 'total', calculate headspace CH4 to add for total below
+      if(cmethod=='total') {
+        # NTS: message needs to be fixed due to change in temp to column in dat
+        #if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as temp (', temp, unit.temp, '), pressure as \"pres\" (', pres, unit.pres, '), and relative humidity as 1.0 (100%).')
+        # NTS: problem with rh assumption here. Will actually be < 1 after gas removal
+        # Also assume vol meas pressure = residual headspace pressure
+        dat$vhsCH4 <- dat[, comp.name]*
+          stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres], rh = 1, pres.std = pres.std, 
+                 temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
+                 std.message = std.message)
+      }
+        # vhsCH4 is added to cvCH4 below
+        # Calculations are up here to avoid t0 issues
     
     # Add t0 row if requested
-    # Not added if there are already zeroes present!
-    if(addt0 & !class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) addt0 <- FALSE
-    if(addt0 & !any(dat[, time.name]==0)) {
-      t0 <- data.frame(id = unique(dat[, id.name]), tt = 0, check.names = FALSE)
-      names(t0) <- c(id.name, time.name)
-      t0[, 'vBg'] <- t0[, 'vCH4'] <- 0
+      # Not added if there are already zeroes present!
+      if(addt0 & !class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) addt0 <- FALSE
+      if(addt0 & !any(dat[, time.name]==0)) {
+        t0 <- data.frame(id = unique(dat[, id.name]), tt = 0, check.names = FALSE)
+        names(t0) <- c(id.name, time.name)
+        t0[, 'vBg'] <- t0[, 'vCH4'] <- 0
       
       # This messy, but needed for calculating vCH4 by diff when this method is used and interval = FALSE
-      if(cmethod == 'total') {
+        if(cmethod == 'total') {
         t0[, 'vhsCH4'] <- 0
+        }
+        dat <- rbindf(dat, t0)
       }
-      dat <- rbindf(dat, t0)
-    }
     
     # Calculate delta t for rates
-    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-    if(class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) {
-      dt <- c(NA, diff(dat[, time.name]))
-    } else if(class(dat[, time.name])[1] %in% c('POSIXct', 'POSIXlt')) {
-      dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
-    } else {
-      dt <- NA
-      warning('class of time column in dat data frame not recognized, so rates will not be calculated.')
-    }
-    # Set dt to NA for first observations for each reactor
-    dt[c(TRUE, dat[, id.name][-1] != dat[, id.name][-nrow(dat)])] <- NA 
+      dat <- dat[order(dat[, id.name], dat[, time.name]), ]
+      if(class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) {
+        dt <- c(NA, diff(dat[, time.name]))
+      } else if(class(dat[, time.name])[1] %in% c('POSIXct', 'POSIXlt')) {
+        dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
+      } else {
+        dt <- NA
+        warning('class of time column in dat data frame not recognized, so rates will not be calculated.')
+      }
+    
+      # Set dt to NA for first observations for each reactor
+      dt[c(TRUE, dat[, id.name][-1] != dat[, id.name][-nrow(dat)])] <- NA 
     
     # May already have cumulative production, if so move it to cvCH4, and calculate vCH4 down below
-    if(!interval) {
-      dat$cvBg <- dat$vBg
-      dat$cvCH4 <- dat$vCH4
-    }
+      if(!interval) {
+        dat$cvBg <- dat$vBg
+        dat$cvCH4 <- dat$vCH4
+      }
     
     # Calculate cumulative production or interval production (depending on interval argument)
-    # And calculate rates
-    if(interval) {
-      for(i in unique(dat[, id.name])) {
-        dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
-        dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
-      } 
-    }
-    
-    # For cmethod = 'total', add headspace CH4 to cvCH4
-    if(cmethod == 'total') {
-      dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
-    }
-    
-    # For cumulative results, calculate interval production from cvCH4 (down here because it may have headspace CH4 added if cmethod = total) so cannot be combined with cvCH4 calcs above
-    # vBg could be moved up, but that means more code
-    if(!interval) {
-      for(i in unique(dat[, id.name])) {
-        dat[dat[, id.name]==i, 'vBg'] <- diff(c(0, dat[dat[, id.name]==i, 'cvBg' ]))
-        dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+      if(interval) {
+        for(i in unique(dat[, id.name])) {
+          dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
+          dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
+        } 
       }
-    }
     
-    # When cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
-    # vBg is not affected by cmethod = 'total'
-    if(cmethod == 'total') {
-      for(i in unique(dat[, id.name])) {
-        dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+      # For method II, cmethod = 'total', add headspace CH4 to cvCH4
+      if(cmethod == 'total') {
+        dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
       }
-    }
     
-    # Calculate rates for all cases 
-    for(i in unique(dat[, id.name])) {
-      dat[dat[, id.name]==i, 'rvBg'] <- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
-      dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
-    }
-    
-    # Drop t0 if not requested (whether originally present or added)
-    if(!showt0) {
-      dat <- dat[dat[, time.name] != 0, ]
-    }
-    
-    # Sort and return results
-    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-    
-    if(is.null(comp) & data.struct != 'longcombo') { # NTS: revisit if data.struct is ever expanded
-      warning('Biogas composition date (\'comp\' and \'name.comp\' arguments) not provided so CH4 results will not be returned.')
-      dat <- dat[, ! names(dat) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
-    }
-    
-    if(all(is.na(dt))) {
-      dat <- dat[, ! names(dat) %in% c('rvBg','rvCH4')]
-    }
-    
-    # Drop NAs if they extend to the latest time for a given bottle (based on problem with AMPTSII data, sometimes shorter for some bottles)
-    if(any(is.na(dat[, dat.name]))) {
-      dat2 <- data.frame()
-      for(i in unique(dat[, id.name])) {
-        dd <- dat[dat[, id.name] == i, ]
-        if(is.na(dd[nrow(dd), dat.name])) {
-          # All NAs
-          i1 <- which(is.na(dd[, dat.name]))
-          
-          # Look for consecutive NAs
-          i1d <- diff(i1)
-          
-          # That are uninterupted by a value
-          if(any(i1d > 1)) {
-            i2 <- max(which(i1d > 1)) + 1 
-          } else {
-            i2 <- 1
-          }
-          
-          i3 <- i1[i2]
-          
-          dat2 <- rbind(dat2, dd[-c(i3:nrow(dd)), ])
-          
-        } else {
-          
-          dat2 <- rbind(dat2, dd)
-          
+      # Method I
+      # For cumulative results, calculate interval production from cvCH4 (down here because it may have headspace CH4 added if cmethod = total) so cannot be combined with cvCH4 calcs above
+      # vBg could be moved up, but that means more code
+      if(!interval) {
+        for(i in unique(dat[, id.name])) {
+          dat[dat[, id.name]==i, 'vBg'] <- diff(c(0, dat[dat[, id.name]==i, 'cvBg' ]))
+          dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
         }
       }
+    
+      # Method II
+      # For method II, when cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
+      # vBg is not affected by cmethod = 'total'
+      if(cmethod == 'total') {
+        for(i in unique(dat[, id.name])) {
+          dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+        }
+      }
+    
+    # Calculate rates for all cases 
+      # Method I & II
+      for(i in unique(dat[, id.name])) {
+        dat[dat[, id.name]==i, 'rvBg'] <- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
+        dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
+      }
+    
+    # Drop t0 if not requested (whether originally present or added)
+      if(!showt0) {
+        dat <- dat[dat[, time.name] != 0, ]
+      }
+    
+    # Sort and return results
+      dat <- dat[order(dat[, id.name], dat[, time.name]), ]
+    
+      if(is.null(comp) & data.struct != 'longcombo') { # NTS: revisit if data.struct is ever expanded
+        warning('Biogas composition date (\'comp\' and \'name.comp\' arguments) not provided so CH4 results will not be returned.')
+        dat <- dat[, ! names(dat) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
+      }
+    
+      if(all(is.na(dt))) {
+        dat <- dat[, ! names(dat) %in% c('rvBg','rvCH4')]
+      }
+    
+    # Drop NAs if they extend to the latest time for a given bottle (based on problem with AMPTSII data, sometimes shorter for some bottles)
+      if(any(is.na(dat[, dat.name]))) {
+        dat2 <- data.frame()
+        for(i in unique(dat[, id.name])) {
+          dd <- dat[dat[, id.name] == i, ]
+          if(is.na(dd[nrow(dd), dat.name])) {
+            # All NAs
+            i1 <- which(is.na(dd[, dat.name]))
+          
+            # Look for consecutive NAs
+            i1d <- diff(i1)
+          
+            # That are uninterupted by a value
+            if(any(i1d > 1)) {
+              i2 <- max(which(i1d > 1)) + 1 
+            } else {
+              i2 <- 1
+            }
+          
+            i3 <- i1[i2]
+          
+            dat2 <- rbind(dat2, dd[-c(i3:nrow(dd)), ])
+          
+          } else {
+          
+            dat2 <- rbind(dat2, dd)
+          
+          }
+        }
       
-      dat <- dat2
-    }
+        dat <- dat2
+      }
     
-    rownames(dat) <- 1:nrow(dat)
+      rownames(dat) <- 1:nrow(dat)
     
-    return(dat)
+      return(dat)
     
-  } 
-
- 
+    } 
