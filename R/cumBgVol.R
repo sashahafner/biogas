@@ -41,8 +41,8 @@ cumBgVol <- function(
   checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
   checkArgClassValue(id.name, 'character')
   checkArgClassValue(time.name, 'character')
-  checkArgClassValue(dat.name, 'character', expected.values = 'vol')
-  checkArgClassValue(comp.name, c('character', 'NULL'), expected.values = 'xCH4')
+  checkArgClassValue(dat.name, 'character')
+  checkArgClassValue(comp.name, c('character', 'NULL'))
   checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
   checkArgClassValue(vol.hs.name, 'character')
   checkArgClassValue(cmethod, 'character', expected.values = c('removed', 'total'))
@@ -153,11 +153,11 @@ cumBgVol <- function(
   # Create standardized binary variable that indicates when vBg has been standardized
   standardized <- FALSE
   
-  # Rearrange wide data (NTS: what about widecombo?)
+  # Rearrange wide data 
   if(data.struct == 'wide') {
     
     which.first.col <- which(names(dat) == dat.name)
-    dat.name <- dat.type
+    #dat.name <- dat.type   # needs new argument since dat.type does not exist in this function. Maybe just delete line.
     
     # Number of reactors
     nr <- ncol(dat) - which.first.col + 1
@@ -338,7 +338,7 @@ cumBgVol <- function(
             'Range of new values: ', min(na.omit(dat[, comp.name])), '-', max(na.omit(dat[, comp.name])))
   }
   
-  # Now that all data are in long structure (NTS: also for widecombo?) sort out mixed interval/cumulative data
+  # Now that all data are in long structure, sort out mixed interval/cumulative data
   if(!is.null(empty.name)) {
     # Sort by id and time
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
