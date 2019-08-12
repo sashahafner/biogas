@@ -231,6 +231,79 @@ cumBgVol <- function(
     data.struct <- 'long'
   }
   
+  # Sort out composition data if using long data.struct
+  # Skipped for longcombo with no NAs (xCH4 already included in dat)
+  # GCA method has no biogas composition
+  if(tolower(data.struct) == 'long' & dat.type != 'gca') {
+    
+    mssg.no.time <- mssg.interp <- FALSE
+    # First sort so can find first observation for mass data to ignore it
+    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
+    dat[, comp.name] <- NA
+    
+    if(!is.null(comp) && class(comp)[1] == 'data.frame'){
+      
+      # Drop NAs from comp--this applies to wide, long, and longcombo data.struct
+      comp <- comp[!is.na(comp[, comp.name]), ]
+      
+      # Interpolate gas composition to times of volume measurements
+      for(i in unique(dat[, id.name])) {
+        if(dat.type=='mass' & nrow(dat[dat[, id.name]==i, ])<2) stop('There are < 2 observations for reactor ', i,' but dat.type = \"mass\". 
+                                                                     You need at least 2 observations to apply the gravimetric method.')
+        dc <- comp[comp[, id.name]==i, ]
+        if(nrow(dc)==0) stop('No biogas composition data for reactor ', i,' so can\'t interpolate!') 
+        if(nrow(dc)>1) {
+          # If there is no time column
+          if(!time.name %in% names(comp)) stop('Problem with comp  (', deparse(substitute(comp)), 
+                                               '): a time column was not found but there is > 1 observation at least for reactor ',i, '.')
+          if(dat.type %in% c('vol', 'volume', 'pres', 'pressure')) {
+            mssg.interp <- TRUE
+            dat[dat[, id.name]==i, comp.name] <- interp(dc[, time.name], dc[, comp.name], time.out = dat[dat[, id.name]==i, time.name], method = imethod, extrap = extrap)
+            # Set first value to zero if there is no biogas production (fixes problem with cmethod = total when there is a t0 observation included)
+            dat[dat[, id.name]==i & dat[, dat.name]==0, comp.name][1] <- 0
+          } else if (dat.type=='mass') {
+            # Then ignore first point, since it isn't used anyway--this is just to avoid warning with interp if extrap = FALSE
+            mssg.interp <- TRUE
+            dat[dat[, id.name]==i, comp.name][-1] <- interp(dc[, time.name], dc[, comp.name], time.out = dat[dat[, id.name]==i, time.name][-1], method = imethod, extrap = extrap)
+          }
+        } else { # If only one xCH4 value is available, use it for all dat obs if extrap = TRUE or times match, but warn if times don't match
+          if(!time.name %in% names(comp)) {
+            # If there is no time column in comp
+            mssg.no.time <- TRUE
+            dat[dat[, id.name]==i, comp.name] <- dc[, comp.name]
+          } else {
+            # There is a time column in dc/comp
+            for(j in 1:nrow(dat[dat[, id.name]==i, ])) {
+              if(j > 1 | dat.type!='mass') { # This just to avoid warning for first observation for mass data
+                if(dc[, time.name]==dat[dat[, id.name]==i, time.name][j]) { 
+                  # If times match
+                  dat[dat[, id.name]==i, comp.name][j] <- dc[, comp.name]
+                } else {
+                  if(extrap) {
+                    dat[dat[, id.name]==i, comp.name][j] <- dc[, comp.name]
+                  } else {
+                    dat[dat[, id.name]==i, comp.name][j] <- NA
+                    warning('Not enough ', comp.name, ' data (one observation) to interpolate for reactor ', i,' so results will be missing.\n If you prefer, you can use constant extrapolation by setting extrap = TRUE.')
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } else if (!is.null(comp) && class(comp)[1] %in% c('numeric', 'integer') && length(comp)==1) {
+      # Or if a single value is given, use it
+      if (!quiet) message('Only a single value was provided for biogas composition (', comp, '), so applying it to all observations.')
+      dat[, comp.name] <- comp
+    } else if (dat.type != 'gca') {
+      # If no composition data is given, just use NA
+      dat[, comp.name] <- NA 
+    }
+    if(!quiet & mssg.no.time) message('A time column was not found in comp (', deparse(substitute(comp)), '), and a single value was used for each reactor.')
+    if(!quiet & mssg.interp) message('Biogas composition is interpolated.')
+    
+  } 
+  
   # Add headspace if provided
   if(!is.null(headspace)) {
     if(is.numeric(headspace)) {
