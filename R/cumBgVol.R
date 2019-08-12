@@ -287,30 +287,30 @@ cumBgVol <- function(
     standardized <- TRUE
     interval <- TRUE
   }
-  
-  # Volumetric method I
-  # Function will work with vol and add columns
-    # vol dat needs id time vol
+ 
+  # Volumetric calculation methods 
+    # Volumetric method I
+    # Function will work with vol and add columns
+      # vol dat needs id time vol
     
-    # Standardize total gas volumes
-    # Note that temperature and pressure units are not converted at all in cumBgVol (but are in stdVol)
-    if(!standardized) {
-      if(!is.null(temp) & !is.null(pres)) {
-          dat$vBg <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, pres.std = pres.std, 
-                            temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
-                            std.message = std.message)
-      } else {
-          dat$vBg <- dat[, dat.name]
-          message('Either temperature or presure is missing (temp and pres arguments) so volumes are NOT standardized.')
-      #} else {
-       # dat$vBg <- dat[, dat.name]   # Is this necessary? Same code as just above
-      }
-    } 
+      # Standardize total gas volumes
+      # Note that temperature and pressure units are not converted at all in cumBgVol (but are in stdVol)
+      if(!standardized) {
+        if(!is.null(temp) & !is.null(pres)) {
+            dat$vBg <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, pres.std = pres.std, 
+                              temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
+                              std.message = std.message)
+        } else {
+            dat$vBg <- dat[, dat.name]
+            message('Either temperature or presure is missing (temp and pres arguments) so volumes are NOT standardized.')
+        #} else {
+        # dat$vBg <- dat[, dat.name]   # Is this necessary? Same code as just above
+        }
+      } 
     
-    # Calculate interval (or cum if interval = FALSE) methane production
-    dat$vCH4 <- dat$vBg*dat[, comp.name]
+      # Calculate interval (or cum if interval = FALSE) methane production
+      dat$vCH4 <- dat$vBg*dat[, comp.name]
   
-  # Volumetric calculation method  
     # Volumetric method II  
       # For cmethod = 'total', calculate headspace CH4 to add for total below
       if(cmethod=='total') {
@@ -334,7 +334,7 @@ cumBgVol <- function(
         names(t0) <- c(id.name, time.name)
         t0[, 'vBg'] <- t0[, 'vCH4'] <- 0
       
-      # This messy, but needed for calculating vCH4 by diff when this method is used and interval = FALSE
+      # Calculation of vCH4 by diff when cmethod = 'total' and interval = FALSE
         if(cmethod == 'total') {
         t0[, 'vhsCH4'] <- 0
         }
