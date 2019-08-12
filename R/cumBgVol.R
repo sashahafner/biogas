@@ -233,8 +233,7 @@ cumBgVol <- function(
   
   # Sort out composition data if using long data.struct
   # Skipped for longcombo with no NAs (xCH4 already included in dat)
-  # GCA method has no biogas composition
-  if(tolower(data.struct) == 'long' & dat.type != 'gca') {
+  if(tolower(data.struct) == 'long') {
     
     mssg.no.time <- mssg.interp <- FALSE
     # First sort so can find first observation for mass data to ignore it
@@ -256,7 +255,7 @@ cumBgVol <- function(
           # If there is no time column
           if(!time.name %in% names(comp)) stop('Problem with comp  (', deparse(substitute(comp)), 
                                                '): a time column was not found but there is > 1 observation at least for reactor ',i, '.')
-          if(dat.type %in% c('vol', 'volume', 'pres', 'pressure')) {
+          if(dat.type %in% c('vol', 'volume')) {
             mssg.interp <- TRUE
             dat[dat[, id.name]==i, comp.name] <- interp(dc[, time.name], dc[, comp.name], time.out = dat[dat[, id.name]==i, time.name], method = imethod, extrap = extrap)
             # Set first value to zero if there is no biogas production (fixes problem with cmethod = total when there is a t0 observation included)
@@ -330,6 +329,13 @@ cumBgVol <- function(
       dat[, 'pressure'] <- pres
       pres <- 'pressure' 
     } 
+  }
+  
+  # Correct composition data if it seems to be a percentage
+  if (any(na.omit(dat[, comp.name] > 1))) {
+    dat[, comp.name] <- dat[, comp.name]/100
+    warning('Methane concentration was > 1.0 mol/mol for at least one observation, so is assumed to be a percentage, and was corrected by dividing by 100. ',
+            'Range of new values: ', min(na.omit(dat[, comp.name])), '-', max(na.omit(dat[, comp.name])))
   }
   
   # Now that all data are in long structure (NTS: also for widecombo?) sort out mixed interval/cumulative data
