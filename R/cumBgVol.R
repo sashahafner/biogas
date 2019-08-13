@@ -41,7 +41,7 @@ cumBgVol <- function(
   checkArgClassValue(data.struct, 'character', expected.values = 'long')
   checkArgClassValue(id.name, 'character')
   checkArgClassValue(time.name, 'character')
-  checkArgClassValue(dat.name, 'character')#, expected.values = c('vol', 'volume'))
+  checkArgClassValue(dat.name, 'character')
   checkArgClassValue(comp.name, c('character', 'NULL'))
   checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
   checkArgClassValue(vol.hs.name, 'character')
