@@ -41,7 +41,7 @@ cumBgVol <- function(
   checkArgClassValue(data.struct, 'character', expected.values = 'long')
   checkArgClassValue(id.name, 'character')
   checkArgClassValue(time.name, 'character')
-  checkArgClassValue(dat.name, 'character')
+  checkArgClassValue(dat.name, 'character')#, expected.values = c('vol', 'volume'))
   checkArgClassValue(comp.name, c('character', 'NULL'))
   checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
   checkArgClassValue(vol.hs.name, 'character')
@@ -118,6 +118,44 @@ cumBgVol <- function(
   if(!interval) {
     dat <- dat[!is.na(dat[, dat.name]), ]
   }
+  
+  # Interpolate and/or extrapolate if requested
+  if(data.struct == 'long') {
+    
+    mssg.no.time <- mssg.interp <- FALSE
+    
+    # First sort so can find first observation for mass data to ignore it
+    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
+    dat[, comp.name] <- NA
+    
+    if(!is.null(comp) && class(comp)[1] == 'data.frame'){
+      
+      # Drop NAs from comp--this applies to wide, long, and longcombo data.struct
+      comp <- comp[!is.na(comp[, comp.name]), ]
+      
+      for(i in unique(dat[, id.name])) {
+      dc <- comp[comp[, id.name]==i, ]
+      
+      if(nrow(dc)==0) stop('No biogas composition data for reactor ', i,' so can\'t interpolate!') 
+      if(nrow(dc)>1) {
+      
+        # If there is no time column
+        if(!time.name %in% names(comp)) stop('Problem with comp  (', deparse(substitute(comp)), 
+                                           '): a time column was not found but there is > 1 observation at least for reactor ',i, '.')
+        if(dat.name %in% 'vol.ml') {
+          mssg.interp <- TRUE
+          dat[dat[, id.name]==i, comp.name] <- interp(dc[, time.name], dc[, comp.name], time.out = dat[dat[, id.name]==i, time.name], method = imethod, extrap = extrap)
+          
+          # Set first value to zero if there is no biogas production (fixes problem with cmethod = total when there is a t0 observation included)
+          dat[dat[, id.name]==i & dat[, dat.name]==0, comp.name][1] <- 0
+        }
+      }
+      }
+    }
+  }
+  
+    if(!quiet & mssg.no.time) message('A time column was not found in comp (', deparse(substitute(comp)), '), and a single value was used for each reactor.')
+    if(!quiet & mssg.interp) message('Biogas composition is interpolated.')
   
   # Add headspace if provided
   if(!is.null(headspace)) {
