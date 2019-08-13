@@ -65,13 +65,10 @@ cumBgVol <- function(
   } else {
     rh <- 0
   }
-  
-  # Check data structure
-  if(!data.struct == 'long') stop('You can only use \"long\" data structure with cumBgVol function')
-  
+
   # Check column names in argument data frames
   # comp needs id (time) xCH4, time optional
-  if(!is.null(comp) && class(comp)[1] == 'data.frame' && data.struct == 'long') {
+  if(!is.null(comp) && class(comp)[1] == 'data.frame') {
     if(any(missing.col <- !c(id.name, comp.name) %in% names(comp))){
       stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', c(id.name, comp.name)[missing.col], '.')
     }
@@ -97,9 +94,9 @@ cumBgVol <- function(
     stop('The empty.name column must be binary.')
   }
   
-  # For volumetric dat missing values are OK if they are cumulative (NTS: why OK if cumulative? Interpolated?)
+  # For volumetric dat missing values are OK if they are cumulative only (NTS: why OK if cumulative? Interpolated?)
   if(!is.null(dat.name)) {
-    if(any(is.na(dat[, dat.name])) & interval & data.struct == 'long') {
+    if(any(is.na(dat[, dat.name])) & interval) {
       w <- which(is.na(dat[, dat.name]))
       stop('Missing values in dat.name column! See rows ', paste(w, collapse = ', '), '.')
     }
@@ -306,7 +303,7 @@ cumBgVol <- function(
     # Sort and return results
       dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     
-      if(is.null(comp) & data.struct == 'long') { # NTS: revisit if data.struct is ever expanded
+      if(is.null(comp)) {
         warning('Biogas composition date (\'comp\' and \'name.comp\' arguments) not provided so CH4 results will not be returned.')
         dat <- dat[, ! names(dat) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
       }
