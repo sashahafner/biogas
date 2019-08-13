@@ -257,6 +257,7 @@ cumBgVol <- function(
       }
     
     # Calculate cumulative production or interval production (depending on interval argument)
+      # Method I interval production
       if(interval) {
         for(i in unique(dat[, id.name])) {
           dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
@@ -264,12 +265,13 @@ cumBgVol <- function(
         } 
       }
     
+      # Method II interval production
       # For method II, cmethod = 'total', add headspace CH4 to cvCH4
       if(cmethod == 'total') {
         dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
       }
     
-      # Method I
+      # Method I cumulative production
       # For cumulative results, calculate interval production from cvCH4 (down here because it may have headspace CH4 added if cmethod = total) so cannot be combined with cvCH4 calcs above
       # vBg could be moved up, but that means more code
       if(!interval) {
@@ -279,7 +281,7 @@ cumBgVol <- function(
         }
       }
     
-      # Method II
+      # Method II cumulative production
       # For method II, when cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
       # vBg is not affected by cmethod = 'total'
       if(cmethod == 'total') {
@@ -288,65 +290,65 @@ cumBgVol <- function(
         }
       }
     
-    # Calculate rates for all cases 
-      # Method I & II
-      for(i in unique(dat[, id.name])) {
-        dat[dat[, id.name]==i, 'rvBg'] <- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
-        dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
-      }
-    
-    # Drop t0 if not requested (whether originally present or added)
-      if(!showt0) {
-        dat <- dat[dat[, time.name] != 0, ]
-      }
-    
-    # Sort and return results
-      dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-    
-      if(is.null(comp)) {
-        warning('Biogas composition date (\'comp\' and \'name.comp\' arguments) not provided so CH4 results will not be returned.')
-        dat <- dat[, ! names(dat) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
-      }
-    
-      if(all(is.na(dt))) {
-        dat <- dat[, ! names(dat) %in% c('rvBg','rvCH4')]
-      }
-    
-    # Drop NAs if they extend to the latest time for a given bottle (based on problem with AMPTSII data, sometimes shorter for some bottles)
-      if(any(is.na(dat[, dat.name]))) {
-        dat2 <- data.frame()
+    # Method I & II
+      # Calculate rates for all cases 
         for(i in unique(dat[, id.name])) {
-          dd <- dat[dat[, id.name] == i, ]
-          if(is.na(dd[nrow(dd), dat.name])) {
-            # All NAs
-            i1 <- which(is.na(dd[, dat.name]))
-          
-            # Look for consecutive NAs
-            i1d <- diff(i1)
-          
-            # That are uninterupted by a value
-            if(any(i1d > 1)) {
-              i2 <- max(which(i1d > 1)) + 1 
-            } else {
-              i2 <- 1
-            }
-          
-            i3 <- i1[i2]
-          
-            dat2 <- rbind(dat2, dd[-c(i3:nrow(dd)), ])
-          
-          } else {
-          
-            dat2 <- rbind(dat2, dd)
-          
-          }
+          dat[dat[, id.name]==i, 'rvBg'] <- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
+          dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
         }
+    
+      # Drop t0 if not requested (whether originally present or added)
+        if(!showt0) {
+          dat <- dat[dat[, time.name] != 0, ]
+        }
+    
+      # Sort and return results
+        dat <- dat[order(dat[, id.name], dat[, time.name]), ]
+    
+        if(is.null(comp)) {
+          warning('Biogas composition date (\'comp\' and \'name.comp\' arguments) not provided so CH4 results will not be returned.')
+          dat <- dat[, ! names(dat) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
+        }
+    
+        if(all(is.na(dt))) {
+          dat <- dat[, ! names(dat) %in% c('rvBg','rvCH4')]
+        }
+    
+      # Drop NAs if they extend to the latest time for a given bottle (based on problem with AMPTSII data, sometimes shorter for some bottles)
+        if(any(is.na(dat[, dat.name]))) {
+          dat2 <- data.frame()
+          for(i in unique(dat[, id.name])) {
+            dd <- dat[dat[, id.name] == i, ]
+            if(is.na(dd[nrow(dd), dat.name])) {
+              # All NAs
+              i1 <- which(is.na(dd[, dat.name]))
+          
+              # Look for consecutive NAs
+              i1d <- diff(i1)
+          
+              # That are uninterupted by a value
+              if(any(i1d > 1)) {
+                i2 <- max(which(i1d > 1)) + 1 
+              } else {
+                i2 <- 1
+              }
+          
+              i3 <- i1[i2]
+          
+              dat2 <- rbind(dat2, dd[-c(i3:nrow(dd)), ])
+          
+            } else {
+          
+              dat2 <- rbind(dat2, dd)
+          
+            }
+          }
       
-        dat <- dat2
-      }
+          dat <- dat2
+        }
     
-      rownames(dat) <- 1:nrow(dat)
+        rownames(dat) <- 1:nrow(dat)
     
-      return(dat)
+        return(dat)
     
-    } 
+      } 
