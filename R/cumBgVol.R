@@ -257,31 +257,24 @@ cumBgVol <- function(
       }
     
     # Calculate cumulative production or interval production (depending on interval argument)
-      # Method I interval production
-      if(interval) {
+      # Method I
+      if(interval && cmethod != 'total') {
         for(i in unique(dat[, id.name])) {
           dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
           dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
         } 
-      }
-    
-      # Method II interval production
-      # For method II, cmethod = 'total', add headspace CH4 to cvCH4
-      if(cmethod == 'total') {
-        dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
-      }
-    
-      # Method I cumulative production
-      # For cumulative results, calculate interval production from cvCH4 (down here because it may have headspace CH4 added if cmethod = total) so cannot be combined with cvCH4 calcs above
-      # vBg could be moved up, but that means more code
-      if(!interval) {
+      } else {
         for(i in unique(dat[, id.name])) {
           dat[dat[, id.name]==i, 'vBg'] <- diff(c(0, dat[dat[, id.name]==i, 'cvBg' ]))
           dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
         }
       }
     
-      # Method II cumulative production
+      # Method II
+      # For method II, cmethod = 'total', add headspace CH4 to cvCH4
+      if(cmethod == 'total') {
+        dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
+      }
       # For method II, when cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
       # vBg is not affected by cmethod = 'total'
       if(cmethod == 'total') {
