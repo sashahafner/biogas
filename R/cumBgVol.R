@@ -1,15 +1,15 @@
 cumBgVol <- function(
   # Main arguments
   dat,
-  comp = NULL,              # Leave NULL for wide and longcombo
+  comp = NULL,              # Composition of gas measurement
   temp = NULL,              # Temperature for biogas volume measurement
   pres = NULL,              # Pressure for biogas volume measurement
   interval = TRUE,          # When empty.name is used, there is a mix, and interval is ignored
-  data.struct = 'long',     # long, wide, longcombo
+  data.struct = 'long',     # Only long data structure can be used. Data restructuring is handled in separate R function 
   id.name = 'id',
   time.name = 'time',
   dat.name = 'vol',         # Name of column containing respons variable (volume measurements)
-  comp.name = 'xCH4',       # Name of xCH4 column in the data frame. Use for first comp col for data.struct = 'wide'
+  comp.name = 'xCH4',       # Name of xCH4 column in the data frame
   headspace = NULL,         # Required if cmethod = 'total'
   vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
   # Calculation method and other settings
@@ -38,7 +38,7 @@ cumBgVol <- function(
   checkArgClassValue(temp, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(pres, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(interval, 'logical')
-  checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
+  checkArgClassValue(data.struct, 'character', expected.values = 'long')
   checkArgClassValue(id.name, 'character')
   checkArgClassValue(time.name, 'character')
   checkArgClassValue(dat.name, 'character')
@@ -66,22 +66,15 @@ cumBgVol <- function(
     rh <- 0
   }
   
+  # Check data structure
+  if(!data.struct == 'long') stop('You can only use \"long\" data structure with cumBgVol function')
+  
   # Check column names in argument data frames
   # comp needs id (time) xCH4, time optional
   if(!is.null(comp) && class(comp)[1] == 'data.frame' && data.struct == 'long') {
     if(any(missing.col <- !c(id.name, comp.name) %in% names(comp))){
       stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', c(id.name, comp.name)[missing.col], '.')
     }
-  }
-
-  if(data.struct %in% c('long', 'longcombo')) {
-    if(any(missing.col <- !c(id.name, time.name, dat.name) %in% names(dat))){
-      stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(id.name, time.name, dat.name)[missing.col], collapse = ', '), '.')
-    } 
-  } else if(data.struct == 'wide') {
-    if(any(missing.col <- !c(time.name, dat.name) %in% names(dat))){
-      stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(time.name, dat.name)[missing.col], collapse = ', '), '.')
-    } 
   }
   
   # Check for headspace argument if it is needed
@@ -104,20 +97,9 @@ cumBgVol <- function(
     stop('The empty.name column must be binary.')
   }
   
-  if(!is.null(empty.name) & !data.struct %in% c('long', 'longcombo')) {
-    stop('You can only use mixed interval/cumulative data (empty.name argument) with long or longcombo data structure')
-  }
-  
-  ### Set interval to TRUE (interval) if there is a mix of cumulative and interval volume data (intermittent emptying hanging water columns, eudiometer, etc.)
-  ##if(!is.null(empty.name)) {
-  ##  interval <- FALSE    NTS: Default is true. Is this argument relevant? Note above states that interval is ignored when empty.name is used. Meaning this code makes sense, but the statement above does not. 
-  ##}
-  
   # For volumetric dat missing values are OK if they are cumulative (NTS: why OK if cumulative? Interpolated?)
-  # Applies to wide data
-  # But now wide data excepted totally
   if(!is.null(dat.name)) {
-    if(any(is.na(dat[, dat.name])) & interval & data.struct != 'wide') {
+    if(any(is.na(dat[, dat.name])) & interval & data.struct == 'long') {
       w <- which(is.na(dat[, dat.name]))
       stop('Missing values in dat.name column! See rows ', paste(w, collapse = ', '), '.')
     }
@@ -129,179 +111,16 @@ cumBgVol <- function(
       stop('Missing values in time.name column! See rows ', paste(w, collapse = ', '), '.')
     }
   }
-  
-  # NTS: add checks for column types (catches problem with data read in incorrectly, e.g., from Excel with)
-  # if(!is.null(comp) && class(comp)=='data.frame' && data.struct == 'long' && any(is.na(comp[, comp.name]))) stop('Missing data in comp data frame. See rows ', paste(which(is.na(comp[, comp.name])), collapse = ', '), '.')
-  # Drop missing comp rows
-  
+
   # NTS: Add other checks here (e.g., missing values elsewhere)
-  
-  ### This check has been replaced with a conversion below
-  ##if(check) {
-  ##  # Composition
-  ##  if(is.numeric(comp) | is.integer(comp)) {
-  ##    if(any(comp < 0 | comp > 1)) {
-  ##      warning('Check biogas composition in ', deparse(substitute(comp)), '. One or more values is outside of range 0.0-1.0.')
-  ##    }
-  ##  } else {
-  ##    if(any(comp[, comp.name] < 0 | comp[, comp.name] > 1)) {
-  ##      warning('Check biogas composition in ', deparse(substitute(comp)), '$', comp.name, '. One or more values is outside of range 0.0-1.0.')
-  ##    }
-  ##  }
-  ##}
   
   # Create standardized binary variable that indicates when vBg has been standardized
   standardized <- FALSE
-  
-  # Rearrange wide data 
-  if(data.struct == 'wide') {
-    
-    which.first.col <- which(names(dat) == dat.name)
-    #dat.name <- dat.type   # needs new argument since dat.type does not exist in this function. Maybe just delete line.
-    
-    # Number of reactors
-    nr <- ncol(dat) - which.first.col + 1
-    
-    # Reactor names taken from column names
-    ids <- names(dat)[which.first.col:ncol(dat)]
-    
-    dat2 <- dat
-    dat <- dat[ , 1:which.first.col]
-    names(dat)[which.first.col] <- dat.name
-    # Note check.names, prevented problem with odd time.name names (OBA issue)
-    dat <- data.frame(idxyz = ids[1], dat, check.names = FALSE)
-    
-    for(i in 2:nr - 1) {
-      x <- dat2[ , c(1:(which.first.col - 1), which.first.col + i)]
-      names(x)[which.first.col] <- dat.name
-      x <- data.frame(idxyz = ids[i + 1], x, check.names = FALSE)
-      dat <- rbind(dat, x)
-    }
-    
-    # Drop missing dat values and warn
-    if (any(is.na(dat[, dat.name]))) {
-      warning('Missing values in dat.name column have been dropped!')
-      dat <- dat[!is.na(dat[, dat.name]), ]
-    }
-    
-    # Fix id name
-    names(dat)[names(dat) == 'idxyz'] <- id.name
-    
-    # Now for comp
-    if(!is.numeric(comp)) {
-      which.first.col <- which(names(comp) == comp.name)
-      comp.name <- 'xCH4'
-      
-      # Number of reactors
-      if((ncol(comp) - which.first.col + 1) != nr) stop('Apparent number of reactors in dat and comp do not match. Problem with wide data.struct.')
-      
-      comp2 <- comp
-      comp <- comp[ , 1:which.first.col]
-      names(comp)[which.first.col] <- comp.name
-      comp <- data.frame(idxyz = ids[1], comp, check.names = FALSE)
-      
-      for(i in 2:nr - 1) {
-        x <- comp2[ , c(1:(which.first.col - 1), which.first.col + i)]
-        names(x)[which.first.col] <- comp.name
-        x <- data.frame(idxyz = ids[i + 1], x, check.names = FALSE)
-        comp <- rbind(comp, x)
-      }
-      
-      # Fix id name
-      names(comp)[names(comp) == 'idxyz'] <- id.name
-    }
-    
-    # Convert data structure to long 
-    data.struct <- 'long'
-  }
   
   # Remove missing values for cumulative data only
   if(!interval) {
     dat <- dat[!is.na(dat[, dat.name]), ]
   }
-  
-  # Rearrange longcombo data to long
-   # If there are missing values in a longcombo data frame, switch to long
-   # NTS: this is not the most efficient approach, maybe revisit
-  if(data.struct == 'longcombo' && any(is.na(dat[, comp.name]))) {
-    comp <- dat[, c(id.name, time.name, comp.name)]
-    dat <- dat[, names(dat) != comp.name]
-    
-    # Convert data structure to long
-    data.struct <- 'long'
-  }
-  
-  # Sort out composition data if using long data.struct
-  # Skipped for longcombo with no NAs (xCH4 already included in dat)
-  if(tolower(data.struct) == 'long') {
-    
-    mssg.no.time <- mssg.interp <- FALSE
-    # First sort so can find first observation for mass data to ignore it
-    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-    dat[, comp.name] <- NA
-    
-    if(!is.null(comp) && class(comp)[1] == 'data.frame'){
-      
-      # Drop NAs from comp--this applies to wide, long, and longcombo data.struct
-      comp <- comp[!is.na(comp[, comp.name]), ]
-      
-      # Interpolate gas composition to times of volume measurements
-      for(i in unique(dat[, id.name])) {
-        if(dat.type=='mass' & nrow(dat[dat[, id.name]==i, ])<2) stop('There are < 2 observations for reactor ', i,' but dat.type = \"mass\". 
-                                                                     You need at least 2 observations to apply the gravimetric method.')
-        dc <- comp[comp[, id.name]==i, ]
-        if(nrow(dc)==0) stop('No biogas composition data for reactor ', i,' so can\'t interpolate!') 
-        if(nrow(dc)>1) {
-          # If there is no time column
-          if(!time.name %in% names(comp)) stop('Problem with comp  (', deparse(substitute(comp)), 
-                                               '): a time column was not found but there is > 1 observation at least for reactor ',i, '.')
-          if(dat.type %in% c('vol', 'volume')) {
-            mssg.interp <- TRUE
-            dat[dat[, id.name]==i, comp.name] <- interp(dc[, time.name], dc[, comp.name], time.out = dat[dat[, id.name]==i, time.name], method = imethod, extrap = extrap)
-            # Set first value to zero if there is no biogas production (fixes problem with cmethod = total when there is a t0 observation included)
-            dat[dat[, id.name]==i & dat[, dat.name]==0, comp.name][1] <- 0
-          } else if (dat.type=='mass') {
-            # Then ignore first point, since it isn't used anyway--this is just to avoid warning with interp if extrap = FALSE
-            mssg.interp <- TRUE
-            dat[dat[, id.name]==i, comp.name][-1] <- interp(dc[, time.name], dc[, comp.name], time.out = dat[dat[, id.name]==i, time.name][-1], method = imethod, extrap = extrap)
-          }
-        } else { # If only one xCH4 value is available, use it for all dat obs if extrap = TRUE or times match, but warn if times don't match
-          if(!time.name %in% names(comp)) {
-            # If there is no time column in comp
-            mssg.no.time <- TRUE
-            dat[dat[, id.name]==i, comp.name] <- dc[, comp.name]
-          } else {
-            # There is a time column in dc/comp
-            for(j in 1:nrow(dat[dat[, id.name]==i, ])) {
-              if(j > 1 | dat.type!='mass') { # This just to avoid warning for first observation for mass data
-                if(dc[, time.name]==dat[dat[, id.name]==i, time.name][j]) { 
-                  # If times match
-                  dat[dat[, id.name]==i, comp.name][j] <- dc[, comp.name]
-                } else {
-                  if(extrap) {
-                    dat[dat[, id.name]==i, comp.name][j] <- dc[, comp.name]
-                  } else {
-                    dat[dat[, id.name]==i, comp.name][j] <- NA
-                    warning('Not enough ', comp.name, ' data (one observation) to interpolate for reactor ', i,' so results will be missing.\n If you prefer, you can use constant extrapolation by setting extrap = TRUE.')
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    } else if (!is.null(comp) && class(comp)[1] %in% c('numeric', 'integer') && length(comp)==1) {
-      # Or if a single value is given, use it
-      if (!quiet) message('Only a single value was provided for biogas composition (', comp, '), so applying it to all observations.')
-      dat[, comp.name] <- comp
-    } else if (dat.type != 'gca') {
-      # If no composition data is given, just use NA
-      dat[, comp.name] <- NA 
-    }
-    if(!quiet & mssg.no.time) message('A time column was not found in comp (', deparse(substitute(comp)), '), and a single value was used for each reactor.')
-    if(!quiet & mssg.interp) message('Biogas composition is interpolated.')
-    
-  } 
   
   # Add headspace if provided
   if(!is.null(headspace)) {
@@ -338,7 +157,7 @@ cumBgVol <- function(
             'Range of new values: ', min(na.omit(dat[, comp.name])), '-', max(na.omit(dat[, comp.name])))
   }
   
-  # Now that all data are in long structure, sort out mixed interval/cumulative data
+  # Sort out mixed interval/cumulative data
   if(!is.null(empty.name)) {
     # Sort by id and time
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
@@ -487,7 +306,7 @@ cumBgVol <- function(
     # Sort and return results
       dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     
-      if(is.null(comp) & data.struct != 'longcombo') { # NTS: revisit if data.struct is ever expanded
+      if(is.null(comp) & data.struct == 'long') { # NTS: revisit if data.struct is ever expanded
         warning('Biogas composition date (\'comp\' and \'name.comp\' arguments) not provided so CH4 results will not be returned.')
         dat <- dat[, ! names(dat) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
       }
