@@ -120,17 +120,15 @@ cumBgVol <- function(
   }
   
   # Interpolate and/or extrapolate if requested
-  if(data.struct == 'long') {
+  mssg.no.time <- mssg.interp <- FALSE
     
-    mssg.no.time <- mssg.interp <- FALSE
-    
-    # First sort so can find first observation for mass data to ignore it
+    # First sort so can find first observation for volume data to ignore it
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     dat[, comp.name] <- NA
     
     if(!is.null(comp) && class(comp)[1] == 'data.frame'){
       
-      # Drop NAs from comp--this applies to wide, long, and longcombo data.struct
+      # Drop NAs from comp
       comp <- comp[!is.na(comp[, comp.name]), ]
       
       for(i in unique(dat[, id.name])) {
@@ -152,7 +150,6 @@ cumBgVol <- function(
       }
       }
     }
-  }
   
     if(!quiet & mssg.no.time) message('A time column was not found in comp (', deparse(substitute(comp)), '), and a single value was used for each reactor.')
     if(!quiet & mssg.interp) message('Biogas composition is interpolated.')
