@@ -5,7 +5,7 @@ cumBgVol <- function(
   temp = NULL,              # Temperature for biogas volume measurement
   pres = NULL,              # Pressure for biogas volume measurement
   interval = TRUE,          # When empty.name is used, there is a mix, and interval is ignored
-  data.struct = 'long',     # Only long data structure can be used. Data restructuring is handled in separate R function 
+  data.struct = 'long',     # Long, wide, longcombo. Only long data structure can be used. Data restructuring is handled by dataPrep() 
   id.name = 'id',
   time.name = 'time',
   dat.name = 'vol',         # Name of column containing respons variable (volume measurements)
@@ -29,7 +29,6 @@ cumBgVol <- function(
   unit.temp = getOption('unit.temp', 'C'),
   unit.pres = getOption('unit.pres', 'atm'),
   quiet = FALSE ##,
-  ##unit.vol = getOption('unit.vol', 'ml'),
 ){
   
   # Check arguments
@@ -38,7 +37,7 @@ cumBgVol <- function(
   checkArgClassValue(temp, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(pres, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(interval, 'logical')
-  checkArgClassValue(data.struct, 'character', expected.values = 'long')
+  checkArgClassValue(data.struct, 'character', expected.values = c('long', 'longcombo', 'wide'))
   checkArgClassValue(id.name, 'character')
   checkArgClassValue(time.name, 'character')
   checkArgClassValue(dat.name, 'character')
@@ -66,6 +65,10 @@ cumBgVol <- function(
     rh <- 0
   }
 
+  # Data preparation (structuring and sorting)
+  ## Call dataPrep function
+  dataPrep()
+  
   # Check column names in argument data frames
   # comp needs id (time) xCH4, time optional
   if(!is.null(comp) && class(comp)[1] == 'data.frame') {
@@ -110,113 +113,6 @@ cumBgVol <- function(
   }
 
   # NTS: Add other checks here (e.g., missing values elsewhere)
-  
-  # Create standardized binary variable that indicates when vBg has been standardized
-  standardized <- FALSE
-  
-  # Remove missing values for cumulative data only
-  if(!interval) {
-    dat <- dat[!is.na(dat[, dat.name]), ]
-  }
-  
-  # Interpolate and/or extrapolate if requested
-  mssg.no.time <- mssg.interp <- FALSE
-    
-    # First sort so can find first observation for volume data to ignore it
-    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-    dat[, comp.name] <- NA
-    
-    if(!is.null(comp) && class(comp)[1] == 'data.frame'){
-      
-      # Drop NAs from comp
-      comp <- comp[!is.na(comp[, comp.name]), ]
-      
-      for(i in unique(dat[, id.name])) {
-      dc <- comp[comp[, id.name]==i, ]
-      
-      if(nrow(dc)==0) stop('No biogas composition data for reactor ', i,' so can\'t interpolate!') 
-      if(nrow(dc)>1) {
-      
-        # If there is no time column
-        if(!time.name %in% names(comp)) stop('Problem with comp  (', deparse(substitute(comp)), 
-                                           '): a time column was not found but there is > 1 observation at least for reactor ',i, '.')
-        if(dat.name %in% 'vol.ml') {
-          mssg.interp <- TRUE
-          dat[dat[, id.name]==i, comp.name] <- interp(dc[, time.name], dc[, comp.name], time.out = dat[dat[, id.name]==i, time.name], method = imethod, extrap = extrap)
-          
-          # Set first value to zero if there is no biogas production (fixes problem with cmethod = total when there is a t0 observation included)
-          dat[dat[, id.name]==i & dat[, dat.name]==0, comp.name][1] <- 0
-        }
-      }
-      }
-    }
-  
-    if(!quiet & mssg.no.time) message('A time column was not found in comp (', deparse(substitute(comp)), '), and a single value was used for each reactor.')
-    if(!quiet & mssg.interp) message('Biogas composition is interpolated.')
-  
-  # Add headspace if provided
-  if(!is.null(headspace)) {
-    if(is.numeric(headspace)) {
-      dat[, vol.hs.name] <- headspace
-    } else if(is.data.frame(headspace)) {       
-      # headspace needs id vol
-      if(any(missing.col <- !c(id.name, vol.hs.name) %in% names(headspace))){
-        stop('Columns with names matching id.name or vol.hs.name are not present in headspace data frame: ', c(id.name, vol.hs.name)[missing.col], '.')
-      }
-      dat <- merge(dat, headspace[ , c(id.name, vol.hs.name)], by = id.name, suffixes = c('', '.hs'))
-    } else stop('headspace actual argument not recognized. What is it?')
-  }
-  
-  # Add temperature and pressure to dat if single numeric values were provided
-  if(!is.null(temp)) {
-    if(is.numeric(temp)) {
-      dat[, 'temperature'] <- temp
-      temp <- 'temperature'
-    } 
-  }
-  
-  if(!is.null(pres)) {
-    if(is.numeric(pres)) {
-      dat[, 'pressure'] <- pres
-      pres <- 'pressure' 
-    } 
-  }
-  
-  # Correct composition data if it seems to be a percentage
-  if (any(na.omit(dat[, comp.name] > 1))) {
-    dat[, comp.name] <- dat[, comp.name]/100
-    warning('Methane concentration was > 1.0 mol/mol for at least one observation, so is assumed to be a percentage, and was corrected by dividing by 100. ',
-            'Range of new values: ', min(na.omit(dat[, comp.name])), '-', max(na.omit(dat[, comp.name])))
-  }
-  
-  # Sort out mixed interval/cumulative data
-  if(!is.null(empty.name)) {
-    # Sort by id and time
-    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-    
-    # Make empty.name logical
-    dat[, empty.name] <- as.logical(dat[, empty.name])
-    
-    # Set missing values to FALSE
-    dat[is.na(dat[, empty.name]), empty.name] <- FALSE
-    
-    # Standardize biogas volume (needed in order to get interval production, and cannot use cum prod because composition wouldn't work)
-    dat[, paste0(dat.name, '.std')] <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, pres.std = pres.std, 
-                                              temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, std.message = std.message)
-    
-    # Sum final volumes to get cumulative volumes, then interval from them (must have interval data here, because that is what biogas composition is for)
-    for(i in unique(dat[, id.name])) {
-      emptyvols <- dat[dat[, id.name]==i, empty.name] * dat[dat[, id.name]==i, paste0(dat.name, '.std')]
-      ccvv <- c(0, cumsum(emptyvols)[- length(emptyvols)]) + dat[dat[, id.name]==i, paste0(dat.name, '.std')]
-      dat[dat[, id.name]==i, dnn <- paste0(dat.name, '.std.interval')] <- diff(c(0, ccvv))
-    }
-    
-    dat.name <- dnn
-    
-    # And continue below with interval data (interval = TRUE)
-    standardized <- TRUE
-    interval <- TRUE
-  }
  
   # Volumetric calculation methods 
     # Volumetric method I
