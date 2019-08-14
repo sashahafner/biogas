@@ -44,53 +44,9 @@ dataPrep <- function(
   pres.std = getOption('pres.std', as.numeric(NA)),
   unit.temp = getOption('unit.temp', 'C'),
   unit.pres = getOption('unit.pres', 'atm'),
-  quiet = FALSE ##,
-  ##unit.vol = getOption('unit.vol', 'ml'),
-  ##unit.mass = getOption('unit.mass', 'g')
+  quiet = FALSE
 ){
-  # Check arguments
-  checkArgClassValue(dat, 'data.frame')
-  checkArgClassValue(dat.type, 'character', expected.values = c('vol', 'mass', 'pres', 'volume', 'pressure', 'gca'), case.sens = FALSE)
-  checkArgClassValue(comp, c('data.frame', 'integer', 'numeric', 'NULL'))
-  checkArgClassValue(temp, c('integer', 'numeric', 'character', 'NULL'))
-  checkArgClassValue(pres, c('integer', 'numeric', 'character', 'NULL'))
-  checkArgClassValue(interval, 'logical')
-  checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
-  checkArgClassValue(id.name, 'character')
-  checkArgClassValue(time.name, 'character')
-  checkArgClassValue(dat.name, 'character')
-  checkArgClassValue(comp.name, c('character', 'NULL'))
-  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
-  checkArgClassValue(vol.hs.name, 'character')
-  checkArgClassValue(headcomp, 'character')
-  checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
-  checkArgClassValue(temp.std, c('integer', 'numeric'))
-  checkArgClassValue(pres.std, c('integer', 'numeric'))
-  checkArgClassValue(pres.resid, c('integer', 'numeric', 'character', 'NULL'))
-  checkArgClassValue(pres.init, c('integer', 'numeric', 'NULL'))
-  checkArgClassValue(rh.resid.init, c('integer', 'numeric', 'NULL'), expected.range = c(0, 1))
-  checkArgClassValue(unit.temp, 'character')
-  checkArgClassValue(unit.pres, 'character')
-  checkArgClassValue(cmethod, 'character', expected.values = c('removed', 'total'))
-  # Skip imethod, checked in interp
-  checkArgClassValue(extrap, 'logical')
-  checkArgClassValue(addt0, 'logical')
-  checkArgClassValue(showt0, 'logical')
-  checkArgClassValue(dry, 'logical')
-  checkArgClassValue(empty.name, c('character', 'NULL'))
-  checkArgClassValue(std.message, 'logical')
-  checkArgClassValue(check, 'logical')
-  checkArgClassValue(absolute, 'logical')
-  checkArgClassValue(pres.amb, c('integer', 'numeric', 'NULL'))
-  checkArgClassValue(vol.syr, c('integer', 'numeric', 'NULL'))
-  
-  # Hard-wire rh for now at least
-  if(!dry) {
-    rh <- 1
-  } else {
-    rh <- 0
-  }
-  
+
   # Create standardized binary variable that indicates when vBg has been standardized
   standardized <- FALSE
   
@@ -170,10 +126,9 @@ dataPrep <- function(
     data.struct <- 'long'
   }
   
-  # Sort out composition data if using long data.struct
-  # Skipped for longcombo with no NAs (xCH4 already included in dat)
+  # Sort out composition data
   # GCA method has no biogas composition
-  if(tolower(data.struct) == 'long' & dat.type != 'gca') {
+  if(dat.type != 'gca') {
     
     mssg.no.time <- mssg.interp <- FALSE
     # First sort so can find first observation for mass data to ignore it
@@ -308,3 +263,4 @@ dataPrep <- function(
     standardized <- TRUE
     interval <- TRUE
   }
+}
