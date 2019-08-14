@@ -163,7 +163,7 @@ dataPrep <- function(
   
   # If there are missing values in a longcombo data frame, switch to long
   # NTS: this is not the most efficient approach, maybe revisit
-  if(data.struct == 'longcombo' && any(is.na(dat[, comp.name]))) {
+  if(data.struct == 'longcombo') {
     comp <- dat[, c(id.name, time.name, comp.name)]
     dat <- dat[, names(dat) != comp.name]
     
