@@ -6,7 +6,7 @@ dataPrep <- function(
   temp = NULL,
   pres = NULL,
   interval = TRUE, # When empty.name is used, there is a mix, and interval is ignored
-  data.struct = 'long', # long, wide, longcombo, widecombo
+  data.struct = 'long', # long, wide, longcombo
   # Column names for volumetric method
   id.name = 'id',
   time.name = 'time',
@@ -91,111 +91,10 @@ dataPrep <- function(
     rh <- 0
   }
   
-  # Check column names in argument data frames
-  # comp needs id (time) xCH4, time optional
-  if(!is.null(comp) && class(comp)[1] == 'data.frame' && data.struct == 'long') {
-    if(any(missing.col <- !c(id.name, comp.name) %in% names(comp))){
-      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', c(id.name, comp.name)[missing.col], '.')
-    }
-  }
-  
-  # dat (volume or mass)
-  if(data.struct %in% c('long', 'longcombo')) {
-    if(any(missing.col <- !c(id.name, time.name, dat.name) %in% names(dat))){
-      stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(id.name, time.name, dat.name)[missing.col], collapse = ', '), '.')
-    } 
-  } else if(data.struct == 'wide') {
-    if(any(missing.col <- !c(time.name, dat.name) %in% names(dat))){
-      stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(time.name, dat.name)[missing.col], collapse = ', '), '.')
-    } 
-  }
-  
-  # Check for headspace argument if it is needed
-  if(is.null(headspace) & cmethod=='total') stop('cmethod is set to \"total\" but headspace argument is not provided.')
-  
-  # Check for necessary arguments
-  if(dat.type %in% c('pres', 'pressure')) {
-    if(is.null(headspace)) stop('dat.type is set to \"pres\" but \"headspace\" is not provided.')
-    if(is.null(temp.init)) stop('dat.type is set to \"pres\" but \"temp.init\" is not provided.')
-    if(is.null(pres.resid)) stop('dat.type is set to \"pres\" but \"pres.resid\" is not provided.')
-    if(is.null(pres.init)) stop('dat.type is set to \"pres\" but \"pres.init\" is not provided.')
-  }
-  
-  # Check for other input errors
-  if(!is.null(id.name) & id.name %in% names(dat)) {
-    if(any(is.na(dat[, id.name]))) {
-      w <- which(is.na(dat[, id.name]))
-      stop('Missing values in id.name column! See rows ', paste(w, collapse = ', '), '.')
-    }
-  }
-  
-  # And more
-  if(!is.null(empty.name) & !class(dat[, empty.name])[1] %in% c('logical', 'integer', 'numeric')) {
-    stop('The empty.name column must be integer, numeric, or logical.')
-  }
-  
-  if(!is.null(empty.name) & length(unique(dat[, empty.name])) > 2) {
-    stop('The empty.name column must be binary.')
-  }
-  
-  if(!is.null(empty.name) & !data.struct %in% c('long', 'longcombo')) {
-    stop('You can only use mixed interval/cumulative data (empty.name argument) with long or longcombo data structure')
-  }
-  
-  # Convert date.type to lowercase so it is more flexible for users
-  dat.type <- tolower(dat.type)
-  if(dat.type == 'volume') dat.type <- 'vol'
-  
-  if(!is.null(empty.name) & dat.type != 'vol') {
-    stop('You can only use empty.name argument with volumetric data')
-  }
-  
-  ### Set interval to TRUE (interval) if there is a mix of cumulative and interval volume data (intermittent emptying hanging water columns, eudiometer, etc.)
-  ##if(!is.null(empty.name)) {
-  ##  interval <- FALSE
-  ##}
-  
-  # For dat (vol, etc) missing values are OK if they are cumulative (NTS: why OK if cumulative? Interpolated?)
-  # Applies to wide data
-  # But now wide data excepted totally
-  if(!is.null(dat.name)) {
-    if(any(is.na(dat[, dat.name])) & interval & data.struct != 'wide') {
-      w <- which(is.na(dat[, dat.name]))
-      stop('Missing values in dat.name column! See rows ', paste(w, collapse = ', '), '.')
-    }
-  }
-  
-  if(!is.null(time.name)) {
-    if(any(is.na(dat[, time.name]))) {
-      w <- which(is.na(dat[, time.name]))
-      stop('Missing values in time.name column! See rows ', paste(w, collapse = ', '), '.')
-    }
-  }
-  
-  # NTS: add checks for column types (catches problem with data read in incorrectly, e.g., from Excel with)
-  #if(!is.null(comp) && class(comp)=='data.frame' && data.struct == 'long' && any(is.na(comp[, comp.name]))) stop('Missing data in comp data frame. See rows ', paste(which(is.na(comp[, comp.name])), collapse = ', '), '.')
-  # Drop missing comp rows
-  
-  # NTS: Add other checks here (e.g., missing values elsewhere)
-  
-  ### This check has been replaced with a conversion below
-  ##if(check) {
-  ##  # Composition
-  ##  if(is.numeric(comp) | is.integer(comp)) {
-  ##    if(any(comp < 0 | comp > 1)) {
-  ##      warning('Check biogas composition in ', deparse(substitute(comp)), '. One or more values is outside of range 0.0-1.0.')
-  ##    }
-  ##  } else {
-  ##    if(any(comp[, comp.name] < 0 | comp[, comp.name] > 1)) {
-  ##      warning('Check biogas composition in ', deparse(substitute(comp)), '$', comp.name, '. One or more values is outside of range 0.0-1.0.')
-  ##    }
-  ##  }
-  ##}
-  
   # Create standardized binary variable that indicates when vBg has been standardized
   standardized <- FALSE
   
-  # Rearrange wide data (NTS: what about widecombo?)
+  # Rearrange wide data 
   if(data.struct == 'wide') {
     
     which.first.col <- which(names(dat) == dat.name)
@@ -381,7 +280,7 @@ dataPrep <- function(
     }
   }
   
-  # Now that all data are in long structure (NTS: also for widecombo?) sort out mixed interval/cumulative data
+  # Now that all data are in long structure sort out mixed interval/cumulative data
   if(!is.null(empty.name)) {
     # Sort by id and time
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
