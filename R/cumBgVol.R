@@ -64,10 +64,6 @@ cumBgVol <- function(
   } else {
     rh <- 0
   }
-
-  # Data preparation (structuring and sorting)
-  ## Call dataPrep function
-  dataPrep()
   
   # Check column names in argument data frames
   # comp needs id (time) xCH4, time optional
@@ -113,12 +109,19 @@ cumBgVol <- function(
   }
 
   # NTS: Add other checks here (e.g., missing values elsewhere)
+  
+  # Data preparation (structuring and sorting)
+  ## Call dataPrep function
+  dat <- dataPrep(dat = dat, comp.name = comp.name, id.name = id.name, time.name = time.name, 
+                  data.struct = data.struct, comp = comp, interval = interval, imethod = imethod, extrap = extrap, 
+                  headspace = headspace, vol.hs.name = vol.hs.name, 
+                  temp = dat[, temp], pres = dat[, pres], empty.name = empty.name, std.message = std.message)
  
   # Volumetric calculation methods 
-    # Volumetric method I
     # Function will work with vol and add columns
-      # vol dat needs id time vol
+    # vol dat needs id time vol
     
+    # Volumetric method I
       # Standardize total gas volumes
       # Note that temperature and pressure units are not converted at all in cumBgVol (but are in stdVol)
       if(!standardized) {
@@ -202,17 +205,17 @@ cumBgVol <- function(
       }
     
       # Method II
-      # For method II, cmethod = 'total', add headspace CH4 to cvCH4
-      if(cmethod == 'total') {
-        dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
-      }
-      # For method II, when cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
-      # vBg is not affected by cmethod = 'total'
-      if(cmethod == 'total') {
-        for(i in unique(dat[, id.name])) {
-          dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+        # For method II, cmethod = 'total', add headspace CH4 to cvCH4
+        if(cmethod == 'total') {
+          dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
         }
-      }
+        # For method II, when cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
+        # vBg is not affected by cmethod = 'total'
+        if(cmethod == 'total') {
+          for(i in unique(dat[, id.name])) {
+            dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+          }
+        }
     
     # Method I & II
       # Calculate rates for all cases 
