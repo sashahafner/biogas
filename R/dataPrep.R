@@ -7,46 +7,45 @@ dataPrep <- function(
   pres = NULL,
   interval = TRUE, # When empty.name is used, there is a mix, and interval is ignored
   data.struct = 'long', # long, wide, longcombo
-  # Column names for volumetric method
+  # Column names
   id.name = 'id',
   time.name = 'time',
   dat.name = dat.type, # Will be used for first dat column for data.struct = 'wide'
   comp.name = 'xCH4',  # Use for first comp col for data.struct = 'wide'
-  # Additional arguments for manometric and gravimetric methods
-  pres.resid = NULL,
-  temp.init = NULL,
-  pres.init = NULL,
-  rh.resid = NULL,
-  rh.resid.init = 1,
   headspace = NULL,
   vol.hs.name = 'vol.hs',
-  headcomp = 'N2',
-  absolute = TRUE,
-  pres.amb = NULL,
-  # For GCA method
-  mol.f.name = NULL,
-  vol.syr = NULL,
   # Calculation method and other settings
-  cmethod = 'removed',
   imethod = 'linear',
   extrap = FALSE,
-  addt0 = TRUE,
-  showt0 = TRUE,
   # Additional argument for volumetric data only 
-  dry = FALSE,
   empty.name = NULL, # Column name for binary/logical column for when cum vol was reset to zero
   ##gas = 'CH4',
   # Warnings and messages
   std.message = !quiet,
   check = TRUE,
-  # Units and standard conditions
-  temp.std = getOption('temp.std', as.numeric(NA)),
-  pres.std = getOption('pres.std', as.numeric(NA)),
-  unit.temp = getOption('unit.temp', 'C'),
-  unit.pres = getOption('unit.pres', 'atm'),
   quiet = FALSE
 ){
 
+  # Check arguments
+  checkArgClassValue(dat, 'data.frame')
+  checkArgClassValue(dat.type, 'character', expected.values = c('vol', 'mass', 'pres', 'volume', 'pressure', 'gca'), case.sens = FALSE)
+  checkArgClassValue(comp, c('data.frame', 'integer', 'numeric', 'NULL'))
+  checkArgClassValue(temp, c('integer', 'numeric', 'character', 'NULL'))
+  checkArgClassValue(pres, c('integer', 'numeric', 'character', 'NULL'))
+  checkArgClassValue(interval, 'logical')
+  checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
+  checkArgClassValue(id.name, 'character')
+  checkArgClassValue(time.name, 'character')
+  checkArgClassValue(dat.name, 'character')
+  checkArgClassValue(comp.name, c('character', 'NULL'))
+  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
+  checkArgClassValue(vol.hs.name, 'character')
+  # Skip imethod, checked in interp
+  checkArgClassValue(extrap, 'logical')
+  checkArgClassValue(empty.name, c('character', 'NULL'))
+  checkArgClassValue(std.message, 'logical')
+  checkArgClassValue(check, 'logical')
+  
   # Create standardized binary variable that indicates when vBg has been standardized
   standardized <- FALSE
   
