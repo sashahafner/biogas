@@ -1,6 +1,7 @@
 cumBgVol <- function(
   # Main arguments
   dat,
+  data.type = 'vol',
   comp = NULL,              # Composition of gas measurement
   temp = NULL,              # Temperature for biogas volume measurement
   pres = NULL,              # Pressure for biogas volume measurement
@@ -8,7 +9,7 @@ cumBgVol <- function(
   data.struct = 'long',     # Long, wide, longcombo. Only long data structure can be used. Data restructuring is handled by dataPrep() 
   id.name = 'id',
   time.name = 'time',
-  dat.name = 'vol',         # Name of column containing respons variable (volume measurements)
+  dat.name = data.type,         # Name of column containing respons variable (volume measurements)
   comp.name = 'xCH4',       # Name of xCH4 column in the data frame
   headspace = NULL,         # Required if cmethod = 'total'
   vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
@@ -112,11 +113,15 @@ cumBgVol <- function(
   
   # Data preparation (structuring and sorting)
   ## Call dataPrep function
-  dat <- dataPrep(dat = dat, comp.name = comp.name, id.name = id.name, time.name = time.name, 
+  dat <- cumBgDataPrep(dat = dat, comp.name = comp.name, id.name = id.name, time.name = time.name, 
                   data.struct = data.struct, comp = comp, interval = interval, imethod = imethod, extrap = extrap, 
                   headspace = headspace, vol.hs.name = vol.hs.name, 
                   temp = dat[, temp], pres = dat[, pres], empty.name = empty.name, std.message = std.message)
  
+  # And continue below with interval data (interval = TRUE)
+  standardized <- TRUE
+  interval <- TRUE
+  
   # Volumetric calculation methods 
     # Function will work with vol and add columns
     # vol dat needs id time vol
