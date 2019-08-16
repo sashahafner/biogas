@@ -113,10 +113,10 @@ cumBgVol <- function(
   
   # Data preparation (structuring and sorting)
   ## Call dataPrep function
-  dat <- cumBgDataPrep(dat = dat, comp.name = comp.name, id.name = id.name, time.name = time.name, 
+  dat <- cumBgDataPrep(dat = dat, dat.name = dat.name, comp.name = comp.name, id.name = id.name, time.name = time.name, 
                   data.struct = data.struct, comp = comp, interval = interval, imethod = imethod, extrap = extrap, 
                   headspace = headspace, vol.hs.name = vol.hs.name, 
-                  temp = dat[, temp], pres = dat[, pres], empty.name = empty.name, std.message = std.message)
+                  temp = temp, pres = pres, empty.name = empty.name, std.message = std.message)
  
   # And continue below with interval data (interval = TRUE)
   standardized <- TRUE
@@ -126,7 +126,7 @@ cumBgVol <- function(
     # Function will work with vol and add columns
     # vol dat needs id time vol
     
-    # Volumetric method I
+    # Volumetric method 1
       # Standardize total gas volumes
       # Note that temperature and pressure units are not converted at all in cumBgVol (but are in stdVol)
       if(!standardized) {
@@ -145,7 +145,7 @@ cumBgVol <- function(
       # Calculate interval (or cum if interval = FALSE) methane production
       dat$vCH4 <- dat$vBg*dat[, comp.name]
   
-    # Volumetric method II  
+    # Volumetric method 2  
       # For cmethod = 'total', calculate headspace CH4 to add for total below
       if(cmethod=='total') {
         # NTS: message needs to be fixed due to change in temp to column in dat
@@ -196,7 +196,7 @@ cumBgVol <- function(
       }
     
     # Calculate cumulative production or interval production (depending on interval argument)
-      # Method I
+      # Method 1
       if(interval && cmethod != 'total') {
         for(i in unique(dat[, id.name])) {
           dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
@@ -209,12 +209,12 @@ cumBgVol <- function(
         }
       }
     
-      # Method II
-        # For method II, cmethod = 'total', add headspace CH4 to cvCH4
+      # Method 2
+        # For method 2, cmethod = 'total', add headspace CH4 to cvCH4
         if(cmethod == 'total') {
           dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
         }
-        # For method II, when cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
+        # For method 2, when cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
         # vBg is not affected by cmethod = 'total'
         if(cmethod == 'total') {
           for(i in unique(dat[, id.name])) {
@@ -222,7 +222,7 @@ cumBgVol <- function(
           }
         }
     
-    # Method I & II
+    # Method 1 & 2
       # Calculate rates for all cases 
         for(i in unique(dat[, id.name])) {
           dat[dat[, id.name]==i, 'rvBg'] <- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
