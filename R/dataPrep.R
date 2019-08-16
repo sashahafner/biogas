@@ -1,4 +1,4 @@
-dataPrep <- function(
+cumBgDataPrep <- function(
   # Main arguments
   dat,
   dat.type = 'vol',
@@ -257,9 +257,7 @@ dataPrep <- function(
     }
     
     dat.name <- dnn
-    
-    # And continue below with interval data (interval = TRUE)
-    standardized <- TRUE
-    interval <- TRUE
   }
+  
+  return(dat)
 }
