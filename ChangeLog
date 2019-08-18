@@ -4,6 +4,15 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+18 August 2019 and earlier NL and SDH
+Version 1.17
+
+cumBgVol.R
+New function for volumetric data only.
+
+cumBgDataPrep.R
+New function for preparing cumBg* data.
+
 13 June 2019 SDH
 Version 1.16.5
 

@@ -210,21 +210,7 @@ cumBgDataPrep <- function(
     } else stop('headspace actual argument not recognized. What is it?')
   }
   
-  # Add temperature and pressure to dat if single numeric values were provided
-  if(!is.null(temp)) {
-    if(is.numeric(temp)) {
-      dat[, 'temperature'] <- temp
-      temp <- 'temperature'
-    } 
-  }
-  
-  if(!is.null(pres)) {
-    if(is.numeric(pres)) {
-      dat[, 'pressure'] <- pres
-      pres <- 'pressure' 
-    } 
-  }
-  
+ 
   # Correct composition data if it seems to be a percentage
   if (dat.type != 'gca') {
     if (any(na.omit(dat[, comp.name] > 1))) {
