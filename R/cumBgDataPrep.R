@@ -49,6 +49,25 @@ cumBgDataPrep <- function(
   # Create standardized binary variable that indicates when vBg has been standardized
   standardized <- FALSE
   
+  # Check column names in argument data frames
+  # comp needs id (time) xCH4, time optional
+  if(!is.null(comp) && class(comp)[1] == 'data.frame' && data.struct == 'long') {
+    if(any(missing.col <- !c(id.name, comp.name) %in% names(comp))){
+      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', c(id.name, comp.name)[missing.col], '.')
+    }
+  }
+  
+  # dat (volume or mass)
+  if(data.struct %in% c('long', 'longcombo')) {
+    if(any(missing.col <- !c(id.name, time.name, dat.name) %in% names(dat))){
+      stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(id.name, time.name, dat.name)[missing.col], collapse = ', '), '.')
+    } 
+  } else if(data.struct == 'wide') {
+    if(any(missing.col <- !c(time.name, dat.name) %in% names(dat))){
+      stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(time.name, dat.name)[missing.col], collapse = ', '), '.')
+    } 
+  }
+  
   # Rearrange wide data 
   if(data.struct == 'wide') {
     
@@ -116,6 +135,7 @@ cumBgDataPrep <- function(
     dat <- dat[!is.na(dat[, dat.name]), ]
   }
   
+  # Rearrange longcombo data
   # If there are missing values in a longcombo data frame, switch to long
   # NTS: this is not the most efficient approach, maybe revisit
   if(data.struct == 'longcombo') {

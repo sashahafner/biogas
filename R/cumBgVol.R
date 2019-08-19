@@ -66,14 +66,6 @@ cumBgVol <- function(
     rh <- 0
   }
   
-  # Check column names in argument data frames
-  # comp needs id (time) xCH4, time optional
-  if(!is.null(comp) && class(comp)[1] == 'data.frame') {
-    if(any(missing.col <- !c(id.name, comp.name) %in% names(comp))){
-      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', c(id.name, comp.name)[missing.col], '.')
-    }
-  }
-  
   # Check for headspace argument if it is needed
   if(is.null(headspace) & cmethod=='total') stop('cmethod is set to \"total\" but headspace argument is not provided.')
   
