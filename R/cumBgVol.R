@@ -124,6 +124,7 @@ cumBgVol <- function(
   # Temperature and pressure were added to dat if single numeric values were provided
   if(!is.null(temp)) {
     if(is.numeric(temp)) {
+      dat[, 'temperature'] <- temp
       temp <- 'temperature'
     }
   }
