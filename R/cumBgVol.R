@@ -7,8 +7,8 @@ cumBgVol <- function(
   interval = TRUE,          # When empty.name is used, there is a mix, and interval is ignored
   data.struct = 'long',     # Long, wide, longcombo. Only long data structure can be used. Data restructuring is handled by dataPrep() 
   # Column names
-  id.name = 'id',
-  time.name = 'time',
+  id.name = 'id',           # Name of column containing reactor identification code
+  time.name = 'time',       # Name of time column 
   dat.name = data.type,     # Name of column containing respons variable (volume measurements)
   comp.name = 'xCH4',       # Name of xCH4 column in the data frame
   # Additional arguments
@@ -100,15 +100,15 @@ cumBgVol <- function(
       w <- which(is.na(dat[, time.name]))
       stop('Missing values in time.name column! See rows ', paste(w, collapse = ', '), '.')
     }
-  }
+  } 
 
   # NTS: Add other checks here (e.g., missing values elsewhere)
   
+  # Introduce 'standardized' argument 
   standardized <- FALSE   # This should be an argument with a default value
   
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'long'
-  ## Call cumBgDataPrep function
   dat <- cumBgDataPrep(dat = dat, dat.name = dat.name, comp.name = comp.name, id.name = id.name, 
                        time.name = time.name, data.struct = data.struct, comp = comp, 
                        interval = interval, imethod = imethod, extrap = extrap, 
@@ -143,10 +143,8 @@ cumBgVol <- function(
     interval <- TRUE
   }
   
-  
   # Volumetric calculation methods 
-  # Function will work with vol and add columns
-  # vol dat needs id time vol
+  # Function will work with vol and add columns, and needs id, time and vol
   
   # Volumetric method 1
   # Standardize total gas volumes
