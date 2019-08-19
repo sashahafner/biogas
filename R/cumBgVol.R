@@ -7,10 +7,12 @@ cumBgVol <- function(
   pres = NULL,              # Pressure for biogas volume measurement
   interval = TRUE,          # When empty.name is used, there is a mix, and interval is ignored
   data.struct = 'long',     # Long, wide, longcombo. Only long data structure can be used. Data restructuring is handled by dataPrep() 
+  # Column names
   id.name = 'id',
   time.name = 'time',
-  dat.name = data.type,         # Name of column containing respons variable (volume measurements)
+  dat.name = data.type,     # Name of column containing respons variable (volume measurements)
   comp.name = 'xCH4',       # Name of xCH4 column in the data frame
+  # Additional arguments
   headspace = NULL,         # Required if cmethod = 'total'
   vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
   # Calculation method and other settings
@@ -128,7 +130,7 @@ cumBgVol <- function(
     } 
   }
   
- 
+  # NTS: This section should be deleted. 
   # And continue below with interval data (interval = TRUE)
   # NTS Q for Nanna: this was not correct was it? Not standardized by default. And did we lose this argument? 
   # NTS: Revisit below.

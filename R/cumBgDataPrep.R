@@ -263,6 +263,10 @@ cumBgDataPrep <- function(
     }
     
     dat.name <- dnn
+    
+    # And continue below with interval data (interval = TRUE)
+    standardized <- TRUE
+    interval <- TRUE
   }
   
   return(dat)
