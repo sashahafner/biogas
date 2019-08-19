@@ -104,8 +104,8 @@ cumBgVol <- function(
   # NTS: Add other checks here (e.g., missing values elsewhere)
   
   # Data preparation (structuring and sorting)
-  # Returns dat as data.struct = longcombo
-  ## Call dataPrep function
+  # Returns dat as data.struct = 'long'
+  ## Call cumBgDataPrep function
   dat <- cumBgDataPrep(dat = dat, dat.name = dat.name, comp.name = comp.name, id.name = id.name, 
                        time.name = time.name, data.struct = data.struct, comp = comp, 
                        interval = interval, imethod = imethod, extrap = extrap, 
