@@ -6,24 +6,24 @@ cumBgMan <- function(
   temp = NULL,              # Temperature for biogas measurement
   interval = TRUE,
   data.struct = 'long',     # long, wide, longcombo, widecombo
-  # Column names for volumetric method
+  # Column names 
   id.name = 'id',
   time.name = 'time',
-  dat.name = dat.type, # Will be used for first dat column for data.struct = 'wide'
-  comp.name = 'xCH4',  # Use for first comp col for data.struct = 'wide'
+  dat.name = data.type,     # Name of column containing respons variable (pressure measurements)
+  comp.name = 'xCH4',       # Name of xCH4 column in the data frame
   # Additional arguments 
-  pres.resid = NULL,
-  temp.init = NULL,
-  pres.init = NULL,
-  rh.resid = NULL,
-  rh.resid.init = 1,
+  pres.resid = NULL,        # Headspace pressure after venting
+  temp.init = NULL,         # Initial headspace temperature
+  pres.init = NULL,         # Initial headspace pressure
+  rh.resid = NULL,          # Relative humidity of gas in headspace 
+  rh.resid.init = 1,        # Initial relative humidity of gas in headspace
   headspace = NULL,
-  vol.hs.name = 'vol.hs',
-  absolute = TRUE,
-  pres.amb = NULL,
+  vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
+  absolute = TRUE,          # Headspace pressure
+  pres.amb = NULL,          # Absolute ambient pressure
   # Calculation method and other settings
-  cmethod = 'removed',
-  imethod = 'linear',
+  cmethod = 'removed',      # Method for calculating cumulative methane production
+  imethod = 'linear',       # Method used for interpolation of xCH4
   extrap = FALSE,
   addt0 = TRUE,
   showt0 = TRUE,
