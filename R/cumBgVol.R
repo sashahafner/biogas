@@ -1,7 +1,6 @@
 cumBgVol <- function(
   # Main arguments
   dat,
-  data.type = 'vol',
   comp = NULL,              # Composition of gas measurement
   temp = NULL,              # Temperature for biogas volume measurement
   pres = NULL,              # Pressure for biogas volume measurement
@@ -105,6 +104,8 @@ cumBgVol <- function(
 
   # NTS: Add other checks here (e.g., missing values elsewhere)
   
+  standardized <- FALSE   # This should be an argument with a default value
+  
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'long'
   ## Call cumBgDataPrep function
@@ -130,14 +131,19 @@ cumBgVol <- function(
     } 
   }
   
-  # NTS: This section should be deleted. 
-  # And continue below with interval data (interval = TRUE)
-  # NTS Q for Nanna: this was not correct was it? Not standardized by default. And did we lose this argument? 
-  # NTS: Revisit below.
-  #standardized <- TRUE # We need this argument and if TRUE dat should have vBg = vol below 
-  standardized <- FALSE
-  #interval <- TRUE # NTS Q for Nanna: Where is interval/cumulative sorted out now? Do we need to do it after stdVol()?
-
+  # Data and composition names are added manually for wide data
+  if(data.struct == 'wide') {
+    dat.name <- 'vol'
+    comp.name <- 'xCH4'
+  }
+  
+  # Mixed data is standardized in cumBgDataPrep()
+  if(!is.null(empty.name)) {
+    standardized <- TRUE
+    interval <- TRUE
+  }
+  
+  
   # Volumetric calculation methods 
   # Function will work with vol and add columns
   # vol dat needs id time vol
@@ -146,17 +152,17 @@ cumBgVol <- function(
   # Standardize total gas volumes
   # Note that temperature and pressure units are not converted at all in cumBgVol (but are in stdVol)
   if(!standardized) {
-    if(!is.null(temp) & !is.null(pres)) {
+    if(!is.null(temp) | !is.null(pres)) {
         dat$vBg <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, pres.std = pres.std, 
                           temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
                           std.message = std.message)
     } else {
         dat$vBg <- dat[, dat.name]
         message('Either temperature or presure is missing (temp and pres arguments) so volumes are NOT standardized.')
-    #} else {
-    # dat$vBg <- dat[, dat.name]   # Is this necessary? Same code as just above
     }
-  } 
+  } else {
+    dat$vBg <- dat[, dat.name]
+  }
   
   # Calculate interval (or cum if interval = FALSE) methane production
   dat$vCH4 <- dat$vBg*dat[, comp.name]
