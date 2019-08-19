@@ -19,6 +19,7 @@ cumBgMan <- function(
   rh.resid.init = 1,        # Initial relative humidity of gas in headspace
   headspace = NULL,
   vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
+  #headcomp = 'N2',
   absolute = TRUE,          # Headspace pressure
   pres.amb = NULL,          # Absolute ambient pressure
   # Calculation method and other settings
@@ -50,7 +51,7 @@ cumBgMan <- function(
   checkArgClassValue(comp.name, c('character', 'NULL'))
   checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
   checkArgClassValue(vol.hs.name, 'character')
-  checkArgClassValue(headcomp, 'character')
+  #checkArgClassValue(headcomp, 'character')
   checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
   checkArgClassValue(temp.std, c('integer', 'numeric'))
   checkArgClassValue(pres.std, c('integer', 'numeric'))
@@ -70,13 +71,7 @@ cumBgMan <- function(
   checkArgClassValue(pres.amb, c('integer', 'numeric', 'NULL'))
 
   # Hard-wire rh for now at least
-  # NTS: This argument should no be necessary, when not working with vol data
-  if(!dry) {
-    rh <- 1
-  } else {
     rh <- 0
-  }
-  
   
   # Check for headspace argument if it is needed
   if(is.null(headspace) & cmethod=='total') stop('cmethod is set to \"total\" but headspace argument is not provided.')
@@ -115,16 +110,19 @@ cumBgMan <- function(
   }
   
   # NTS: Add other checks here (e.g., missing values elsewhere)
+  
+  # Introduce 'standardized' argument   
+  standardized <- FALSE
 
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'long'
-  ## Call cumBgDataPrep function
-  dat <- cumBgDataPrep(dat = dat, dat.name = dat.name, comp.name = comp.name, id.name = id.name, 
-                       time.name = time.name, data.struct = data.struct, comp = comp, 
-                       interval = interval, imethod = imethod, extrap = extrap, 
+  dat <- cumBgDataPrep(dat = dat, dat.type = 'pres', dat.name = dat.name, 
+                       comp.name = comp.name, id.name = id.name, time.name = time.name, 
+                       data.struct = data.struct, comp = comp, 
+                       interval = interval, imethod = imethod, 
                        headspace = headspace, vol.hs.name = vol.hs.name, 
-                       temp = temp, pres = pres, empty.name = empty.name, 
-                       std.message = std.message)
+                       temp = temp, pres = NULL, 
+                       extrap = extrap, std.message = std.message)
   
   # Add temperature to dat if single numeric values were provided
   if(!is.null(temp)) {
@@ -134,16 +132,14 @@ cumBgMan <- function(
     } 
   }
   
-  # NTS Q for Nanna: this was not correct was it? Not standardized by default. And did we lose this argument? 
-  # NTS: Revisit below.
-  #standardized <- TRUE # We need this argument and if TRUE dat should have vBg = vol below 
-  standardized <- FALSE
-  #interval <- TRUE # NTS Q for Nanna: Where is interval/cumulative sorted out now? Do we need to do it after stdVol()?
-  
-  # Manometric 
+  # Data and composition names are added manually for wide data
+  if(data.struct == 'wide') {
+    dat.name <- 'vol'
+    comp.name <- 'xCH4'
+  }
+ 
+  # Manometric calculation methods
   # Function will work with man and add columns
-  if(dat.type %in% c('pres', 'pressure')) {
-    
     # Standardize total gas volumes
     # Note that temperature and pressure units are not converted at all in cumBg (but are in stdVol of course)
     if(dat.type %in% c('pres', 'pressure')) {
@@ -230,26 +226,6 @@ cumBgMan <- function(
       }
     }
     
-    # Calculate interval (or cum if interval = FALSE) gas production
-    # For cmethod = 'total', calculate headspace CH4 to add for total below
-    if(dat.type %in% c('vol', 'volume')) {
-      
-      dat$vCH4 <- dat$vBg*dat[, comp.name]
-      
-      if(cmethod=='total') {
-        # NTS: message needs to be fixed due to change in temp to column in dat
-        #if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as temp (', temp, unit.temp, '), pressure as \"pres\" (', pres, unit.pres, '), and relative humidity as 1.0 (100%).')
-        # NTS: problem with rh assumption here. Will actually be < 1 after gas removal
-        # Also assume vol meas pressure pres = residual headspace pressure
-        dat$vhsCH4 <- dat[, comp.name]*
-          stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres], rh = 1, pres.std = pres.std, 
-                 temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
-                 std.message = std.message)
-      }
-      # vhsCH4 is added to cvCH4 below
-      # Calculations are up here to avoid t0 issues
-    } 
-    
     # Add t0 row if requested
     # Not added if there are already zeroes present!
     if(addt0 & !class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) addt0 <- FALSE
@@ -291,11 +267,6 @@ cumBgMan <- function(
         dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
         dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
       } 
-    }
-    
-    # For cmethod = 'total', add headspace CH4 to cvCH4
-    if(dat.type %in% c('vol', 'volume') & cmethod == 'total') {
-      dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
     }
     
     # For cumulative results, calculate interval production from cvCH4 (down here because it may have headspace CH4 added if cmethod = total) so cannot be combined with cvCH4 calcs above
