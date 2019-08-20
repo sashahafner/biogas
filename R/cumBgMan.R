@@ -7,19 +7,18 @@ cumBgMan <- function(
   interval = TRUE,
   data.struct = 'long',     # long, wide, longcombo, widecombo
   # Column names 
-  id.name = 'id',
-  time.name = 'time',
+  id.name = 'id',           # Name of column containing reactor identification code
+  time.name = 'time',       # Name of time column 
   dat.name = data.type,     # Name of column containing respons variable (pressure measurements)
   comp.name = 'xCH4',       # Name of xCH4 column in the data frame
   # Additional arguments 
-  pres.resid = NULL,        # Headspace pressure after venting
   temp.init = NULL,         # Initial headspace temperature
   pres.init = NULL,         # Initial headspace pressure
+  pres.resid = NULL,        # Headspace pressure after venting
   rh.resid = NULL,          # Relative humidity of gas in headspace 
   rh.resid.init = 1,        # Initial relative humidity of gas in headspace
   headspace = NULL,
   vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
-  #headcomp = 'N2',
   absolute = TRUE,          # Headspace pressure
   pres.amb = NULL,          # Absolute ambient pressure
   # Calculation method and other settings
@@ -51,15 +50,12 @@ cumBgMan <- function(
   checkArgClassValue(comp.name, c('character', 'NULL'))
   checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
   checkArgClassValue(vol.hs.name, 'character')
-  #checkArgClassValue(headcomp, 'character')
+  checkArgClassValue(absolute, 'logical')
+  checkArgClassValue(pres.amb, c('integer', 'numeric', 'NULL'))
   checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
-  checkArgClassValue(temp.std, c('integer', 'numeric'))
-  checkArgClassValue(pres.std, c('integer', 'numeric'))
-  checkArgClassValue(pres.resid, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(pres.init, c('integer', 'numeric', 'NULL'))
+  checkArgClassValue(pres.resid, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(rh.resid.init, c('integer', 'numeric', 'NULL'), expected.range = c(0, 1))
-  checkArgClassValue(unit.temp, 'character')
-  checkArgClassValue(unit.pres, 'character')
   checkArgClassValue(cmethod, 'character', expected.values = c('removed', 'total'))
   # Skip imethod, checked in interp
   checkArgClassValue(extrap, 'logical')
@@ -67,11 +63,13 @@ cumBgMan <- function(
   checkArgClassValue(showt0, 'logical')
   checkArgClassValue(std.message, 'logical')
   checkArgClassValue(check, 'logical')
-  checkArgClassValue(absolute, 'logical')
-  checkArgClassValue(pres.amb, c('integer', 'numeric', 'NULL'))
+  checkArgClassValue(temp.std, c('integer', 'numeric'))
+  checkArgClassValue(pres.std, c('integer', 'numeric'))
+  checkArgClassValue(unit.temp, 'character')
+  checkArgClassValue(unit.pres, 'character')
 
   # Hard-wire rh for now at least
-    rh <- 0
+    rh <- 1
   
   # Check for headspace argument if it is needed
   if(is.null(headspace) & cmethod=='total') stop('cmethod is set to \"total\" but headspace argument is not provided.')
@@ -111,7 +109,7 @@ cumBgMan <- function(
   
   # NTS: Add other checks here (e.g., missing values elsewhere)
   
-  # Introduce 'standardized' argument   
+  # Create standardized binary variable that indicates when vBg has been standardized
   standardized <- FALSE
 
   # Data preparation (structuring and sorting)
@@ -140,7 +138,8 @@ cumBgMan <- function(
  
   # Manometric calculation methods
   # Function will work with man and add columns
-    # Standardize total gas volumes
+    
+  # Standardize total gas volumes
     # Note that temperature and pressure units are not converted at all in cumBg (but are in stdVol of course)
     if(dat.type %in% c('pres', 'pressure')) {
       if(!quiet) message('Working with pressure data, pressure measurements are', if (absolute) ' ABSOLUTE' else ' GAUGE', 
@@ -261,7 +260,6 @@ cumBgMan <- function(
     }
     
     # Calculate cumulative production or interval production (depending on interval argument)
-    # And calculate rates
     if(interval) {
       for(i in unique(dat[, id.name])) {
         dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
@@ -277,16 +275,8 @@ cumBgMan <- function(
         dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
       }
     }
-    
-    # When cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
-    # vBg is not affected by cmethod = 'total'
-    if(dat.type %in% c('vol', 'volume') & cmethod == 'total') {
-      for(i in unique(dat[, id.name])) {
-        dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
-      }
-    }
-    
-    # Calculate rates for all cases 
+
+    # Calculate rates
     for(i in unique(dat[, id.name])) {
       dat[dat[, id.name]==i, 'rvBg'] <- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
       dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
@@ -346,5 +336,5 @@ cumBgMan <- function(
     
     return(dat)
     
-  } else stop('Problem with dat.type argument.')
-}
+  } 
+
