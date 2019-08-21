@@ -22,6 +22,7 @@ cumBgVol <- function(
   showt0 = TRUE,
   dry = FALSE,
   empty.name = NULL,        # Column name for binary/logical column for when cum vol was reset to zero
+  standardized = FALSE,     # Standardized binary variable that indicates when vBg has been standardized
   # Warnings and messages
   std.message = !quiet,
   check = TRUE,
@@ -53,6 +54,7 @@ cumBgVol <- function(
   checkArgClassValue(showt0, 'logical')
   checkArgClassValue(dry, 'logical')
   checkArgClassValue(empty.name, c('character', 'NULL'))
+  checkArgClassValue(standardized, 'logical')
   checkArgClassValue(std.message, 'logical')
   checkArgClassValue(check, 'logical')
   checkArgClassValue(temp.std, c('integer', 'numeric'))
@@ -101,9 +103,6 @@ cumBgVol <- function(
       stop('Missing values in time.name column! See rows ', paste(w, collapse = ', '), '.')
     }
   } 
-
-  # Create standardized binary variable that indicates when vBg has been standardized
-  standardized <- FALSE   # This should be an argument with a default value
   
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'long'

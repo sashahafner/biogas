@@ -2,24 +2,23 @@ cumBgDataPrep <- function(
   # Main arguments
   dat,
   dat.type = 'vol',
-  comp = NULL, # Leave NULL for wide and both combos
-  temp = NULL,
-  pres = NULL,
-  interval = TRUE, # When empty.name is used, there is a mix, and interval is ignored
-  data.struct = 'long', # long, wide, longcombo
+  comp = NULL,              # Composition of gas measurement. Leave NULL for wide and longcombo
+  temp = NULL,              # Temperature for biogas volume measurement
+  pres = NULL,              # Pressure for biogas volume measurement
+  interval = TRUE,          # When empty.name is used, there is a mix, and interval is ignored
+  data.struct = 'long',     # long, wide, longcombo
   # Column names
-  id.name = 'id',
-  time.name = 'time',
-  dat.name = dat.type, # Will be used for first dat column for data.struct = 'wide'
-  comp.name = 'xCH4',  # Use for first comp col for data.struct = 'wide'
-  headspace = NULL,
-  vol.hs.name = 'vol.hs',
+  id.name = 'id',           # Name of column containing reactor identification code
+  time.name = 'time',       # Name of time column 
+  dat.name = dat.type,      # Will be used for first dat column for data.struct = 'wide'
+  comp.name = 'xCH4',       # Name of column containing xCH4 values. Use for first comp col for data.struct = 'wide'
+  headspace = NULL,         # Required if cmethod = 'total'
+  vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
   # Calculation method and other settings
-  imethod = 'linear',
+  imethod = 'linear',      # Method for interpolation of xCH4
   extrap = FALSE,
   # Additional argument for volumetric data only 
-  empty.name = NULL, # Column name for binary/logical column for when cum vol was reset to zero
-  ##gas = 'CH4',
+  empty.name = NULL,       # Column name for binary/logical column for when cum vol was reset to zero
   # Warnings and messages
   std.message = !quiet,
   check = TRUE,
@@ -54,7 +53,7 @@ cumBgDataPrep <- function(
     }
   }
   
-  # dat (volume or mass)
+  # Check missing data in dat data frame (id, time and data)
   if(data.struct %in% c('long', 'longcombo')) {
     if(any(missing.col <- !c(id.name, time.name, dat.name) %in% names(dat))){
       stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(id.name, time.name, dat.name)[missing.col], collapse = ', '), '.')
@@ -124,7 +123,6 @@ cumBgDataPrep <- function(
     }
     
     data.struct <- 'long'
-    
   }
   
   # Remove missing values for cumulative data only
@@ -147,13 +145,13 @@ cumBgDataPrep <- function(
   if(dat.type != 'gca') {
     
     mssg.no.time <- mssg.interp <- FALSE
-    # First sort so can find first observation for mass data to ignore it
+    # First sort to identify first observation for mass data in order to ignore it
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     dat[, comp.name] <- NA
     
     if(!is.null(comp) && class(comp)[1] == 'data.frame'){
       
-      # Drop NAs from comp--this applies to wide, long, and longcombo data.struct
+      # Drop NAs from comp - this applies to wide, long, and longcombo data.struct
       comp <- comp[!is.na(comp[, comp.name]), ]
       
       # Interpolate gas composition to times of volume measurements
@@ -211,7 +209,6 @@ cumBgDataPrep <- function(
     }
     if(!quiet & mssg.no.time) message('A time column was not found in comp (', deparse(substitute(comp)), '), and a single value was used for each reactor.')
     if(!quiet & mssg.interp) message('Biogas composition is interpolated.')
-    
   } 
   
   # Add headspace if provided
@@ -227,7 +224,6 @@ cumBgDataPrep <- function(
     } else stop('headspace actual argument not recognized. What is it?')
   }
   
- 
   # Correct composition data if it seems to be a percentage
   if (dat.type != 'gca') {
     if (any(na.omit(dat[, comp.name] > 1))) {
@@ -237,7 +233,7 @@ cumBgDataPrep <- function(
     }
   }
   
-  # Now that all data are in long structure sort out mixed interval/cumulative data
+  # Now that all data are in long structure sort out mixed interval/cumulative data followed by standardizing vBg
   if(!is.null(empty.name)) {
     # Sort by id and time
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
