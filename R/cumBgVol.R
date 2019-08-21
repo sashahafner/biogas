@@ -9,7 +9,7 @@ cumBgVol <- function(
   # Column names
   id.name = 'id',           # Name of column containing reactor identification code
   time.name = 'time',       # Name of time column 
-  dat.name = data.type,     # Name of column containing respons variable (volume measurements)
+  dat.name = data.type,     # Name of column containing respons variable, as-measured volume (not standardized)
   comp.name = 'xCH4',       # Name of xCH4 column in the data frame
   # Additional arguments
   headspace = NULL,         # Required if cmethod = 'total'
@@ -102,9 +102,7 @@ cumBgVol <- function(
     }
   } 
 
-  # NTS: Add other checks here (e.g., missing values elsewhere)
-  
-  # Introduce 'standardized' argument 
+  # Create standardized binary variable that indicates when vBg has been standardized
   standardized <- FALSE   # This should be an argument with a default value
   
   # Data preparation (structuring and sorting)
@@ -156,7 +154,7 @@ cumBgVol <- function(
                           std.message = std.message)
     } else {
         dat$vBg <- dat[, dat.name]
-        message('Either temperature or presure is missing (temp and pres arguments) so volumes are NOT standardized.')
+        message('Either temperature or pressure is missing (temp and pres arguments) so volumes are NOT standardized.')
     }
   } else {
     dat$vBg <- dat[, dat.name]

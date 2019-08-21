@@ -46,9 +46,6 @@ cumBgDataPrep <- function(
   checkArgClassValue(std.message, 'logical')
   checkArgClassValue(check, 'logical')
   
-  # Create standardized binary variable that indicates when vBg has been standardized
-  standardized <- FALSE
-  
   # Check column names in argument data frames
   # comp needs id (time) xCH4, time optional
   if(!is.null(comp) && class(comp)[1] == 'data.frame' && data.struct == 'long') {
@@ -263,10 +260,6 @@ cumBgDataPrep <- function(
     }
     
     dat.name <- dnn
-    
-    # And continue below with interval data (interval = TRUE)
-    standardized <- TRUE
-    interval <- TRUE
   }
   
   return(dat)
