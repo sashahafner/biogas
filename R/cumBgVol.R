@@ -9,7 +9,7 @@ cumBgVol <- function(
   # Column names
   id.name = 'id',           # Name of column containing reactor identification code
   time.name = 'time',       # Name of time column 
-  dat.name = data.type,     # Name of column containing respons variable, as-measured volume (not standardized)
+  dat.name = 'vol',     # Name of column containing respons variable, as-measured volume (not standardized)
   comp.name = 'xCH4',       # Name of xCH4 column in the data frame
   # Additional arguments
   headspace = NULL,         # Required if cmethod = 'total'
@@ -107,7 +107,8 @@ cumBgVol <- function(
   
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'long'
-  dat <- cumBgDataPrep(dat = dat, dat.name = dat.name, comp.name = comp.name, id.name = id.name, 
+  dat <- cumBgDataPrep(dat = dat, dat.type = 'vol', dat.name = dat.name, 
+                       comp.name = comp.name, id.name = id.name, 
                        time.name = time.name, data.struct = data.struct, comp = comp, 
                        interval = interval, imethod = imethod, extrap = extrap, 
                        headspace = headspace, vol.hs.name = vol.hs.name, 
