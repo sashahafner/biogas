@@ -256,7 +256,7 @@ cumBgVol <- function(
   # Sort and return results
   dat <- dat[order(dat[, id.name], dat[, time.name]), ]
   
-  if(is.null(comp.name)) {
+  if(is.null(comp)) {
     warning('Biogas composition date (\'comp\' and \'comp.name\' arguments) not provided so CH4 results will not be returned.')
     dat <- dat[, ! names(dat) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
   }
