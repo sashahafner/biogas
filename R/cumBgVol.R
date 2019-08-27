@@ -167,7 +167,7 @@ cumBgVol <- function(
   # Volumetric method 2  
   # For cmethod = 'total', calculate headspace CH4 to add for total below
   if(cmethod=='total') {
-    if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as values in ', temp' column, pressure as values in ', pres, ' column, and relative humidity as 1.0 (100%).')
+    if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as values in ', temp, ' column, pressure as values in ', pres, ' column, and relative humidity as 1.0 (100%).')
     # Note that rh is assumed to be 1 at all times 
     # Also assume vol meas pressure = residual headspace pressure
     dat$vhsCH4 <- dat[, comp.name] *
