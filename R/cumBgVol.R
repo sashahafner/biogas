@@ -219,7 +219,7 @@ cumBgVol <- function(
   
   # Calculate cumulative production or interval production (depending on interval argument)
   # Method 1
-  if(interval && cmethod != 'total') {
+  if(interval & cmethod != 'total') {
     for(i in unique(dat[, id.name])) {
       dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
       dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
