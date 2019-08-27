@@ -121,8 +121,6 @@ cumBgDataPrep <- function(
       # Fix id name
       names(comp)[names(comp) == 'idxyz'] <- id.name
     }
-    
-    data.struct <- 'long'
   }
   
   # Remove missing values for cumulative data only
@@ -136,8 +134,6 @@ cumBgDataPrep <- function(
   if(data.struct == 'longcombo') {
     comp <- dat[, c(id.name, time.name, comp.name)]
     dat <- dat[, names(dat) != comp.name]
-    
-    data.struct <- 'long'
   }
   
   # Sort out composition data

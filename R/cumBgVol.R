@@ -130,7 +130,7 @@ cumBgVol <- function(
     } 
   }
   
-  # Data and composition names are added manually for wide data
+  # For data.struct = 'wide', data and composition names are added manually
   if(data.struct == 'wide') {
     dat.name <- 'vol'
     comp.name <- 'xCH4'

@@ -123,12 +123,12 @@ cumBgMan <- function(
     } 
   }
   
-  # Data and composition names are added manually for data.struct = 'wide'
+  # For data.struct = 'wide', data and composition names are added manually
   if(data.struct == 'wide') {
     dat.name <- 'vol'
     comp.name <- 'xCH4'
   }
- 
+
   # Manometric calculation methods
   # Function will work with man and add columns
     
