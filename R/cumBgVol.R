@@ -9,7 +9,7 @@ cumBgVol <- function(
   # Column names
   id.name = 'id',           # Name of column containing reactor identification code
   time.name = 'time',       # Name of time column 
-  dat.name = 'vol',     # Name of column containing respons variable, as-measured volume (not standardized)
+  dat.name = 'vol',         # Name of column containing respons variable, as-measured volume (generally not standardized)
   comp.name = 'xCH4',       # Name of xCH4 column in the data frame
   # Additional arguments
   headspace = NULL,         # Required if cmethod = 'total'
@@ -30,7 +30,7 @@ cumBgVol <- function(
   pres.std = getOption('pres.std', as.numeric(NA)),
   unit.temp = getOption('unit.temp', 'C'),
   unit.pres = getOption('unit.pres', 'atm'),
-  quiet = FALSE ##,
+  quiet = FALSE
 ){
   
   # Check arguments
@@ -87,7 +87,7 @@ cumBgVol <- function(
     stop('The empty.name column must be binary.')
   }
   
-  # For volumetric dat missing values are OK if they are cumulative only (NTS: why OK if cumulative? Interpolated?)
+  # For volumetric dat missing values are OK if they are cumulative only (NAs obs can be dropped with no error in cvBg)
   if(!is.null(dat.name)) {
     if(any(is.na(dat[, dat.name])) & interval) {
       w <- which(is.na(dat[, dat.name]))
@@ -130,13 +130,13 @@ cumBgVol <- function(
     } 
   }
   
-  # For data.struct = 'wide', data and composition names are added manually
+  # For data.struct = 'wide', data and composition names are fixed, added manually in cumBgDataPrep()
   if(data.struct == 'wide') {
     dat.name <- 'vol'
     comp.name <- 'xCH4'
   }
   
-  # Mixed data is standardized in cumBgDataPrep()
+  # Mixed data is standardized in cumBgDataPrep() and changed to interval
   if(!is.null(empty.name)) {
     standardized <- TRUE
     interval <- TRUE
@@ -167,39 +167,42 @@ cumBgVol <- function(
   # Volumetric method 2  
   # For cmethod = 'total', calculate headspace CH4 to add for total below
   if(cmethod=='total') {
-    # NTS: message needs to be fixed due to change in temp to column in dat
-    #if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as temp (', temp, unit.temp, '), pressure as \"pres\" (', pres, unit.pres, '), and relative humidity as 1.0 (100%).')
-    # NTS: problem with rh assumption here. Will actually be < 1 after gas removal
+    if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as values in ', temp' column, pressure as values in ', pres, ' column, and relative humidity as 1.0 (100%).')
+    # Note that rh is assumed to be 1 at all times 
     # Also assume vol meas pressure = residual headspace pressure
-    dat$vhsCH4 <- dat[, comp.name]*
-      stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres], rh = 1, pres.std = pres.std, 
-             temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
-             std.message = std.message)
+    dat$vhsCH4 <- dat[, comp.name] *
+                    stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres], rh = 1, 
+                           pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
+                           unit.pres = unit.pres, std.message = std.message)
   }
     # vhsCH4 is added to cvCH4 below
     # Calculations are up here to avoid t0 issues
   
   # Add t0 row if requested
-  # Not added if there are already zeroes present!
+  # Not added if column is not numeric, integer, or difftime (e.g., date/time)
   if(addt0 & !class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) addt0 <- FALSE
+  # Not added if there are already zeroes present!
   if(addt0 & !any(dat[, time.name]==0)) {
     t0 <- data.frame(id = unique(dat[, id.name]), tt = 0, check.names = FALSE)
     names(t0) <- c(id.name, time.name)
     t0[, 'vBg'] <- t0[, 'vCH4'] <- 0
   
-  # Calculation of vCH4 by diff when cmethod = 'total' and interval = FALSE
+  # Calculation of vCH4 by difference when cmethod = 'total' and interval = FALSE
     if(cmethod == 'total') {
-    t0[, 'vhsCH4'] <- 0
+      t0[, 'vhsCH4'] <- 0
     }
+
     dat <- rbindf(dat, t0)
   }
   
   # Calculate delta t for rates
   dat <- dat[order(dat[, id.name], dat[, time.name]), ]
+
   if(class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) {
     dt <- c(NA, diff(dat[, time.name]))
   } else if(class(dat[, time.name])[1] %in% c('POSIXct', 'POSIXlt')) {
     dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
+    if(!quiet) message('Rates are per *day*.')
   } else {
     dt <- NA
     warning('class of time column in dat data frame not recognized, so rates will not be calculated.')
@@ -267,9 +270,13 @@ cumBgVol <- function(
   
   # Drop NAs if they extend to the latest time for a given bottle (based on problem with AMPTSII data, sometimes shorter for some bottles)
   if(any(is.na(dat[, dat.name]))) {
+
     dat2 <- data.frame()
+
     for(i in unique(dat[, id.name])) {
+
       dd <- dat[dat[, id.name] == i, ]
+
       if(is.na(dd[nrow(dd), dat.name])) {
         # All NAs
         i1 <- which(is.na(dd[, dat.name]))
@@ -300,6 +307,7 @@ cumBgVol <- function(
   
   rownames(dat) <- 1:nrow(dat)
   
+  # Return results
   return(dat)
   
-  } 
+} 
