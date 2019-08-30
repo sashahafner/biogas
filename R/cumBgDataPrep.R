@@ -121,6 +121,7 @@ cumBgDataPrep <- function(
       # Fix id name
       names(comp)[names(comp) == 'idxyz'] <- id.name
     }
+    data.struct <- 'long'
   }
   
   # Remove missing values for cumulative data only
@@ -131,14 +132,16 @@ cumBgDataPrep <- function(
   # Rearrange longcombo data
   # If there are missing values in a longcombo data frame, switch to long
   # NTS: this is not the most efficient approach, maybe revisit
-  if(data.struct == 'longcombo') {
+  if(data.struct == 'longcombo' && any(is.na(dat[, comp.name]))) {
     comp <- dat[, c(id.name, time.name, comp.name)]
     dat <- dat[, names(dat) != comp.name]
+    
+    data.struct <- 'long'
   }
   
   # Sort out composition data
   # GCA method has no biogas composition
-  if(dat.type != 'gca') {
+  if(data.struct == 'long' & dat.type != 'gca') {
     
     mssg.no.time <- mssg.interp <- FALSE
     # First sort to identify first observation for mass data in order to ignore it

@@ -106,7 +106,7 @@ cumBgMan <- function(
   standardized <- FALSE
 
   # Data preparation (structuring and sorting)
-  # Returns dat as data.struct = 'long'
+  # Returns dat as data.struct = 'longcombo'
   dat <- cumBgDataPrep(dat = dat, dat.type = 'pres', dat.name = dat.name, 
                        comp.name = comp.name, id.name = id.name, time.name = time.name, 
                        data.struct = data.struct, comp = comp, 
