@@ -75,7 +75,7 @@ cumBgMan <- function(
   if(is.null(pres.resid)) stop('calculation method is \"manometric\" but \"pres.resid\" is not provided.')
   if(is.null(pres.init)) stop('calculation method is \"manometric\" but \"pres.init\" is not provided.')
   
-  # Check for other input errors
+  # Check for input errors in reactor identification code column
   if(!is.null(id.name) & id.name %in% names(dat)) {
     if(any(is.na(dat[, id.name]))) {
       w <- which(is.na(dat[, id.name]))
@@ -127,44 +127,43 @@ cumBgMan <- function(
 
   # Manometric calculation methods
   # Function will work with man and add columns
-    
-  # Standardize total gas volumes and calculate biogas and methane production 
-    # Note that temperature and pressure units are not converted at all in cumBg (but are in stdVol of course)
-    if(!quiet) message('Pressure measurements are', if (absolute) ' ABSOLUTE' else ' GAUGE', 
-                         ' If this is incorrect, change \'absolute\' argument to ', !absolute, '.')
+  # Note that temperature and pressure units are not converted at all in cumBg (but are in stdVol of course)
+  if(!quiet) message('Pressure measurements are', if (absolute) ' ABSOLUTE' else ' GAUGE', 
+                      ' If this is incorrect, change \'absolute\' argument to ', !absolute, '.')
       
-    # Add pres.resid to dat if it isn't already present
-    if(is.numeric(pres.resid) | is.integer(pres.resid)) {
-      dat$pres.resid <- pres.resid
-      pres.resid <- 'pres.resid'
-    }
+  # Add pres.resid to dat if it isn't already present
+  if(is.numeric(pres.resid) | is.integer(pres.resid)) {
+    dat$pres.resid <- pres.resid
+    pres.resid <- 'pres.resid'
+  }
       
-    # If absolute != TRUE, calculate absolute pressure and add to dat
-    if(!absolute) {
-      if(is.null(pres.amb)) stop('Pressure measurements are GAUGE but pres.amb argument was not provided.')
+  # If absolute != TRUE, calculate absolute pressure and add to dat
+  if(!absolute) {
+    if(is.null(pres.amb)) stop('Pressure measurements are GAUGE but pres.amb argument was not provided.')
         
-      dat[, aa <- paste0(dat.name, '.abs')] <- dat[, dat.name] + pres.amb
-      dat.name <- aa
+    dat[, aa <- paste0(dat.name, '.abs')] <- dat[, dat.name] + pres.amb
+    dat.name <- aa
         
-      dat[, aa <- paste0(pres.resid, '.abs')] <- dat[, pres.resid] + pres.amb
-      pres.resid <- aa
+    dat[, aa <- paste0(pres.resid, '.abs')] <- dat[, pres.resid] + pres.amb
+    pres.resid <- aa
         
-      pres.init <- pres.init + pres.amb
+    pres.init <- pres.init + pres.amb
+  }
+      
+  # Add residual rh (after pressure measurement and venting)
+  if(interval) {
+    if(is.null(rh.resid)) {
+      dat$rh.resid <- dat[, pres.resid]/dat[, dat.name]
+      dat$rh.resid[dat$rh.resid > 1] <- 1
+    } else {
+      dat$rh.resid <- rh.resid
     }
+  }
       
-    # Add residual rh (after pressure measurement and venting)
-    if(interval) {
-      if(is.null(rh.resid)) {
-        dat$rh.resid <- dat[, pres.resid]/dat[, dat.name]
-        dat$rh.resid[dat$rh.resid > 1] <- 1
-      } else {
-        dat$rh.resid <- rh.resid
-      }
-    }
-      
-    # Sort to add *previous* residual pressure, rh, and temperature columns
-    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-      
+  # Sort to add *previous* residual pressure, rh, and temperature columns
+  dat <- dat[order(dat[, id.name], dat[, time.name]), ]
+  
+  # Standardize total gas volumes and calculate biogas and methane production     
     # Standardized headspace volume before venting
     vHS <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, dat.name], rh = rh, 
                   pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
