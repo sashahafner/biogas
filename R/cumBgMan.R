@@ -3,8 +3,8 @@ cumBgMan <- function(
   dat,
   comp = NULL,              # Composition of biogas measurement
   temp = NULL,              # Temperature for biogas measurement
-  interval = TRUE,          # Indicates if pressure measurements is from time interval only 
-  data.struct = 'long',     # long, wide, longcombo, widecombo
+  interval = TRUE,          # Indicates if pressure measurements are from time interval only 
+  data.struct = 'long',     # long, wide, longcombo
   # Column names 
   id.name = 'id',           # Name of column containing reactor identification code
   time.name = 'time',       # Name of time column 
@@ -67,7 +67,7 @@ cumBgMan <- function(
   checkArgClassValue(unit.pres, 'character')
 
   # Hard-wire rh for now at least
-    rh <- 1
+    rh <- 1 # NTS: would it make sense to make this an argument instead? 
   
   # Check for necessary arguments
   if(is.null(headspace)) stop('calculation method is \"manometric\" but \"headspace\" is not provided.')
@@ -83,9 +83,7 @@ cumBgMan <- function(
     }
   }
   
-  # For pressure dat missing values are OK if they are cumulative (NTS: why OK if cumulative? Interpolated?)
-  # Applies to wide data
-  # But now wide data excepted totally
+  # For pressure dat missing values are OK if they are cumulative only (NAs obs can be dropped with no error in cvBg)
   if(!is.null(dat.name)) {
     if(any(is.na(dat[, dat.name])) & interval & data.struct != 'wide') {
       w <- which(is.na(dat[, dat.name]))
@@ -100,8 +98,6 @@ cumBgMan <- function(
     }
   }
   
-  # NTS: Add other checks here (e.g., missing values elsewhere)
-  
   # Create standardized binary variable that indicates when vBg has been standardized
   standardized <- FALSE
 
@@ -115,7 +111,7 @@ cumBgMan <- function(
                        temp = temp, pres = NULL, 
                        extrap = extrap, std.message = std.message)
   
-  # Add temperature to dat if single numeric values were provided
+  # Temperature was added to dat if single numeric values were provided
   if(!is.null(temp)) {
     if(is.numeric(temp)) {
       dat[, 'temperature'] <- temp
@@ -123,7 +119,7 @@ cumBgMan <- function(
     } 
   }
   
-  # For data.struct = 'wide', data and composition names are added manually
+  # For data.struct = 'wide', data and composition names are fixed, added manually in cumBgDataPrep()
   if(data.struct == 'wide') {
     dat.name <- 'vol'
     comp.name <- 'xCH4'
@@ -132,9 +128,9 @@ cumBgMan <- function(
   # Manometric calculation methods
   # Function will work with man and add columns
     
-  # Standardize total gas volumes
+  # Standardize total gas volumes and calculate biogas and methane production 
     # Note that temperature and pressure units are not converted at all in cumBg (but are in stdVol of course)
-    if(!quiet) message('Working with pressure data, pressure measurements are', if (absolute) ' ABSOLUTE' else ' GAUGE', 
+    if(!quiet) message('Pressure measurements are', if (absolute) ' ABSOLUTE' else ' GAUGE', 
                          ' If this is incorrect, change \'absolute\' argument to ', !absolute, '.')
       
     # Add pres.resid to dat if it isn't already present
@@ -174,8 +170,8 @@ cumBgMan <- function(
                   pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
                   unit.pres = unit.pres, std.message = FALSE, warn = FALSE) 
       
-  # Finally, calculate volume of gas in bottle headspace
-  if(interval) {
+    # Calculate volume of gas in bottle headspace
+    if(interval) {
         
     # Add previous residual pressure, residual rh, temperature, and residual xCH4 columns
     for(i in unique(dat[, id.name])) {
@@ -194,11 +190,11 @@ cumBgMan <- function(
                     pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
                     unit.pres = unit.pres, std.message = std.message)
         
-    # Calculate biogas production, vBg
+  # Calculate biogas production, vBg
     dat$vBg <- vHS - vHSr
       
-    # Calculate methane porduct, vCH4
-      # Method 1  
+  # Calculate methane production, vCH4
+    # Method 1  
       if(cmethod == 'removed') {
         dat$vCH4 <- dat$vBg*dat[, comp.name]
         
@@ -221,8 +217,9 @@ cumBgMan <- function(
   }
     
   # Add t0 row if requested
-  # Not added if there are already zeroes present!
+  # Not added if column is not numeric, integer, or difftime (e.g., date/time)
   if(addt0 & !class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) addt0 <- FALSE
+  # Not added if there are already zeroes present!
   if(addt0 & !any(dat[, time.name]==0)) {
     t0 <- data.frame(id = unique(dat[, id.name]), tt = 0, check.names = FALSE)
     names(t0) <- c(id.name, time.name)
@@ -237,14 +234,17 @@ cumBgMan <- function(
     
   # Calculate delta t for rates
   dat <- dat[order(dat[, id.name], dat[, time.name]), ]
+  
   if(class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) {
     dt <- c(NA, diff(dat[, time.name]))
   } else if(class(dat[, time.name])[1] %in% c('POSIXct', 'POSIXlt')) {
     dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
+    if(!quiet) message('Rates are per *day*.')
   } else {
     dt <- NA
     warning('class of time column in dat data frame not recognized, so rates will not be calculated.')
   }
+  
   # Set dt to NA for first observations for each reactor
   dt[c(TRUE, dat[, id.name][-1] != dat[, id.name][-nrow(dat)])] <- NA 
     
@@ -296,9 +296,13 @@ cumBgMan <- function(
     
   # Drop NAs if they extend to the latest time for a given bottle (based on problem with AMPTSII data, sometimes shorter for some bottles)
   if(any(is.na(dat[, dat.name]))) {
+    
     dat2 <- data.frame()
+    
     for(i in unique(dat[, id.name])) {
+      
       dd <- dat[dat[, id.name] == i, ]
+      
       if(is.na(dd[nrow(dd), dat.name])) {
         # All NAs
         i1 <- which(is.na(dd[, dat.name]))
@@ -328,7 +332,8 @@ cumBgMan <- function(
   }
     
   rownames(dat) <- 1:nrow(dat)
-    
+  
+  # Return results  
   return(dat)
     
 } 
