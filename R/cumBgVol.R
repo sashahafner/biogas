@@ -89,7 +89,7 @@ cumBgVol <- function(
   
   # For volumetric dat missing values are OK if they are cumulative only (NAs obs can be dropped with no error in cvBg)
   if(!is.null(dat.name)) {
-    if(any(is.na(dat[, dat.name])) & interval) {
+    if(any(is.na(dat[, dat.name])) & interval & data.struct != 'wide') {
       w <- which(is.na(dat[, dat.name]))
       stop('Missing values in dat.name column! See rows ', paste(w, collapse = ', '), '.')
     }
@@ -143,7 +143,7 @@ cumBgVol <- function(
   }
   
   # Volumetric calculation methods 
-  # Function will work with vol and add columns, and needs id, time and vol
+  # Function needs id, time, and vol and will add columns
   
   # Volumetric method 1
   # Standardize total gas volumes

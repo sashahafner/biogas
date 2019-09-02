@@ -126,7 +126,7 @@ cumBgMan <- function(
   }
 
   # Manometric calculation methods
-  # Function will work with man and add columns
+  # Function needs id, time, and pres and will add columns
   # Note that temperature and pressure units are not converted at all in cumBg (but are in stdVol of course)
   if(!quiet) message('Pressure measurements are', if (absolute) ' ABSOLUTE' else ' GAUGE', 
                       ' If this is incorrect, change \'absolute\' argument to ', !absolute, '.')
@@ -184,33 +184,34 @@ cumBgMan <- function(
       dat[dat[, id.name]==i, paste0(comp.name, '.prev')] <- c(0, xr[-length(xr)])
     }
         
-    # Standardized residual headspace volume at end of previous interval
+    # Standardize residual headspace volume at end of previous interval
     vHSr <- stdVol(dat[, vol.hs.name], temp = dat[, 'temp.prev'], pres = dat$pres.resid.prev, rh = dat$rh.resid.prev,  
                     pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
                     unit.pres = unit.pres, std.message = std.message)
         
-  # Calculate biogas production, vBg
-    dat$vBg <- vHS - vHSr
+    # Calculate biogas production, vBg
+      dat$vBg <- vHS - vHSr
       
-  # Calculate methane production, vCH4
-    # Method 1  
-      if(cmethod == 'removed') {
-        dat$vCH4 <- dat$vBg*dat[, comp.name]
+    # Calculate methane production, vCH4
+      # Method 1  
+        if(cmethod == 'removed') {
+          dat$vCH4 <- dat$vBg*dat[, comp.name]
         
-      # Method 2
-      } else {
-        dat$vCH4 <- vHS * dat[, comp.name] - vHSr * dat[, paste0(comp.name, '.prev')]
-      }
+        # Method 2
+        } else {
+          dat$vCH4 <- vHS * dat[, comp.name] - vHSr * dat[, paste0(comp.name, '.prev')]
+        }
         
   } else {
-    # Initial headspace volume
+    # For cumulative data
+    # Standardize initial headspace volume
     vHSi <- stdVol(dat[, vol.hs.name], temp = temp.init, pres = pres.init, rh = rh.resid.init,  
                     pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
                     unit.pres = unit.pres, std.message = std.message, warn = FALSE)
         
         
-    # Second call (subtracted bit) is original bottle headspace (standardized), assumed to start at first pres.resid 
-    # These are actually cv cumulative volumes, changed below.
+    # vHSi is original bottle headspace (standardized), assumed to start at first pres.resid 
+    # Calculate biogas and methane production. These are actually cumulative volumes, changed below.
     dat$vBg <- vHS - vHSi
     dat$vCH4 <- dat$vBg * dat[, comp.name]
   }
@@ -261,8 +262,7 @@ cumBgMan <- function(
     } 
   }
     
-  # For cumulative results, calculate interval production from cvCH4 (down here because it may have headspace CH4 added if cmethod = total) so cannot be combined with cvCH4 calcs above
-  # vBg could be moved up, but that means more code
+  # For cumulative results, calculate interval production from cvCH4
   if(!interval) {
     for(i in unique(dat[, id.name])) {
       dat[dat[, id.name]==i, 'vBg'] <- diff(c(0, dat[dat[, id.name]==i, 'cvBg' ]))
@@ -270,7 +270,7 @@ cumBgMan <- function(
     }
   }
 
-  # Calculate rates
+  # Calculate production rates
   for(i in unique(dat[, id.name])) {
     dat[dat[, id.name]==i, 'rvBg'] <- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
     dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
@@ -336,4 +336,3 @@ cumBgMan <- function(
   return(dat)
     
 } 
-
