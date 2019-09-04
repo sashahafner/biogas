@@ -46,13 +46,13 @@ cumBgMan <- function(
   checkArgClassValue(time.name, 'character')
   checkArgClassValue(dat.name, 'character')
   checkArgClassValue(comp.name, c('character', 'NULL'))
-  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
+  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric'))
   checkArgClassValue(vol.hs.name, 'character')
   checkArgClassValue(absolute, 'logical')
   checkArgClassValue(pres.amb, c('integer', 'numeric', 'NULL'))
-  checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
-  checkArgClassValue(pres.init, c('integer', 'numeric', 'NULL'))
-  checkArgClassValue(pres.resid, c('integer', 'numeric', 'character', 'NULL'))
+  checkArgClassValue(temp.init, c('integer', 'numeric'))
+  checkArgClassValue(pres.init, c('integer', 'numeric'))
+  checkArgClassValue(pres.resid, c('integer', 'numeric', 'character'))
   checkArgClassValue(rh.resid.init, c('integer', 'numeric', 'NULL'), expected.range = c(0, 1))
   checkArgClassValue(cmethod, 'character', expected.values = c('removed', 'total'))
   # Skip imethod, checked in interp
@@ -67,13 +67,7 @@ cumBgMan <- function(
   checkArgClassValue(unit.pres, 'character')
 
   # Hard-wire rh for now at least
-    rh <- 1 # NTS: would it make sense to make this an argument instead? 
-  
-  # Check for necessary arguments
-  if(is.null(headspace)) stop('calculation method is \"manometric\" but \"headspace\" is not provided.')
-  if(is.null(temp.init)) stop('calculation method is \"manometric\" but \"temp.init\" is not provided.')
-  if(is.null(pres.resid)) stop('calculation method is \"manometric\" but \"pres.resid\" is not provided.')
-  if(is.null(pres.init)) stop('calculation method is \"manometric\" but \"pres.init\" is not provided.')
+  rh <- 1 # NTS: would it make sense to make this an argument instead? 
   
   # Check for input errors in reactor identification code column
   if(!is.null(id.name) & id.name %in% names(dat)) {
@@ -83,7 +77,7 @@ cumBgMan <- function(
     }
   }
   
-  # For pressure dat missing values are OK if they are cumulative only (NAs obs can be dropped with no error in cvBg)
+  # For pressure dat missing values are OK only if they are cumulative (NAs obs can be dropped with no error in cvBg)
   if(!is.null(dat.name)) {
     if(any(is.na(dat[, dat.name])) & interval & data.struct != 'wide') {
       w <- which(is.na(dat[, dat.name]))
@@ -164,13 +158,13 @@ cumBgMan <- function(
   dat <- dat[order(dat[, id.name], dat[, time.name]), ]
   
   # Standardize total gas volumes and calculate biogas and methane production     
-    # Standardized headspace volume before venting
-    vHS <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, dat.name], rh = rh, 
-                  pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                  unit.pres = unit.pres, std.message = FALSE, warn = FALSE) 
-      
-    # Calculate volume of gas in bottle headspace
-    if(interval) {
+  # Standardized headspace volume before venting
+  vHS <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, dat.name], rh = rh, 
+                pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
+                unit.pres = unit.pres, std.message = FALSE, warn = FALSE) 
+    
+  # Calculate volume of gas in bottle headspace
+  if(interval) {
         
     # Add previous residual pressure, residual rh, temperature, and residual xCH4 columns
     for(i in unique(dat[, id.name])) {
@@ -190,18 +184,16 @@ cumBgMan <- function(
                     unit.pres = unit.pres, std.message = std.message)
         
     # Calculate biogas production, vBg
-      dat$vBg <- vHS - vHSr
+    dat$vBg <- vHS - vHSr
       
     # Calculate methane production, vCH4
-      # Method 1  
-        if(cmethod == 'removed') {
-          dat$vCH4 <- dat$vBg*dat[, comp.name]
-        
-        # Method 2
-        } else {
-          dat$vCH4 <- vHS * dat[, comp.name] - vHSr * dat[, paste0(comp.name, '.prev')]
-        }
-        
+    # Method 1  
+    if(cmethod == 'removed') {
+      dat$vCH4 <- dat$vBg*dat[, comp.name]
+    } else { # Method 2
+      dat$vCH4 <- vHS * dat[, comp.name] - vHSr * dat[, paste0(comp.name, '.prev')]
+    }
+    
   } else {
     # For cumulative data
     # Standardize initial headspace volume
