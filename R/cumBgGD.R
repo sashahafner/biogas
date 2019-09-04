@@ -39,10 +39,10 @@ cumBgGD <- function(
 
   # Check arguments
   checkArgClassValue(dat, 'data.frame')
-  checkArgClassValue(temp.vol, c('integer', 'numeric', NULL))
-  checkArgClassValue(temp.grav, c('integer', 'numeric', NULL))
-  checkArgClassValue(pres.vol, c('integer', 'numeric', NULL))
-  checkArgClassValue(pres.grav, c('integer', 'numeric', NULL))
+  checkArgClassValue(temp.vol, c('integer', 'numeric', 'character', 'NULL'))
+  checkArgClassValue(temp.grav, c('integer', 'numeric', 'character', 'NULL'))
+  checkArgClassValue(pres.vol, c('integer', 'numeric', 'character', 'NULL'))
+  checkArgClassValue(pres.grav, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(id.name, 'character')
   checkArgClassValue(time.name, 'character')
   checkArgClassValue(vol.name, 'character')  
@@ -51,9 +51,9 @@ cumBgGD <- function(
   checkArgClassValue(comp.name, 'character')
   checkArgClassValue(vented.mass, 'logical')
   checkArgClassValue(averaging, 'character', expected.values = c('int', 'fin', 'cum', 'interval', 'final', 'cumulative'))
-  checkArgClassValue(temp.init, c('integer', 'numeric', NULL))
-  checkArgClassValue(pres.init, c('integer', 'numeric', NULL))
-  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', NULL)) # NTS: check
+  checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
+  checkArgClassValue(pres.init, c('integer', 'numeric', 'NULL'))
+  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL')) # NTS: check
   checkArgClassValue(vol.hs.name, 'character')
   checkArgClassValue(headcomp, 'character')
   checkArgClassValue(vmethod, 'character', expected.values = c('vol', 'volume', 'grav', 'gravimetric'))
