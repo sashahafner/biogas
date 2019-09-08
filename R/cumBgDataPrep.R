@@ -232,7 +232,7 @@ cumBgDataPrep <- function(
     }
   }
   
-  # Now that all data are in long structure sort out mixed interval/cumulative data followed by standardizing vBg
+  # Now that all data are in longcombo structure sort out mixed interval/cumulative data followed by standardizing vBg
   if(!is.null(empty.name)) {
     # Sort by id and time
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
