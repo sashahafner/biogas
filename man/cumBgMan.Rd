@@ -270,34 +270,52 @@ cumBg(
 
 \examples{
 
-data("vol")
-data("comp")
+# Longcombo data
+data("UQsludgeTwoBiogas")
+data("UQsludgeTwoSetup")
 
-head(vol)
-head(comp)
+head(UQsludgeTwoBiogas)
+head("UQsludgeTwoSetup")
 
 # Calculate cumulative production and rates from vol and comp
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, id.name = "id", time.name = "days", 
-		  comp.name = "xCH4", dat.name = "vol")
+cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
+                     id.name = "id", time.name = "time.d", 
+                     dat.name = "pres", comp.name = 'xCH4',
+                     temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
+                     headspace = sludgeTwoSetup, vol.hs.name = "vol.hs",
+                     pres.amb = 101.3, absolute = FALSE)
 head(cum.prod)
 
 # Note warnings and related NAs in results
 # Set extrap = TRUE to extrapolate xCH4 to earliest times
 
+
 # Calculate cumulative production and rates from vol and comp
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, id.name = "id", time.name = "days", 
-		  comp.name = "xCH4", dat.name = "vol", extrap = TRUE)
+cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
+                     id.name = "id", time.name = "time.d", 
+                     dat.name = "pres", comp.name = 'xCH4',
+                     temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
+                     headspace = sludgeTwoSetup, vol.hs.name = "vol.hs",
+                     pres.amb = 101.3, absolute = FALSE, extrap = TRUE)
 head(cum.prod)
 
 # In this case, we can use default values for some column names, so this call is identical
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, time.name = "days", extrap = TRUE)
+cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
+                     time.name = "time.d",
+                     temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
+                     headspace = sludgeTwoSetup,
+                     pres.amb = 101.3, absolute = FALSE, extrap = TRUE)
+head(cum.prod)
 
 # Plot results
 \dontrun{
 # Not run just because it is a bit slow
 library(ggplot2)
-qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)", 
-      ylab = "Cumulative methane production (mL)",color = id, geom = "line")
+ggplot <- ggplot(cum.prod, aes(time.d, cvCH4, colour = id)) + 
+  geom_point() +
+  geom_line(aes(group = id)) +
+  labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle id")  + 
+  theme_bw()) 
 }
 
 # Omit added time zero rows

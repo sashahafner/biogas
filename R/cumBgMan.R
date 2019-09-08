@@ -8,7 +8,7 @@ cumBgMan <- function(
   # Column names 
   id.name = 'id',             # Name of column containing reactor identification code
   time.name = 'time',         # Name of time column 
-  dat.name = 'dat.name',      # Name of column containing respons variable (pressure measurements)
+  dat.name = 'pres',      # Name of column containing respons variable (pressure measurements)
   comp.name = 'xCH4',         # Name of xCH4 column in the data frame
   # Additional arguments 
   temp.init = NULL,           # Initial headspace temperature
