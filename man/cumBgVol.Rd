@@ -1,39 +1,33 @@
-\name{cumBg}
-\alias{cumBg}
+\name{cumBgVol}
+\alias{cumBgVol}
 %- Also NEED an "\alias" for EACH other topic documented here.
 \title{
-  Calculate Cumulative Biogas Production
+  Calculate Cumulative Biogas Production from Volumetric Data
 }
 \description{
-  \code{cumBg} (for \emph{cum}ulative \emph{b}io\emph{g}as) calculates cumulative biogas, methane production and production rates from individual volume (or mass) and composition measurements for any number of reactors.
+  \code{cumBgVol} (for \emph{cum}ulative \emph{b}io\emph{g}as \emph{vol}umetric) calculates cumulative biogas, methane production and production rates from individual volume and composition measurements for any number of reactors.
 }
 \usage{
 cumBg(
   # Main arguments
-  dat, dat.type = 'vol', comp = NULL, temp = NULL, 
-  pres = NULL, interval = TRUE,
-  data.struct = 'long',
-  # Column names for volumetric method
-  id.name = 'id', time.name = 'time', dat.name = dat.type,
-  comp.name = 'xCH4', 
-  # Additional arguments for manometric and gravimetric methods
-  pres.resid = NULL, temp.init = NULL, pres.init = NULL,
-  rh.resid = NULL,
-  rh.resid.init = 1, headspace = NULL, 
-  vol.hs.name = 'vol.hs', headcomp = 'N2',
-  absolute = TRUE, pres.amb = NULL,
-  # Additional arguments for GCA method
-  mol.f.name = NULL, vol.syr = NULL,
+  dat, comp = NULL, temp = NULL,
+  pres = NULL, interval = TRUE, 
+  data.struct = 'longcombo',
+  # Column names
+  id.name = 'id', time.name = 'time', dat.name = 'vol',
+  comp.name = 'xCH4',       # Name of xCH4 column in the data frame
+  # Additional arguments
+  headspace = NULL, vol.hs.name = 'vol.hs',
   # Calculation method and other settings
-  cmethod = 'removed', imethod = 'linear', extrap = FALSE,
-  addt0 = TRUE, showt0 = TRUE, 
-  dry = FALSE,
+  cmethod = 'removed', imethod = 'linear', extrap = FALSE, 
+  addt0 = TRUE, showt0 = TRUE,
+  dry = FALSE, 
   empty.name = NULL,
   # Warnings and messages
-  std.message = !quiet, 
+  std.message = !quiet,
   check = TRUE,
   # Units and standard conditions
-  temp.std = getOption('temp.std', as.numeric(NA)), 
+  temp.std = getOption('temp.std', as.numeric(NA)),
   pres.std = getOption('pres.std', as.numeric(NA)),
   unit.temp = getOption('unit.temp', 'C'),
   unit.pres = getOption('unit.pres', 'atm'),
@@ -43,16 +37,11 @@ cumBg(
 %- maybe also "usage" for other objects documented here.
 \arguments{
   \item{dat}{
-    a data frame with reactor identification code; time of measurement (as \code{numeric}, or \code{POSIX}); and measured biogas volume, pressure in \code{pres.unit}, or total reactor mass (see \code{dat.type} argument).
+    a data frame with reactor identification code; time of measurement (as \code{numeric}, or \code{POSIX}); and measured biogas volume.
     See Details section for details on units.
     Additional columns can be present--these will be returned in the output data frame.
     See \code{data.struct} argument for details on how data frames are structured.
-}
-  \item{dat.type}{
-  the type of data contained in \code{dat}. 
-  Use \code{"vol"} or \code{"volume"} for biogas volume (volumetric method will be used), \code{"mass"} for reactor masses (gravimetric method will be used) or \code{"pres"} (\code{"pressure"}) for headspace pressure (pressure of the headspace will be converted to gas volume).
-  Default is \code{"vol"}.
-}
+
   \item{comp}{
     (optional) a data frame with the columns reactor identification code; time of measurement, (as \code{numeric}, or \code{POSIX}); and methane concentration within dry biogas as a mole fraction, considering only methane and carbon dioxide (unless \code{cmethod = "total"}) or a single numeric value.
     If omitted, cumulative biogas volume will still be calculated and returned (but no methane data will be returned).
@@ -60,38 +49,35 @@ cumBg(
     Default is \code{NULL}.
 }
   \item{temp}{
-    the temperature at which biogas volume was measured (when \code{dat.type = "vol"}), or of biogas just prior to exiting the reactor (when \code{dat.type = "mass"}).
+    the temperature at which biogas volume was measured.
     A length-one numeric vector.
     Degrees Celcius by default (see \code{unit.temp} argument). 
     Default is \code{NULL}, which suppresses correction for temperature and pressure. 
 }
   \item{pres}{
-    the absolute pressure at which biogas volume was measured (when \code{dat.type = "vol"}), or of biogas just prior to exiting the reactor (when \code{dat.type = "mass"}).
+    the absolute pressure at which biogas volume was measured.
     A length-one numeric vector or a character vector giving the name of the column in \code{dat} with the pressure measurements.
     Atmospheres by default (see \code{unit.pres} argument). 
     Default is \code{NULL}, which suppresses correction for temperature and pressure. 
-    Not used for manometric method (when \code{dat.type = "pres"}).
 }
 
   \item{interval}{
-    do biogas measurements (volume or pressure) represent production only from the time interval between observations (default)?
-    \code{interval = FALSE} means measured gas volume or pressure is cumulative.
-    Applies to volumetric (\code{dat.type = "vol"}) and manometric methods (\code{dat.type = "pres"}). 
-    The gravimetric method (\code{dat.type = "mass"}) is cumulative by nature and the \code{interval} argument is not used.
-    For mixed manometric measurements (some observations vented, some not), use \code{interval = TRUE}, include a column for \code{pres.resid}, and, if composition was only measured for vented observations, use \code{imethod = "f1"}.
+    do biogas volume measurements represent production only from the time interval between observations (default)?
+    \code{interval = FALSE} means measured gas volume is cumulative.
     Default is \code{TRUE}.
   }
 
   \item{data.struct}{
-    the structure of input data. The default of 'long' means separate objects for volume (or pressure or mass for manometric and gravimetric methods) and composition (if available). 
+    the structure of input data. The default of 'longcombo' means separate objects for volume and composition (if available). The composition column is in the \code{dat} data frame, and the \code{comp} argument should be set as comp. 
+    The \code{dat} data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}, volume data in a single column with the name specified by \code{dat.name}, and biogas composition in a single column with the name specified by \code{comp.name}
+    For the \code{data.struct = 'long'} option, two separate data frames are needed with separate objects for volume and composition (if available).
     Each data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}.
-    The \code{dat} data frame must have volume (or pressure or mass) data in a single column with the name specified by \code{dat.name}.
+    The \code{dat} data frame must have volume data in a single column with the name specified by \code{dat.name}.
     The \code{comp} data frame must have biogas composition in a single column with the name specified by \code{comp.name}.
-    For the \code{data.struct = 'longcombo'} option, the composition column should be in the \code{dat} data frame, and the \code{comp} argument is not used.
     For the \code{data.struct = 'wide'} option, two separate data frames are needed as in \code{'long'}, but there are no reactor identification code columns.
-    Instead, in \code{dat}, volume (or pressure or mass) data are in a separate column for each bottle, and column names are reactor identification codes.
-    Here, \code{dat.name} should be the name of the first column with volume (or pressure or mass) data.
-    All following columns are assumed to also have volume (or pressure or mass) data.
+    Instead, in \code{dat}, volume data are in a separate column for each bottle, and column names are reactor identification codes.
+    Here, \code{dat.name} should be the name of the first column with volume data.
+    All following columns are assumed to also have volume data.
     And in \code{comp}, biogas composition data are also in a separate column for each bottle, also with reactor identification codes for column names.
     Here, \code{comp.name} should be the name of the first column with biogas composition data, as for \code{dat}.
   }
@@ -103,52 +89,16 @@ cumBg(
     name of column containing time data in \code{dat} and \code{comp} data frames. Default is \code{"time"}.
 }
   \item{dat.name}{
-    name of column containing the primary response variable (volume or mass) in \code{dat} data frame. Default is \code{dat.type} value. See \code{dat.type} argument.
+    name of column containing the primary response variable (as-measured volume) in \code{dat} data frame. Default is \code{vol}.
 }
   \item{comp.name}{
     name of column containing biogas mole fraction of methane in \code{comp} data frame. Default is \code{"xCH4"}. Must be normalised so xCH4 + xCO2 = 1.0 unless \code{cmethod = "total"}.
 }
 
-  \item{pres.resid}{
-    headspace pressure after venting. 
-    Either a single numeric value, assumed to be the same for all observations, or the name of a column in \code{dat} that contains these values for each observation.
-    Used in manometric method only (\code{dat.type = "pres"}).
-    Can be absolute (default) or gauge depending on the value of \code{absolute}.
-    Length one numeric or character vector.
-}
-
-  \item{temp.init}{
-    initial headspace temperature in \code{unit.temp} units.
-    Used to correct for effect of initial reactor headspace on mass loss for the gravimetric method (\code{dat.type = "mass"}), and to determine initial gas volume in the manometric method (\code{dat.type = "pres"}).
-    Not used for volumetric method (\code{dat.type = "vol"}).
-}
-
- \item{pres.init}{
-    headspace pressure at the begining of the experiment. 
-    Used in manometric method only (\code{dat.type = "pres"}).
-    Can be absolute (default) or gauge depending on the value of \code{absolute}.
-    Length one numeric vector.
-}
-
- \item{rh.resid}{
-    relative humidity of the gas in the headspace after venting.
-    If NULL (default), it is calculated for each interval as the ratio of post- to pre-venting pressure (equivalent to assuming relative water vapor concentration (mixing ratio) is the same before and after venting.
-    If entered, typically should be 1.0.
-    Length one numeric vector.
-    Used in manometric method only (\code{dat.type = "pres"}).
-}
-
- \item{rh.resid.init}{
-    relative humidity of the gas in the headspace at the begining of the experiment. 
-    Typically should be 1.0 (the default).
-    Length one numeric vector.
-    Used in manometric method only (\code{dat.type = "pres"}).
-}
-
   \item{headspace}{
     (optional) a data frame or length-one numeric vector with reactor headspace volume(s).
     If a data frame is used, it should at least contain a \code{"id"} (reactor identification code) column (see \code{"id.name"}) and headspace volume column (see \code{vol.hs.name} argument).
-    Required if \code{method = "total"} for the volumetric method, for initial headspace correction for the gravimetric method (see \code{headcomp} and \code{temp.init}) and for the manometric method using pressure measurements (\code{dat.type = "pres"}).
+    Required if \code{method = "total"}.
     Default is \code{NULL}.
 }
 
@@ -156,44 +106,10 @@ cumBg(
     name of column containing headspace volume data in optional \code{headspace} data frame. 
     Default is \code{"vol.hs"}.
 }
-
-  \item{headcomp}{
-    (optional) Composition of headspace for correction of initial headspace mass for gravimetric method only.
-    If provided, correction will be applied to first mass loss observation for each individual reactor.
-    See argument of the same name in \code{\link{mass2vol}}.
-    Currently, the only option is \code{"N2"} for dinitrogen gas.
-    Use of any other value will be ignored with a warning.
-}
-
- \item{absolute}{
-    is the headspace pressure measured in the manometric method (\code{dat.name} and \code{pres.resid} values/columns) absolute or gauge pressure? 
-    Applies to manometric method only (\code{dat.type = "pres"}).
-    Default is \code{TRUE}. 
-  }
-
- \item{pres.amb}{
-    absolute ambient pressure needed to calculate absolute pressure from gauge pressure measurements.
-    In atmospheres by default (see \code{unit.pres} argument). 
-    Only a single value is accepted. 
-    If ambient pressure differed among measurements, it is necessary to convert pressures to absolute values and use \code{absolute = TRUE} instead.
-  }
-
- \item{mol.f.name}{
-    name of the column in \code{dat} that contains the post-venting (f for final) quantity of methane in the syringe. 
-    Used for the absolute GC method (\code{dat.type = "gca"}) only (Hansen et al., 2004).
-    If venting was not done for a particular observation, the value in this column should be NA.
-    The pre-venting column name is given in the \code{dat.name} column.
-  }
-
- \item{vol.syr}{
-    volume of the syringe used in the absolute GC method (Hansen et al., 2004) (\code{dat.type = "gca"}) in mL.
-    Only a single value is accepted. 
-    If other volume units are used (e.g., microL), the units used for the (\code{headspace}) argument must match, and the output volume unit will be the same.
-  }
+ 
  
  \item{cmethod}{
     method for calculating cumulative methane production.
-    Applies to \code{dat.type = "vol"} and \code{dat.type = "pres"} methods only. 
     Use \code{"removed"} to base production on \code{xCH4} and gas volumes removed (default).
     Use \code{"total"} to base it on the sum of methane removed and methane remaining in the reactor headspace.
     For \code{"removed"}, \emph{\code{xCH4} should be calculated based on methane and CO2 only (xCH4 + xCO2 = 1.0).}
@@ -215,7 +131,7 @@ cumBg(
  \item{addt0}{
     is the earliest time in \code{dat} data frame \dQuote{time zero} (start time)? 
     If not, this argument adds a row with \code{time.name = 0} for each reactor in order to calculate production rates for the first observation.
-    This addition is only made when \code{dat.type = "vol"} or \code{dat.type = "pres"} and \code{time.name} is \code{numeric} (or \code{integer}).
+    This addition is only made when \code{time.name} is \code{numeric} (or \code{integer}).
     Length-one logical vector.
     Default is \code{TRUE}.
     To return these additional rows in the output, see \code{showt0}.
@@ -230,15 +146,13 @@ cumBg(
 }
  
   \item{dry}{
-    set to \code{TRUE} is volume data are standardised to dry conditions (e.g., AMPTS II data). 
-    Only applies to volumetric data (dat.type = 'vol').
+    set to \code{TRUE} if volume data are standardised to dry conditions (e.g., AMPTS II data). 
     The default (\code{FALSE}) means biogas is assumed to be saturated with water vapor.
   }
 
   \item{empty.name}{
     column containing a binary (logical, or integer or numeric (1 or 0)) variable indicating when accumulated biogas was emptied. 
     Use for mix of cumulative/interval data.
-    Only applies to volumetric data (dat.type = 'vol').
     If used, \code{interval} is ignored.
   }
 
@@ -284,17 +198,9 @@ cumBg(
 
 }
 \details{
-  Using volume, mass, pressure, or molar quantity data from \code{dat} and gas composition from \code{comp}, this function will calculate standardised biogas and methane production (if \code{comp} is provided) for each observation,  interpolating \code{comp.name} (from \code{comp} argument) to each \code{time.name} in \code{dat} if needed, and summing these for cumulative values.
-  Use of volumetric measurements is the default case. 
-  Alternatively, if reactor mass is given in \code{dat}, a gravimetric approach (Hafner et al. 2015) can be applied by setting \code{dat.type} to \code{"mass"}.
-  In this case, to determine total cumulative biogas production for batch reactors, an initial mass should be included for each reactor.
-  If pressure is measured in \code{dat}, a manometric method can be applied by setting \code{dat.type} to \code{"pres"}.  
-  Lastly, molar quantity of methane can be used in the absolute GC method by setting \code{dat.type} to \code{"gca"}.  
+  Using volume data from \code{dat} and gas composition from \code{comp}, this function will calculate standardised biogas and methane production (if \code{comp} is provided) for each observation,  interpolating \code{comp.name} (from \code{comp} argument) to each \code{time.name} in \code{dat} if needed, and summing these for cumulative values. 
+  All volumes (input and output) have the same units, e.g., mL, L, SCF.
 
-  For the volumetric and absolute GC methods, all volumes (input and output) have the same units, e.g., mL, L, SCF.
-  For the gravimetric method, output volumes will be in mL if input masses are in g (or in L if input masses are in kg, etc.).
-  For the manometric method, inputs units are specified with \code{unit.pres}, and output volumes are the same as headspace volume, e.g., mL or L.
-  
   Biogas composition (\code{comp.name} column in \code{comp}) is specified as the mole fraction of methane in dry biogas, normalised so mole fractions of methane and carbon dioxide sum to unity (Richards et al. 1991). Alternatively, if \code{cmethod} is set to \code{"total"}, biogas composition is the mole fraction of methane in dry biogas (include all the other gases except water). 
  
   Standard values and units for temperature and pressure can be globally set using the function \code{\link{options}}.
