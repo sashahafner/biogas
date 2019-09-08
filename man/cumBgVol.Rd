@@ -98,7 +98,7 @@ cumBg(
   \item{headspace}{
     (optional) a data frame or length-one numeric vector with reactor headspace volume(s).
     If a data frame is used, it should at least contain a \code{"id"} (reactor identification code) column (see \code{"id.name"}) and headspace volume column (see \code{vol.hs.name} argument).
-    Required if \code{method = "total"}.
+    Required if \code{cmethod = "total"}.
     Default is \code{NULL}.
 }
 
