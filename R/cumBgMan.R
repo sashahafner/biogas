@@ -1,28 +1,28 @@
 cumBgMan <- function(
   # Main arguments
   dat,
-  comp = NULL,              # Composition of biogas measurement
-  temp = NULL,              # Temperature for biogas measurement
-  interval = TRUE,          # Indicates if pressure measurements are from time interval only 
-  data.struct = 'long',     # long, wide, longcombo
+  comp = NULL,                # Composition of biogas measurement
+  temp = NULL,                # Temperature for biogas measurement
+  interval = TRUE,            # Indicates if pressure measurements are from time interval only 
+  data.struct = 'longcombo',  # long, wide, longcombo
   # Column names 
-  id.name = 'id',           # Name of column containing reactor identification code
-  time.name = 'time',       # Name of time column 
-  dat.name = 'dat.name',    # Name of column containing respons variable (pressure measurements)
-  comp.name = 'xCH4',       # Name of xCH4 column in the data frame
+  id.name = 'id',             # Name of column containing reactor identification code
+  time.name = 'time',         # Name of time column 
+  dat.name = 'dat.name',      # Name of column containing respons variable (pressure measurements)
+  comp.name = 'xCH4',         # Name of xCH4 column in the data frame
   # Additional arguments 
-  temp.init = NULL,         # Initial headspace temperature
-  pres.init = NULL,         # Initial headspace pressure
-  pres.resid = NULL,        # Headspace pressure after venting
-  rh.resid = NULL,          # Relative humidity of gas in headspace 
-  rh.resid.init = 1,        # Initial relative humidity of gas in headspace
-  headspace = NULL,         # Name of data frame containing headspace volume(s)
-  vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
-  absolute = TRUE,          # Unit of measured headspace pressure
-  pres.amb = NULL,          # Absolute ambient pressure
+  temp.init = NULL,           # Initial headspace temperature
+  pres.init = NULL,           # Initial headspace pressure
+  pres.resid = NULL,          # Headspace pressure after venting
+  rh.resid = NULL,            # Relative humidity of gas in headspace 
+  rh.resid.init = 1,          # Initial relative humidity of gas in headspace
+  headspace = NULL,           # Name of data frame containing headspace volume(s)
+  vol.hs.name = 'vol.hs',     # Name of column containing headspace volume data
+  absolute = TRUE,            # Unit of measured headspace pressure
+  pres.amb = NULL,            # Absolute ambient pressure
   # Calculation method and other settings
-  cmethod = 'removed',      # Method for calculating cumulative methane production
-  imethod = 'linear',       # Method used for interpolation of xCH4
+  cmethod = 'removed',        # Method for calculating cumulative methane production
+  imethod = 'linear',         # Method used for interpolation of xCH4
   extrap = FALSE,
   addt0 = TRUE,
   showt0 = TRUE,

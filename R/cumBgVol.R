@@ -1,27 +1,27 @@
 cumBgVol <- function(
   # Main arguments
   dat,
-  comp = NULL,              # Composition of gas measurement
-  temp = NULL,              # Temperature for biogas volume measurement
-  pres = NULL,              # Pressure for biogas volume measurement
-  interval = TRUE,          # When empty.name is used, there is a mix, and interval is ignored
-  data.struct = 'long',     # Long, wide, longcombo. Only long data structure can be used. Data restructuring is handled by dataPrep() 
+  comp = NULL,                # Composition of gas measurement
+  temp = NULL,                # Temperature for biogas volume measurement
+  pres = NULL,                # Pressure for biogas volume measurement
+  interval = TRUE,            # When empty.name is used, there is a mix, and interval is ignored
+  data.struct = 'longcombo',  # Long, wide, longcombo. Only long data structure can be used. Data restructuring is handled by dataPrep() 
   # Column names
-  id.name = 'id',           # Name of column containing reactor identification code
-  time.name = 'time',       # Name of time column 
-  dat.name = 'vol',         # Name of column containing respons variable, as-measured volume (generally not standardized)
-  comp.name = 'xCH4',       # Name of xCH4 column in the data frame
+  id.name = 'id',             # Name of column containing reactor identification code
+  time.name = 'time',         # Name of time column 
+  dat.name = 'vol',           # Name of column containing respons variable, as-measured volume (generally not standardized)
+  comp.name = 'xCH4',         # Name of xCH4 column in the data frame
   # Additional arguments
-  headspace = NULL,         # Required if cmethod = 'total'
-  vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
+  headspace = NULL,           # Required if cmethod = 'total'
+  vol.hs.name = 'vol.hs',     # Name of column containing headspace volume data
   # Calculation method and other settings
-  cmethod = 'removed',      # Method for calculation of cumulative methane production
-  imethod = 'linear',       # Method for interpolation of xCH4
+  cmethod = 'removed',        # Method for calculation of cumulative methane production
+  imethod = 'linear',         # Method for interpolation of xCH4
   extrap = FALSE,
   addt0 = TRUE,
   showt0 = TRUE,
   dry = FALSE,
-  empty.name = NULL,        # Column name for binary/logical column for when cum vol was reset to zero
+  empty.name = NULL,          # Column name for binary/logical column for when cum vol was reset to zero
   # Warnings and messages
   std.message = !quiet,
   check = TRUE,

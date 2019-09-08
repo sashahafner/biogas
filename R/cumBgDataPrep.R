@@ -2,23 +2,23 @@ cumBgDataPrep <- function(
   # Main arguments
   dat,
   dat.type = 'vol',
-  comp = NULL,              # Composition of gas measurement. Leave NULL for wide and longcombo
-  temp = NULL,              # Temperature for biogas volume measurement
-  pres = NULL,              # Pressure for biogas volume measurement
-  interval = TRUE,          # When empty.name is used, there is a mix, and interval is ignored
-  data.struct = 'long',     # long, wide, longcombo
+  comp = NULL,                # Composition of gas measurement. Leave NULL for wide and longcombo
+  temp = NULL,                # Temperature for biogas volume measurement
+  pres = NULL,                # Pressure for biogas volume measurement
+  interval = TRUE,            # When empty.name is used, there is a mix, and interval is ignored
+  data.struct = 'longcombo',  # long, wide, longcombo
   # Column names
-  id.name = 'id',           # Name of column containing reactor identification code
-  time.name = 'time',       # Name of time column 
-  dat.name = dat.type,      # Will be used for first dat column for data.struct = 'wide'
-  comp.name = 'xCH4',       # Name of column containing xCH4 values. Use for first comp col for data.struct = 'wide'
-  headspace = NULL,         # Required if cmethod = 'total'
-  vol.hs.name = 'vol.hs',   # Name of column containing headspace volume data
+  id.name = 'id',             # Name of column containing reactor identification code
+  time.name = 'time',         # Name of time column 
+  dat.name = dat.type,        # Will be used for first dat column for data.struct = 'wide'
+  comp.name = 'xCH4',         # Name of column containing xCH4 values. Use for first comp col for data.struct = 'wide'
+  headspace = NULL,           # Required if cmethod = 'total'
+  vol.hs.name = 'vol.hs',     # Name of column containing headspace volume data
   # Calculation method and other settings
-  imethod = 'linear',      # Method for interpolation of xCH4
+  imethod = 'linear',         # Method for interpolation of xCH4
   extrap = FALSE,
   # Additional argument for volumetric data only 
-  empty.name = NULL,       # Column name for binary/logical column for when cum vol was reset to zero
+  empty.name = NULL,          # Column name for binary/logical column for when cum vol was reset to zero
   # Warnings and messages
   std.message = !quiet,
   check = TRUE,
