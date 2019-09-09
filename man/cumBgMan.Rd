@@ -280,11 +280,13 @@ head(sludgeTwoSetup)
 # Calculate cumulative production and rates from sludgeTwoBiogasPres
 # Add initial headspace correction (alternatively, headspace could be in the same data frame, instead of a separate with a different volume for each reactor)
 cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
+                     data.struct = longcombo,
                      id.name = "id", time.name = "time.d", 
                      dat.name = "pres", comp.name = 'xCH4',
                      temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
                      headspace = sludgeTwoSetup, vol.hs.name = "vol.hs",
-                     pres.amb = 101.3, absolute = FALSE)
+                     pres.amb = 101.3, unit.pres = "kPa",
+                     absolute = FALSE)
 head(cum.prod)
 
 # Note warnings and related NAs in results
@@ -292,11 +294,13 @@ head(cum.prod)
 
 # Calculate cumulative production and rates from sludgeTwoBiogasPres
 cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
+                     data.struct = longcombo,
                      id.name = "id", time.name = "time.d", 
                      dat.name = "pres", comp.name = 'xCH4',
                      temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
                      headspace = sludgeTwoSetup, vol.hs.name = "vol.hs",
-                     pres.amb = 101.3, absolute = FALSE, extrap = TRUE)
+                     pres.amb = 101.3, unit.pres = "kPa",
+                     absolute = FALSE, extrap = TRUE)
 head(cum.prod)
 
 
@@ -305,7 +309,8 @@ cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
                      time.name = "time.d",
                      temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
                      headspace = sludgeTwoSetup,
-                     pres.amb = 101.3, absolute = FALSE, extrap = TRUE)
+                     pres.amb = 101.3, unit.pres = "kPa", 
+                     absolute = FALSE, extrap = TRUE)
 head(cum.prod)
 
 # Plot results
@@ -326,7 +331,8 @@ head(cum.prod)
                        time.name = "time.d",
                        temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
                        headspace = sludgeTwoSetup,
-                       pres.amb = 101.3, absolute = FALSE, extrap = TRUE,
+                       pres.amb = 101.3, unit.pres = "kPa",
+                       absolute = FALSE, extrap = TRUE,
                        showt0 = FALSE)
 head(cum.prod)
 
@@ -347,7 +353,8 @@ cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
                      time.name = "time.d",
                      temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
                      headspace = sludgeTwoSetup,
-                     pres.amb = 101.3, absolute = FALSE, extrap = TRUE,
+                     pres.amb = 101.3, unit.pres = "kPa",
+                     absolute = FALSE, extrap = TRUE,
                      addt0 = FALSE)
 head(cum.prod)
 
@@ -367,7 +374,8 @@ cum.prod <- cumBgMan(sludgeTwoBiogasPres, temp = 30,
                      time.name = "time.d",
                      temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
                      headspace = sludgeTwoSetup,
-                     pres.amb = 101.3, absolute = FALSE, extrap = TRUE,
+                     pres.amb = 101.3, unit.pres = "kPa",
+                     absolute = FALSE, extrap = TRUE,
                      addt0 = FALSE)
 head(cum.prod)
 
@@ -375,7 +383,8 @@ head(cum.prod)
 cum.prod <- cumBgMan(dat = sludgeTwoBiogasPres, time.name = "time.d",
                      temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
                      headspace = sludgeTwoSetup,
-                     pres.amb = 101.3, absolute = FALSE, extrap = TRUE,
+                     pres.amb = 101.3, unit.pres = "kPa",
+                     absolute = FALSE, extrap = TRUE,
                      addt0 = FALSE)
 head(cum.prod)
 
