@@ -262,6 +262,8 @@ cumBg(
 }
 
 \seealso{
+  \code{\link{cumBgMan}},
+  \code{\link{cumBgGD}},
   \code{\link{summBg}},
   \code{\link{interp}},
   \code{\link{stdVol}},
@@ -282,7 +284,7 @@ head(sludgeTwoSetup)
 cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
                      data.struct = longcombo,
                      id.name = "id", time.name = "time.d", 
-                     dat.name = "pres", comp.name = 'xCH4',
+                     dat.name = "pres", comp.name = "xCH4",
                      temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
                      headspace = sludgeTwoSetup, vol.hs.name = "vol.hs",
                      pres.amb = 101.3, unit.pres = "kPa",
@@ -296,7 +298,7 @@ head(cum.prod)
 cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
                      data.struct = longcombo,
                      id.name = "id", time.name = "time.d", 
-                     dat.name = "pres", comp.name = 'xCH4',
+                     dat.name = "pres", comp.name = "xCH4",
                      temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
                      headspace = sludgeTwoSetup, vol.hs.name = "vol.hs",
                      pres.amb = 101.3, unit.pres = "kPa",

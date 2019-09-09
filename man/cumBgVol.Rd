@@ -236,6 +236,8 @@ cumBgVol(
 }
 
 \seealso{
+  \code{\link{cumBgMan}},
+  \code{\link{cumBgGD}},
   \code{\link{summBg}},
   \code{\link{interp}},
   \code{\link{stdVol}},
