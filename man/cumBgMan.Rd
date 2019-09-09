@@ -270,14 +270,15 @@ cumBg(
 
 \examples{
 
-# Longcombo data
-data("UQsludgeTwoBiogas")
-data("UQsludgeTwoSetup")
+# Example with longcombo structured input data frame
+data("sludgeTwoBiogasPres")
+data("sludgeTwoSetup")
 
-head(UQsludgeTwoBiogas)
-head("UQsludgeTwoSetup")
+head(sludgeTwoBiogasPres)
+head(sludgeTwoSetup)
 
-# Calculate cumulative production and rates from vol and comp
+# Calculate cumulative production and rates from sludgeTwoBiogasPres
+# Add initial headspace correction (alternatively, headspace could be in the same data frame, instead of a separate with a different volume for each reactor)
 cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
                      id.name = "id", time.name = "time.d", 
                      dat.name = "pres", comp.name = 'xCH4',
@@ -289,8 +290,7 @@ head(cum.prod)
 # Note warnings and related NAs in results
 # Set extrap = TRUE to extrapolate xCH4 to earliest times
 
-
-# Calculate cumulative production and rates from vol and comp
+# Calculate cumulative production and rates from sludgeTwoBiogasPres
 cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
                      id.name = "id", time.name = "time.d", 
                      dat.name = "pres", comp.name = 'xCH4',
@@ -298,6 +298,7 @@ cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
                      headspace = sludgeTwoSetup, vol.hs.name = "vol.hs",
                      pres.amb = 101.3, absolute = FALSE, extrap = TRUE)
 head(cum.prod)
+
 
 # In this case, we can use default values for some column names, so this call is identical
 cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
@@ -309,200 +310,98 @@ head(cum.prod)
 
 # Plot results
 \dontrun{
-# Not run just because it is a bit slow
-library(ggplot2)
-ggplot <- ggplot(cum.prod, aes(time.d, cvCH4, colour = id)) + 
-  geom_point() +
-  geom_line(aes(group = id)) +
-  labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle id")  + 
-  theme_bw()) 
+  # Not run just because it is a bit slow
+  library(ggplot2)
+  ggplot <- ggplot(cum.prod, aes(time.d, cvCH4, colour = id)) + 
+    geom_point() +
+    geom_line(aes(group = id)) +
+    labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle id")  + 
+    theme_bw() 
+  
+  plot(ggplot)
 }
 
 # Omit added time zero rows
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, time.name = "days", extrap = TRUE, 
-		  showt0 = FALSE)
+  cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
+                       time.name = "time.d",
+                       temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
+                       headspace = sludgeTwoSetup,
+                       pres.amb = 101.3, absolute = FALSE, extrap = TRUE,
+                       showt0 = FALSE)
 head(cum.prod)
 
 \dontrun{
-# Not run just because it is a bit slow
-qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)", 
-      ylab = "Cumulative methane production (mL)", color = id, geom = "line")
+  # Not run just because it is a bit slow
+  ggplot <- ggplot(cum.prod, aes(time.d, cvCH4, colour = id)) + 
+    geom_point() +
+    geom_line(aes(group = id)) +
+    labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle id")  + 
+    theme_bw() 
+  
+  plot(ggplot)
 }
 
 # Previous is different from never adding them in the first place (rates not calculated for first 
 # observations here)
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, time.name = "days", extrap = TRUE, 
-		  addt0 = FALSE)
+cum.prod <- cumBgMan(sludgeTwoBiogasPres, comp = comp, temp = 30,
+                     time.name = "time.d",
+                     temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
+                     headspace = sludgeTwoSetup,
+                     pres.amb = 101.3, absolute = FALSE, extrap = TRUE,
+                     addt0 = FALSE)
 head(cum.prod)
 
 \dontrun{
-# Not run just because it is a bit slow
-qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)", 
-      ylab = "Cumulative methane production (mL)", color = id, geom = "line")
-}
-
-# Can use POSIX objects for time (but cumBg cannot add t0 rows here)
-class(vol$date.time)
-class(comp$date.time)
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, time.name = "date.time", extrap = TRUE)
-head(cum.prod)
-
-\dontrun{
-# Not run just because it is a bit slow
-qplot(x = date.time, y = cvCH4, data = cum.prod, xlab = "Time (d)", 
-      ylab = "Cumulative methane production (mL)", color = id, geom = "line")
+  # Not run just because it is a bit slow
+  ggplot <- ggplot(cum.prod, aes(time.d, cvCH4, colour = id)) + 
+    geom_point() +
+    geom_line(aes(group = id)) +
+    labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle id")  + 
+    theme_bw() 
+  
+  plot(ggplot)
 }
 
 # Can leave out composition data, and then CH4 is not included in results
-cum.prod <- cumBg(vol, temp = 20, pres = 1, time.name = "days")
+cum.prod <- cumBgMan(sludgeTwoBiogasPres, temp = 30,
+                     time.name = "time.d",
+                     temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
+                     headspace = sludgeTwoSetup,
+                     pres.amb = 101.3, absolute = FALSE, extrap = TRUE,
+                     addt0 = FALSE)
 head(cum.prod)
 
-# Leave out pres or temp, and results are not standardised
-cum.prod <- cumBg(vol, time.name = "days")
+# Leave out temp, and results are not standardised
+cum.prod <- cumBgMan(dat = sludgeTwoBiogasPres, time.name = "time.d",
+                     temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
+                     headspace = sludgeTwoSetup,
+                     pres.amb = 101.3, absolute = FALSE, extrap = TRUE,
+                     addt0 = FALSE)
 head(cum.prod)
 
-# Example with input data frames with different column names
-data("vol2")
-data("comp2")
 
-head(vol2)
-head(comp2)
 
-cum.prod <- cumBg(vol2, comp = comp2, temp = 20, pres = 1, 
-                  id.name = "bottle", time.name = "days", 
-		  dat.name = "meas.vol", comp.name = "CH4.conc")
-head(cum.prod)
-tail(cum.prod)
-
-# Note warnings and related NAs in results
-warnings()
-
-# Set extrap = TRUE to avoid
-cum.prod <- cumBg(vol2, comp = comp2, temp = 20, pres = 1, 
-                  id.name = "bottle", time.name = "days", 
-		  dat.name = "meas.vol", comp.name = "CH4.conc", 
-                  extrap = TRUE)
-head(cum.prod)
-
-\dontrun{
-# Not run just because it is a bit slow
-qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)", 
-      ylab = "Cumulative methane production (mL)", 
-      color = bottle, geom = "line")
-}
-
-# Mass example
-data("mass")
-
-mass
-
-# Need to specify data type with dat.type argument (using default 
-# values for id.name, dat.name, and comp.name)
-cum.prod <- cumBg(mass, dat.type = "mass", comp = comp, temp = 35, 
-                  pres = 1, time.name = "days")
-cum.prod
-
-# Drop time 0 rows
-cum.prod <- cumBg(mass, dat.type = "mass", comp = comp, temp = 35, 
-                  pres = 1, time.name = "days", showt0 = FALSE)
-cum.prod
-
-# Add initial headspace correction (alternatively, headspace could 
-# be a data frame with a different volume for each reactor)
-cum.prod <- cumBg(mass, dat.type = "mass", comp = comp, temp = 35, 
-                  pres = 1, time.name = "days", headspace = 300, 
-                  headcomp = "N2", temp.init = 20, showt0 = FALSE)
-cum.prod
-
-# Pressure example
+# Example with long structured input data frame
 data("strawPressure")
 data("strawComp")
 data("strawSetup")
 
-cum.prod <- cumBg(strawPressure, dat.type = 'pres', 
+# Need to specify data structure with data.struct argument
+# Using default values for time.name, dat.name, and comp.name
+cum.prod <- cumBgMan(strawPressure, data.struct = 'long',
                   comp = strawComp, temp = 35, 
-                  id.name = 'bottle', time.name ='time', 
-                  dat.name = 'pres', comp.name = 'xCH4',
+                  id.name = 'bottle',
                   pres.resid = 'pres.resid', temp.init = 20, 
                   pres.init = 101.325,
                   headspace = strawSetup, 
                   vol.hs.name = 'headspace', 
                   extrap = TRUE, 
                   unit.pres = 'kPa', pres.std = 101.325)
-
 head(cum.prod)
 
-# Absolute GC method (long format is the only option)
 
-# Generate some data--two bottles with identical results
-# Units for n1 and n2 are micromoles of CH4
-biogas <- data.frame(id = rep(c('A', 'B'), each = 5), 
-                     time.d = rep(1:5, 2), 
-                     n1 = rep(c(1.1, 2.4, 3.8, 5.9, 2.3), 2), 
-                     n2 = rep(c(NA, NA, NA, 1.2, NA), 2))
+# Example with wide structured input data frame
 
-# Bottles were vented after the measurements on day 4
-biogas
-
-# Syringe volume is 0.25 mL
-# Headspace volume is 50 mL
-
-cp <- cumBg(biogas, id.name = 'id', time.name = 'time.d', 
-            dat.name = 'n1', mol.f.name = 'n2', vol.syr= 0.25,
-            headspace = 50, dat.type = 'gca')
-cp
-
-# Suppose the bottles had two difference headspace volumes
-setup <- data.frame(id = c('A', 'B'), vol.hs = c(50, 60))
-
-cp2 <- cumBg(biogas, id.name = 'id', time.name = 'time.d', 
-            dat.name = 'n1', mol.f.name = 'n2', vol.syr= 0.25,
-            headspace = setup, vol.hs.name = 'vol.hs', dat.type = 'gca')
-cp2
-
-
-# Different data structures
-# Load example data
-data("s3voll")
-data("s3volw")
-data("s3compl")
-data("s3compw")
-data("s3lcombo")
-
-# wide
-
-# Check data structure first
-s3volw
-
-s3compw
-
-cum.prod <- cumBg(s3volw, comp = s3compw, temp = 25, pres = 1,
-                  time.name = 'time.d',
-                  data.struct = 'wide',
-                  dat.name = 'D', comp.name = 'D',
-                  extrap = TRUE)
-
-cum.prod
-
-# longcombo
-s3lcombo
-
-cum.prod <- cumBg(s3lcombo, temp = 25, pres = 1,
-                  id.name = 'id', time.name = 'time.d',
-                  data.struct = 'longcombo',
-                  dat.name = 'vol.ml', comp.name = 'xCH4',
-                  extrap = TRUE)
-
-# Compare wide and longcombo to long (default)
-s3voll
-s3compl
-
-cum.prod <- cumBg(s3lcombo, comp = s3compl, temp = 25, pres = 1,
-                  id.name = 'id', time.name = 'time.d',
-                  dat.name = 'vol.ml', comp.name = 'xCH4',
-                  extrap = TRUE)
-
-cum.prod
 
 
 }
