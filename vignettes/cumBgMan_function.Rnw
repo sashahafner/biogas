@@ -79,13 +79,32 @@ The experiment included 24 batch bottles:
 
 Data were originally collected by Sergi Astals at the University of Queensland. For more information, please contact Sasha D. Hafner at \texttt{sasha.hafner@eng.au.dk} or \texttt{sdh11@cornell.edu}.
 
+<<>>=  
+#data("sludgeTwoBiogasPres")
+
+dim(sludgeTwoBiogasPres)
+
+head(sludgeTwoBiogasPres)
+
+summary(sludgeTwoBiogasPres)
+@
+
+<<>>=
+data("sludgeTwoBiogasPres")
+
+dim(sludgeTwoBiogasPres)
+
+head(sludgeTwoBiogasPres)
+
+summary(sludgeTwoBiogasPres)
+@
+
 \subsubsection*{Cumulative production}
 Calculating cumulative biogas and CH$_4$ production and production rates, is the first step in processing data from a BMP trial. Subsequently, BMP can be calculated by the high-level function summBg() included in the biogas package.
 Cumulative biogas and CH$_4$ production and production rates from manometric data with \texttt{sludgeTwoBiogasPres} and \texttt{sludgeTwoSetup} data frames as input, can be calculated from \texttt{cumBgMan()}.
 
 The arguments for the function are:
 
-% Next line won't wrap correctly. Width doesn't affect args(). Done manually below by copying and editing output in .tex file.
 <<cumBgVolargs>>=
   args(cumBgMan)
 @
@@ -136,30 +155,112 @@ ggplot.long <- ggplot(cum.prod.lc, aes(time.d, cvCH4, colour = id)) +
 plot(ggplot.long)
 @
 
-
 \newpage
 \subsection{'long' data structure}
+In this example, we will use the long example data set included in the biogas package: \texttt{strawPressure} for headspace pressure in batch reactors, \texttt{strawComp} for methane content of biogas, and \texttt{strawSetup} for grouping, substrate and inoculum masses, and headspace volumes.
+
+These data are interval-based BMP measurement of headspace pressure in 12 anaerobic reactors with straw as the substrate.
+The experiment included 12 batch bottles on the following 6 variables: 
+\begin{itemize}
+  \item Two bottles with inoculum and straw treated with treatment r3
+  \item Two bottles with inoculum and straw treated with treatment r5
+  \item Two bottles with inoculum and straw treated with treatment r6.5
+  \item Two bottles with inoculum and straw treated with treatment r8
+  \item Two bottles with inoculum and straw treated with treatment r8 no buff
+  \item Two bottles with inoculum and straw treated with treatment r9
+\end{itemize}
+
+Reactors were ca. 600 mL glass serum bottles with butyl rubber septa and screw caps. 
+Pressure was measured using an electronic manometer.
+Data in \code{strawMass}, \code{strawSetup}, and \code{strawComp} are from the same reactors.
+
+<<>>=  
+data("strawPressure")
+
+dim(strawPressure)
+
+head(strawPressure)
+
+summary(strawPressure)
+@
+
+<<>>=
+data("strawSetup")
+
+dim(strawSetup)
+
+head(strawSetup)
+
+summary(strawSetup)
+@
+
+<<>>=
+data("strawComp")
+
+dim(strawComp)
+
+head(strawComp)
+
+summary(strawComp)
+@
 
 \subsubsection*{Cumulative production}
+Calculating cumulative biogas and CH$_4$ production and production rates, is the first step in processing data from a BMP trial. Subsequently, BMP can be calculated by the high-level function summBg() included in the biogas package.
+Cumulative biogas and CH$_4$ production and production rates from manometric data with \texttt{sludgeTwoBiogasPres} and \texttt{sludgeTwoSetup} data frames as input, can be calculated from \texttt{cumBgMan()}.
+
+As for the sludge data, cumulative production of biogas and CH$_4$ and production rates are essential values to estimate prior to evaluating BMP.
+Again, we can calculate these with the \texttt{cumBgMan()} function, using \texttt{strawPressure}, \texttt{strawComp}, and \texttt{strawSetup} data frames as input.
+The required arguments for this function are the following:
+
+% Describe arguments required for this dataset.
+
+
+<<>>=
+# strawPressure$pres.resid <- strawPressure$pres.resid - 101.3
+
 cum.prod.l <- cumBgMan(strawPressure, comp = strawComp, temp = 31,
                      data.struct = 'long',
                      id.name = "bottle", time.name = "time", 
                      dat.name = "pres", comp.name = "xCH4",
                      temp.init = 21.55, pres.resid = "pres.resid", pres.init = 0.0,
                      headspace = strawSetup, vol.hs.name = "headspace",
-                     pres.amb = 1.01, absolute = FALSE,
-                     extrap = TRUE, addt0 = TRUE)
+                     pres.amb = 101.3, absolute = FALSE,
+                     extrap = TRUE, addt0 = TRUE, 
+                     unit.pres = "kPa")
 
 head(cum.prodl.man)
+@
+
+Note the message about standard temperature and pressure--it is important to make sure these values are correct, therefore users are reminded by a message\footnote{
+  Remember that standard conditions can be set in the function call with \texttt{temp.std} and \texttt{pres.std}, or globally with \texttt{options()}. 
+}.
+
+% Note warning: pres ranges from 101.3 kPa to 203.4356 kPa. Is this really correct?. This warning can be 'fixed' by substracting absolute from pres.resid or manually converting gauge pressure measurements to absolute. 
+
+The output looks like this:
+
+<<>>=
+head(cum.prod.l)
+
+dim(cum.prod.l)
+@
+
+
+The data frame that is returned has been restructured to longcombo structure and contains all the original columns in \texttt{strawPressure}, plus additional columns from volumetric biogas calculations (ref. section 'longcombo' data structure) 
+
+As with the 'longcombo' data example, the results may be easier to understand graphically using the \texttt{ggplot} function from the \texttt{ggplot2} package.
+
+<<fig.width=6, fig.height=4, fig.align="center">>=
+library(ggplot2)
 
 ggplot.long <- ggplot(cum.prod.l, aes(time, cvCH4, colour = bottle)) + 
   geom_point() +
   geom_line(aes(group = bottle)) +
-  labs(x = "Time [d]", y = "cvCH4  [mL]", colour = "Bottle no.")  + 
+  labs(x = "Time [d]", y = "cvCH4  [mL]", colour = "Bottle id")  + 
   theme_bw() 
+
 plot(ggplot.long)
-
-
+@
 
 
 \newpage

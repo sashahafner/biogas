@@ -60,7 +60,6 @@ All external functions are within the biogas package
 Calculation of cumulative biogas and CH$_4$ production and production rates, typically requires two data frames: Biogas quantity (volume measurements) and biogas composition (CH$_4$ fraction).
 Input data may be structured in one of three ways: ``long'', ``wide'', or ``longcombo''. Default is "longcombo". All inputs are accepted, but the volumetric calculation methods within cumBgVol() only process ''longcombo'' data structure. ''wide'' and ''long'' data are restructured internally by the low-level function cumBgDataPrep(). In the following examples all three data structures will be addressed.  
 
-\newpage
 \subsection{'wide' data structure}
 In this example, we will use a wide structured example dataset included in the biogas package, having the data frame \texttt{feedVol} for biogas volumes. BMP measurement data are from a batch test carried out on animal feed ingredients along with cellulose as a control. 
 The experiment included 12 batch bottles:
