@@ -1,0 +1,107 @@
+%% Next 2 lines needed for non-Sweave vignettes
+%\VignetteEngine{knitr::knitr} 
+%\VignetteIndexEntry{Calculating methane and biogas production and production rates using volumetric methods}
+
+\documentclass{article}
+
+%%\usepackage[version=3]{mhchem} %chemical formulas
+\usepackage[colorlinks = true, urlcolor = blue]{hyperref} % Must be loaded as the last package
+
+\begin{Schunk}
+\begin{Sinput}
+> library(knitr)
+> #opts_chunk$set(cache=FALSE,tidy=FALSE,highlight=FALSE)
+> opts_chunk$set(cache = FALSE, tidy = FALSE, fig.align = "center")
+> library(biogas)
+>   options(width=75)
+\end{Sinput}
+\end{Schunk}
+
+\title{Calculating methane and biogas production and production rates using manometric methods}
+\author{Nanna Løjborg and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
+
+\usepackage{Sweave}
+\begin{document}
+\input{cumBgMan_function-concordance}
+
+\maketitle
+
+\section{Introduction}
+Biochemical methane potential (BMP) has become an important number in the biogas industri, as it can reveal essential knowledge of several factors of concern when producing biogas, such as substrate and inoculum behavior, or more process related variables (temp., pres., stirring, etc.). It is commonly used to determine the methane potential and biodegradability of a given substrate. A newly developed biogas package address issues with time-consuming calculations and lack of reproducible among laboratories for obtaining BMP (ref. biogas package or help file). The biogas package consists of ten function including cumBg(), which is used to calculate cumulative production of biogas and methane (CH$_4$) and production rates with either volumetric, manometric, gravimetric or gas density methods. These production values and rates can be furhter used to calculate BMP. cumBg() is a large and rather complicated function, which requires some proficiency in R for use. ##NTS: might be preferable to avoid including cumBg(), as these new functions should replace cumBg() at some point. 
+We developed a function that evaluate pressure measurements (manometric methods) only, to simplify functions within the biogas package, making it serviceable for public less experinced users. 
+This document provides a brief description of the manometric biogas calculation function (cumBgMan) for new users.
+We have assumed that readers are familiar with biogas data collection, the biogas package and R.
+
+\section{Overview of the function}
+cumBgMan() is a ''high-level'' function within the biogas package. The purpose of cumBgMan() is to convert pressure data collected in the laboratory to cumulative biogas and CH$_4$ production and to calculate production rates. The function can handle data from any number of bottles. For simple operations (e.g. interpolation and standardization of biogas volume) cumBgMan() is supported by calls to external low-level functions (Table \ref{tab:externalfunctionsummary}). The low-level functions are straight-forward to use, and details can be found in their individual help files.
+This document describes the use of cumBgMan(). 
+
+\begin{table}[h!]
+  \begin{center}
+  \caption{Operations done with the low-level functions in cumBgVol(). All functions are vectorized. See help files for more details.}
+  \label{tab:lowfunctionsummary}
+  \vspace{3pt}
+  
+  \begin{tabular}{ll}
+    \hline
+    Operation                                    &   Function \\
+    \hline
+    Standardise gas volume                       &   \texttt{stdVol()} \\
+    Interpolate composition etc.                 &   \texttt{interp()} \\
+    Structurize and sort data                    &   \texttt{cumBgDataPrep()} \\   
+		\hline
+  \end{tabular}
+  \end{center}
+\end{table}
+
+
+\section{Examples:calculation of cumulative production of biogas and CH$_4$ and production rates using a manometric calculation methods}
+\subsection{'longcombo' data structure}
+
+\newpage
+\subsection{'long' data structure}
+
+\newpage
+\subsection{'wide' data structure}
+
+
+
+
+
+
+\newpage
+
+
+
+
+
+\section{Continuing with the cumBgMan function}
+ 
+ 
+ 
+ 
+ 
+\bibliographystyle{plain}  
+\begin{thebibliography}{1}
+
+\bibitem{hafner_validation_2015}
+S.D. Hafner, C.~Rennuit, J.M.~Triolo, and B.K.~Richards.
+\newblock Validation of a simple gravimetric method for measuring biogas
+  production in laboratory experiments.
+\newblock {\em Biomass and Bioenergy}, 83:297--301, 2015.
+
+\bibitem{richards_methods_1991}
+B.K.~Richards, R.J.~Cummings, T.E.~White, and W.J.~Jewell.
+\newblock Methods for kinetic-analysis of methane fermentation in high solids
+  biomass digesters.
+\newblock {\em Biomass \& Bioenergy}, 1(2):65--73, 1991.
+
+\bibitem{rittmann_environmental_2001}
+B.~E. Rittmann and P.~L. McCarty.
+\newblock {\em Environmental Biotechnology: Principles and Applications}.
+\newblock {McGraw}-{Hill} series in water resources and environmental
+  engineering. McGraw-Hill, Boston, 2001.
+
+\end{thebibliography}
+\end{document}
+
