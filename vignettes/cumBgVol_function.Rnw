@@ -157,7 +157,7 @@ plot(ggplot.wide)
 
 \newpage
 \subsection{'long' data structure}
-In this example, we will use the example data sets included with the package: \texttt{vol} for biogas volumes and \texttt{comp} for composition.
+In this example, we will use the example data sets included with the biogas package: \texttt{vol} for biogas volumes and \texttt{comp} for composition.
 These data are from a BMP test that was carried out on two different substrates A and B, and cellulose included as a ``control''.
 The experiment included 12 batch bottles:
 \begin{itemize}
@@ -194,7 +194,7 @@ summary(comp)
 
 \subsubsection*{Cumulative production}
 As for animal feed ingredients data, cumulative production of biogas and CH$_4$ and production rates are essential values to estimate prior to evaluating BMP.
-Again, we can do this with the \texttt{cumBgVol()} function, using \texttt{vol} and \texttt{comp} data frames as input.
+Again, we can calculate these with the \texttt{cumBgVol()} function, using \texttt{vol} and \texttt{comp} data frames as input.
 The required arguments for this function are the following:
 
 To calculate CH$_4$ production from these long structured data, we must provide values for at least \texttt{dat} (we will use \texttt{vol}), \texttt{comp} (we will use \texttt{comp}), \texttt{data.struct} (in this case 'long'), \texttt{temp} (biogas temperature), and \texttt{pres} (biogas pressure)\footnote{
@@ -240,7 +240,7 @@ plot(ggplot.long)
 
 \newpage
 \subsection{'longcombo' data structure}
-In this example, we will use the example data sets included in the package: \texttt{s3lcombo} for both biogas volumes and composition.
+In this example, we will use the longcombo example data set included in the biogas package: \texttt{s3lcombo} for both biogas volumes and composition.
 These data are from a BMP test carried out on three different substrates D, E, and F.
 The experiment included three batch bottles: one for each substrate
 
