@@ -24,11 +24,9 @@ library(biogas)
 \maketitle
 
 \section{Introduction}
-Biochemical methane potential (BMP) has become an important number in the biogas industri, as it can reveal essential knowledge of several factors of concern when producing biogas, such as substrate and inoculum behavior, or more process related variables (temp., pres., stirring, etc.). It is commonly used to determine the methane potential and biodegradability of a given substrate. A newly developed biogas package address issues with time-consuming calculations and lack of reproducible among laboratories for obtaining BMP (ref. biogas package or help file). The biogas package consists of ten function including cumBg(), which is used to calculate cumulative production of biogas and methane (CH$_4$) and production rates with either volumetric, manometric, gravimetric or gas density methods. These production values and rates can be furhter used to calculate BMP. cumBg() is a large and rather complicated function, which requires some proficiency in R for use. 
-% might be preferable to avoid including cumBg(), as these new functions should replace cumBg() at some point. 
-% Instead descripe volumetric measurement methods shortly
-% Sasha: "You do not need to include background on biogas production. But some background on volumetric methods, perhaps."
-We developed a function that only evaluate volumetric measurements to simplify functions within the biogas package, making it serviceable for public less experinced users. 
+Biochemical methane potential (BMP) has become an important number in the biogas industri, as it can reveal essential knowledge of several factors of concern when producing biogas, such as substrate and inoculum behavior, or more process related variables (temp., pres., stirring, etc.). It is commonly used to determine the methane potential and anaerobic biodegradability of a given substrate. 
+BMP is most commonly evaluated by monitoring the production of biogas. This can be done in several ways including volumetric, manometric, gravimetric and gas density methods. In volumetric methods biogas volumes are measured under constant conditions from different techniques such as liquid displacement and syringe methods . In liquid displacement method, the biogas is moved to an external system measuring the volume. As biogas is produced it is collected in the external liquid displacement system where it displaces an amount of the barrier liquid, equivalent to the biogas volume .  In the syringe method, lubricated syringes are manually placed in the reactor of interest. Here, the pressure increase resulting from biogas production will force the piston inwards the syringe until the pressure equilibrates the surrounding (often atmospheric) pressure. Produced biogas volume is equivalent to the displacement of the piston and can be read directly off the syringe.   
+We developed a function that evaluate volumetric measurements only, to simplify functions within the biogas package, making it serviceable for public less experinced users. 
 This document provides a brief description of the volumetric biogas calculation function (cumBgVol) for new users.
 We have assumed that readers are familiar with biogas data collection, the biogas package and R.
 
@@ -162,7 +160,7 @@ The experiment included 12 batch bottles:
 
 A typical automated volumetric method called AMPTS II was used to measure biogas production: an online, standardized lab-measurement platform for BMP tests. Applying AMPTS II, the measured volumes are standardized and the composition is 100\% methane. Therefore, the \texttt{comp}) argument is set to 1 when calling the cumBgVol function. Furthermore, pressure is set to a fixed value (atmospheric) and temperature to 0°C. 
 <<>>=  
-#data("feedVol")
+data("feedVol")
 
 dim(feedVol)
 
@@ -172,7 +170,7 @@ summary(feedVol)
 @
 
 <<>>=
-#data("feedSetup")
+data("feedSetup")
 
 dim(feedSetup)
 
