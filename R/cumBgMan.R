@@ -36,6 +36,7 @@ cumBgMan <- function(
   unit.pres = getOption('unit.pres', 'atm'),
   quiet = FALSE
 ){
+
   # Check arguments
   checkArgClassValue(dat, 'data.frame')
   checkArgClassValue(comp, c('data.frame', 'integer', 'numeric', 'NULL'))
@@ -276,8 +277,8 @@ cumBgMan <- function(
   # Sort and return results
   dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     
-  if(is.null(comp)) {
-    warning('Biogas composition date (\'comp\' and \'name.comp\' arguments) not provided so CH4 results will not be returned.')
+  if(is.null(comp) & data.struct != 'longcombo') {
+    warning('Biogas composition date (\'comp\' argument) not provided so CH4 results will not be returned.')
     dat <- dat[, ! names(dat) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
   }
     
@@ -285,7 +286,7 @@ cumBgMan <- function(
     dat <- dat[, ! names(dat) %in% c('rvBg','rvCH4')]
   }
     
-  # Drop NAs if they extend to the latest time for a given bottle (based on problem with AMPTSII data, sometimes shorter for some bottles)
+  # Drop NAs if they extend to the latest time for a given bottle (based on problem with wide (originally AMPTSII) data, sometimes shorter for some bottles)
   if(any(is.na(dat[, dat.name]))) {
     
     dat2 <- data.frame()
