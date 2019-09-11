@@ -37,7 +37,7 @@ This document describes the use of cumBgVol().
 \begin{table}[h!]
   \begin{center}
   \caption{Operations done with the low-level functions in cumBgVol(). All functions are vectorized. See help files for more details.}
-  \label{tab:lowfunctionsummary}
+  \label{tab:externalfunctionsummary}
   \vspace{3pt}
   
   \begin{tabular}{ll}
@@ -78,7 +78,7 @@ Similar, an \texttt{extrap} argument is passed to \texttt{interp()} (default = "
 By default biogas is assumed to be saturated with water vapor. If biogas volumes are already standardized to dry conditions we need to set \texttt{dry = TRUE}.
 
 \newpage
-\section{Examples:calculation of cumulative production of biogas and CH$_4$ and production rates using a volumetric calculation method}
+\section{Examples: Calculation of cumulative production of biogas and CH$_4$ and production rates using a volumetric calculation method}
 Calculation of cumulative biogas and CH$_4$ production and production rates, typically requires two data frames: Biogas quantity (volume measurements) and biogas composition (CH$_4$ fraction).
 Input data may be structured in one of three ways: ``longcombo'', ``long'', and ``wide''. Default is "longcombo". All inputs are accepted, but the volumetric calculation methods within cumBgVol() only process ''longcombo'' data structure. ''wide'' and ''long'' data are restructured internally by the low-level function cumBgDataPrep(). In the following examples all three data structures will be addressed.
 
@@ -167,16 +167,6 @@ dim(feedVol)
 head(feedVol)
 
 summary(feedVol)
-@
-
-<<>>=
-data("feedSetup")
-
-dim(feedSetup)
-
-head(feedSetup)
-
-summary(feedSetup)
 @
 
 \subsubsection*{Cumulative production}
