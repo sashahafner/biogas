@@ -8,7 +8,7 @@ cumBgDataPrep <- function(
   interval = TRUE,            # When empty.name is used, there is a mix, and interval is ignored
   data.struct = 'longcombo',  # long, wide, longcombo
   # Column names
-  id.name = 'id',             # Name of column containing reactor identification code
+  id.name = 'id',             # Name of column containing bottle identification code
   time.name = 'time',         # Name of time column 
   dat.name = dat.type,        # Will be used for first dat column for data.struct = 'wide'
   comp.name = 'xCH4',         # Name of column containing xCH4 values. Use for first comp col for data.struct = 'wide'
@@ -70,7 +70,7 @@ cumBgDataPrep <- function(
     which.first.col <- which(names(dat) == dat.name)
     dat.name <- dat.type
     
-    # Number of reactors
+    # Number of bottles
     nr <- ncol(dat) - which.first.col + 1
     
     # Reactor names taken from column names
@@ -103,8 +103,8 @@ cumBgDataPrep <- function(
       which.first.col <- which(names(comp) == comp.name)
       comp.name <- 'xCH4'
       
-      # Number of reactors
-      if((ncol(comp) - which.first.col + 1) != nr) stop('Apparent number of reactors in dat and comp do not match. Problem with wide data.struct.')
+      # Number of bottles
+      if((ncol(comp) - which.first.col + 1) != nr) stop('Apparent number of bottles in dat and comp do not match. Problem with wide data.struct.')
       
       comp2 <- comp
       comp <- comp[ , 1:which.first.col]
@@ -155,14 +155,14 @@ cumBgDataPrep <- function(
       
       # Interpolate gas composition to times of volume measurements
       for(i in unique(dat[, id.name])) {
-        if(dat.type=='mass' & nrow(dat[dat[, id.name]==i, ])<2) stop('There are < 2 observations for reactor ', i,' but dat.type = \"mass\". 
+        if(dat.type=='mass' & nrow(dat[dat[, id.name]==i, ])<2) stop('There are < 2 observations for bottle ', i,' but dat.type = \"mass\". 
                                                                      You need at least 2 observations to apply the gravimetric method.')
         dc <- comp[comp[, id.name]==i, ]
-        if(nrow(dc)==0) stop('No biogas composition data for reactor ', i,' so can\'t interpolate!') 
+        if(nrow(dc)==0) stop('No biogas composition data for bottle ', i,' so can\'t interpolate!') 
         if(nrow(dc)>1) {
           # If there is no time column
           if(!time.name %in% names(comp)) stop('Problem with comp  (', deparse(substitute(comp)), 
-                                               '): a time column was not found but there is > 1 observation at least for reactor ',i, '.')
+                                               '): a time column was not found but there is > 1 observation at least for bottle ',i, '.')
           if(dat.type %in% c('vol', 'volume', 'pres', 'pressure')) {
             mssg.interp <- TRUE
             dat[dat[, id.name]==i, comp.name] <- interp(dc[, time.name], dc[, comp.name], time.out = dat[dat[, id.name]==i, time.name], method = imethod, extrap = extrap)
@@ -190,7 +190,7 @@ cumBgDataPrep <- function(
                     dat[dat[, id.name]==i, comp.name][j] <- dc[, comp.name]
                   } else {
                     dat[dat[, id.name]==i, comp.name][j] <- NA
-                    warning('Not enough ', comp.name, ' data (one observation) to interpolate for reactor ', i,' so results will be missing.\n If you prefer, you can use constant extrapolation by setting extrap = TRUE.')
+                    warning('Not enough ', comp.name, ' data (one observation) to interpolate for bottle ', i,' so results will be missing.\n If you prefer, you can use constant extrapolation by setting extrap = TRUE.')
                   }
                 }
               }
@@ -206,7 +206,7 @@ cumBgDataPrep <- function(
       # If no composition data is given, just use NA
       dat[, comp.name] <- NA 
     }
-    if(!quiet & mssg.no.time) message('A time column was not found in comp (', deparse(substitute(comp)), '), and a single value was used for each reactor.')
+    if(!quiet & mssg.no.time) message('A time column was not found in comp (', deparse(substitute(comp)), '), and a single value was used for each bottle.')
     if(!quiet & mssg.interp) message('Biogas composition is interpolated.')
   } 
   
