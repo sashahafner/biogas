@@ -56,13 +56,13 @@ Two methods are commonly used to evaluate biogas pressure measurements. Method 1
 All external functions are within the biogas package
 ##NTS: Might be beneficial to describe both methods. Ensure it is method 1 in all examples. Also, might make more sense to have longcombo as the first example, as this i default.
 
-
+\newpage
 \section{Examples:calculation of cumulative production of biogas and CH$_4$ and production rates using a manometric calculation methods}
 Calculation of cumulative biogas and CH$_4$ production and production rates, typically requires two data frames: Biogas quantity (volume measurements) and biogas composition (CH$_4$ fraction).
 Input data may be structured in one of three ways: ``long'', ``wide'', or ``longcombo''. Default is "longcombo", where the composition column is in the \texttt{dat} data frame and no composition data frame is required. All inputs are accepted, but the manometric calculation methods within cumBgMan() only process ''longcombo'' data structure. ''wide'' and ''long'' data are restructured internally by the low-level function cumBgDataPrep(). In the following examples all three data structures will be addressed.  
 
 \subsection{'longcombo' data structure}
-In this example, we will use the longcombo example data set included in the biogas package: \texttt{sludgeTwoBiogasPres} for both biogas volumes and composition and \texttt{sludgeTwoBiogasPres} for for grouping, substrate and inoculum masses, and headspace volumes.
+In this example, we will use the longcombo example data set included in the biogas package: \texttt{sludgeTwoBiogas} for both biogas volumes and composition and \texttt{sludgeTwoSetup} for grouping, substrate and inoculum masses, and headspace volumes.
 
 These data are BMP measurement data for primary wastewater sludge carried out on seven different substrates.
 The experiment included 24 batch bottles: 
@@ -80,28 +80,28 @@ The experiment included 24 batch bottles:
 Data were originally collected by Sergi Astals at the University of Queensland. For more information, please contact Sasha D. Hafner at \texttt{sasha.hafner@eng.au.dk} or \texttt{sdh11@cornell.edu}.
 
 <<>>=  
-#data("sludgeTwoBiogasPres")
+#data("sludgeTwoBiogas")
 
-dim(sludgeTwoBiogasPres)
+dim(sludgeTwoBiogas)
 
-head(sludgeTwoBiogasPres)
+head(sludgeTwoBiogas)
 
-summary(sludgeTwoBiogasPres)
+summary(sludgeTwoBiogas)
 @
 
 <<>>=
-data("sludgeTwoBiogasPres")
+#data("sludgeTwoSetup")
 
-dim(sludgeTwoBiogasPres)
+dim(sludgeTwoSetup)
 
-head(sludgeTwoBiogasPres)
+head(sludgeTwoSetup)
 
-summary(sludgeTwoBiogasPres)
+summary(sludgeTwoSetup)
 @
 
 \subsubsection*{Cumulative production}
 Calculating cumulative biogas and CH$_4$ production and production rates, is the first step in processing data from a BMP trial. Subsequently, BMP can be calculated by the high-level function summBg() included in the biogas package.
-Cumulative biogas and CH$_4$ production and production rates from manometric data with \texttt{sludgeTwoBiogasPres} and \texttt{sludgeTwoSetup} data frames as input, can be calculated from \texttt{cumBgMan()}.
+Cumulative biogas and CH$_4$ production and production rates from manometric data with \texttt{sludgeTwoBiogas} and \texttt{sludgeTwoSetup} data frames as input, can be calculated from \texttt{cumBgMan()}.
 
 The arguments for the function are:
 
@@ -114,13 +114,13 @@ The arguments for the function are:
 
 % NTS: Currently, 'longcombo' data requires \texttt{comp} arguments to be set as \texttt{comp = comp}. If not stated, this will result in removal of CH4 calculations and message according missing comp and comp.name.
 <<>>=
-cum.prod.lc <- cumBgMan(sludgeTwoBiogasPres, temp = 30, comp = comp,
-                          time.name = "time.d", 
-                          temp.init = 30, pres.resid = "pres.resid", pres.init = 0.0,
+cum.prod.lc <- cumBgMan(sludgeTwoBiogas, temp = 30,
+                          time.name = "time.d", comp.name = 'xCH4n',
+                          temp.init = 30, pres.resid = 0, pres.init = 0.0,
                           headspace = sludgeTwoSetup,
-                          pres.amb = 101.3, absolute = FALSE,
+                          pres.amb = 1013, absolute = FALSE,
                           extrap = TRUE, 
-                          unit.pres = "kPa")
+                          unit.pres = "mbar")
 @
 
 Note the message about standard temperature and pressure--it is important to make sure these values are correct, therefore users are reminded by a message\footnote{
@@ -135,7 +135,7 @@ head(cum.prod.lc)
 dim(cum.prod.lc)
 @
 
-The data frame that is returned has maintained the longcombo structure with all the original columns in \texttt{vol} and contains additional columns from volumetric biogas calculations. 
+The data frame that is returned has maintained the longcombo structure with all the original columns in \texttt{sludgeTwoBiogas} and contains additional columns from manometric biogas calculations. 
 
 In these columns, \texttt{v} stands for (standardized) volume, \texttt{cv} (standardized) cumulative volume, \texttt{rv} stands for (standardized) volume production rate, and \texttt{Bg} and \texttt{CH4} for biogas and methane.
 So \texttt{cvBg} contains standardized cumulative biogas production and \texttt{cvCH4} contains standardized cumulative CH$_4$ production.
@@ -146,7 +146,7 @@ Here we'll use the \texttt{ggplot} function from the \texttt{ggplot2} package to
 <<fig.width=6, fig.height=4, fig.align="center">>=
 library(ggplot2)
 
-ggplot.long <- ggplot(cum.prod.lc, aes(time.d, cvCH4, colour = id)) + 
+ggplot.long <- ggplot(cum.prod.lc, aes(time.d, cvCH4, colour = factor(id))) + 
   geom_point() +
   geom_line(aes(group = id)) +
   labs(x = "Time [d]", y = "cvCH4  [mL]", colour = "Bottle id")  + 
@@ -206,7 +206,7 @@ summary(strawComp)
 
 \subsubsection*{Cumulative production}
 Calculating cumulative biogas and CH$_4$ production and production rates, is the first step in processing data from a BMP trial. Subsequently, BMP can be calculated by the high-level function summBg() included in the biogas package.
-Cumulative biogas and CH$_4$ production and production rates from manometric data with \texttt{sludgeTwoBiogasPres} and \texttt{sludgeTwoSetup} data frames as input, can be calculated from \texttt{cumBgMan()}.
+Cumulative biogas and CH$_4$ production and production rates from manometric data with \texttt{sludgeTwoBiogas} and \texttt{sludgeTwoSetup} data frames as input, can be calculated from \texttt{cumBgMan()}.
 
 As for the sludge data, cumulative production of biogas and CH$_4$ and production rates are essential values to estimate prior to evaluating BMP.
 Again, we can calculate these with the \texttt{cumBgMan()} function, using \texttt{strawPressure}, \texttt{strawComp}, and \texttt{strawSetup} data frames as input.
@@ -253,7 +253,7 @@ As with the 'longcombo' data example, the results may be easier to understand gr
 <<fig.width=6, fig.height=4, fig.align="center">>=
 library(ggplot2)
 
-ggplot.long <- ggplot(cum.prod.l, aes(time, cvCH4, colour = bottle)) + 
+ggplot.long <- ggplot(cum.prod.l, aes(time, cvCH4, colour = factor(bottle))) + 
   geom_point() +
   geom_line(aes(group = bottle)) +
   labs(x = "Time [d]", y = "cvCH4  [mL]", colour = "Bottle id")  + 

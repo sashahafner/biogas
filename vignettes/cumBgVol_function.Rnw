@@ -139,7 +139,7 @@ Here we'll use the \texttt{ggplot} function from the \texttt{ggplot2} package to
 <<fig.width=6, fig.height=4, fig.align="center">>=
 library(ggplot2)
 
-ggplot.longcombo <- ggplot(cum.prod.lc, aes(time.d, cvCH4, colour = id)) + 
+ggplot.longcombo <- ggplot(cum.prod.lc, aes(time.d, cvCH4, colour = factor(id))) + 
   geom_point() +
   geom_line(aes(group = id)) +
   labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle ID")  + 
@@ -224,7 +224,7 @@ It is probably easier to understand the data in the output graphically.
 Here we'll use the \texttt{ggplot} function from the \texttt{ggplot2} package to plot it.
 
 <<fig.width=6, fig.height=4, fig.align="center">>=
-ggplot.wide <- ggplot(cum.prod.w, aes(time.d, cvCH4, colour = id)) + 
+ggplot.wide <- ggplot(cum.prod.w, aes(time.d, cvCH4, colour = factor(id))) + 
   geom_point() +
   geom_line(aes(group = id)) +
   labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle ID")  + 
@@ -303,7 +303,7 @@ The data frame that is returned has been restructured to longcombo structure and
 As with the 'longcombo' data example, the results may be easier to understand graphically using the \texttt{ggplot} function from the \texttt{ggplot2} package.
 
 <<fig.width=6, fig.height=4, fig.align="center">>=
-ggplot.long <- ggplot(cum.prod.l, aes(days, cvCH4, colour = id)) + 
+ggplot.long <- ggplot(cum.prod.l, aes(days, cvCH4, colour = factor(id))) + 
   geom_point() +
   geom_line(aes(group = id)) +
   labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle ID")  + 
