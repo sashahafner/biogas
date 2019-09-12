@@ -64,17 +64,25 @@ The arguments for the function are:
   args(cumBgVol)
 @
 
-Most of the arguments have default values, but to calculate CH$_4$ production we must provide values for at least  \texttt{dat} (we will use \texttt{vol}), \texttt{comp} (methane concentration), \texttt{temp} (biogas temperature), and \texttt{pres} (biogas pressure)\footnote{.      
+Most of the arguments have default values, but to calculate CH$_4$ production we must provide values for at least  \texttt{dat} (data frame with respons variable. Here pressure measurements), \texttt{comp} (data frame with methane concentration), and \texttt{temp} (biogas temperature)\footnote{.      
   By default, temperature is in $^\circ$C and pressure in atm, but these can be changed in the function call with the \texttt{temp.unit} and \texttt{pres.unit} arguments, or globally with \texttt{options}. The same default values applies for temperature and pressure for presentation of biogas and methane, but these can be changed in the function call with the \texttt{temp.std} and \textttt{pres.std} argurments.}. along with the names of a few columns in the input data frames. If \texttt{temp} and/or \texttt{pres} arguments are not provided, biogas volumes will not be standardized.
+
 By default \texttt{interval = TRUE} and \texttt{data.struct} is set as 'longcombo'. Wide and long structured data will be restructedered to 'longcombo' internally by cumBgDataPrep(), when specified by the \texttt{data.struct} argument. When data are cumulative, the interval argument should be set to FALSE. When data are mixed interval and cumulative respons variables (\texttt{empty.name != TRUE}), the interval arguement is ignored. 
+
 Similarly, there is an \texttt{id.name} argument for the reactor identification code (ID) column (default = "id"). The default value is \texttt{"id"}. For \texttt{data.struct = "wide"}, there is no ID columns. Instead data for each bottle, have individual columns and column names, which are used as ID codes. Here, the name of the column containing the response variables (\texttt{dat.name}), is set as the name of the first column with respons variables. All following columns are assumed to also have measurement data. 
+
 Furthermore, we need to specify the name of the time column containing time data using the \texttt{time.name} argument (default = "time").
 This name must be the same in both \texttt{dat} and \texttt{comp} data frames. Time data may be POSIX objects, but then t0 will not be added to rows by the cumBg* functions. In addition the \texttt{addt0} argument is used to add row with "time zero" (\texttt{time.name = 0}) for each reactor in order to calculate production rates for the first observation (default = TRUE). Whereas, \texttt{showt0} determines if the "time zero" should be returned in the output (default = TRUE if time.name is numeric and contains 0 and otherwise FALSE). 
+
 The \texttt{comp.name} argument is used to indicate which column within the \texttt{comp} data frame contains the CH$_4$ content (as mole fraction in dry biogas, normalized so the sum of mole fractions of CH$_4$ and CO$_2$ sum to unity) (default = xCH4). \texttt{comp} may also just be a single value instead of a data frame or column. When providing a single value for \texttt{comp}, this value is extrapolated to all observations which pasifies the \texttt{comp.name} argument. Note that if \texttt{comp} argument is not provided, cumBg* funcitons will return calculations on biogas only and no calculations on CH$_4$. 
+
 Additionally, a data frame containing headspace volumes may be accessible. A such data frame is generally optinal, but required if \texttt{imethod = "total"} (see description below) and should contain at least a headspace volume column (\texttt{vol.hs.name}) and a reactor identification column, with the same column name as \texttt{dat} and \texttt{comp} data frames. The headspace volume column can be set using the \texttt{vol.hs.name} argument (default = "vol.hs").
+
 By default (\texttt{cmethod = "removed"}) the function calculates volumes following \cite{richards_methods_1991} as the product of standardized volume of biogas removed and normalized CH$_4$ content. If results should be based on the sum of methane removed and methane remaining in the reactor headspace, \texttt{cmethod} should be set to \texttt{"total"}. When \texttt{cmethod = "total"}, CH$_4$ concentration is calculated using all components (CH$_4$, CO$_2$, N$_2$, H$_2$S, etc.) instead of CH$_4$ and CO$_2$ only.
+
 If any missing CH4 measurements, xCH4 is interpolated by the external "low-level" function \texttt{interp()}. Here, the \texttt{imethod} argument can be used to define interpolation method (default = "linear"), which is passed to interp().   
 Similar, an \texttt{extrap} argument is passed to \texttt{interp()} (default = "FALSE"). The \texttt{extrap} argument is used to indicate if compositional data (\texttt{comp.name}) should be extrapolation (e.g. missing initial composition values).  
+
 By default biogas is assumed to be saturated with water vapor. If biogas volumes are already standardized to dry conditions we need to set \texttt{dry = TRUE}.
 
 \newpage
