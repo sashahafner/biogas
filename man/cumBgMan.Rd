@@ -411,8 +411,7 @@ cum.prod <- cumBgMan(strawPressure, data.struct = 'long',
 head(cum.prod)
 
 
-# Example with wide structured input data frame
-
+# For example with wide structured input data frame refer to \code{\link{cumBgVol}}
 
 
 }
