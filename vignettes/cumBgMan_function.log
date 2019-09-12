@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.8.13)  10 SEP 2019 09:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.8.13)  12 SEP 2019 20:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -553,84 +553,51 @@ Overfull \hbox (4.50925pt too wide) in paragraph at lines 28--28
  [][] 
  []
 
-! You can't use `macro parameter character #' in horizontal mode.
-l.30 ... requires some proficiency in R for use. #
-                                                  #NTS: might be preferable ...
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
-! You can't use `macro parameter character #' in horizontal mode.
-l.30 ...requires some proficiency in R for use. ##
-                                                  NTS: might be preferable t...
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
 
 LaTeX Warning: Reference `tab:externalfunctionsummary' on page 2 undefined on i
-nput line 36.
+nput line 38.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [2]
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <14.4> on input line 58.
 
-Overfull \hbox (5.47778pt too wide) in paragraph at lines 58--58
-[]\T1/aer/bx/n/14.4 Examples:calculation of cu-mu-la-tive pro-duc-tion
- []
+! LaTeX Error: There's no line here to end.
 
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.64 \newline
+             
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
 
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 58.
+! Undefined control sequence.
+<argument> ...the \texttt {temp.std} and \textttt 
+                                                  {pres.std} argurments.
+l.89 ...p.std} and \textttt{pres.std} argurments.}
+                                                  . along with the names of ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
 
+)
+! Emergency stop.
+<*> cumBgMan_function.tex
+                         
+*** (job aborted, no legal \end found)
 
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `subscript' on input line 58.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 58.
-
-[3] [4] [5]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 106.
- [6]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 106.
- (./cumBgMan_function.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 106.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 106.
-Package rerunfilecheck Info: File `cumBgMan_function.out' has not changed.
-(rerunfilecheck)             Checksum: B36DF500E7DF6C2C6CD7627DE81C1E8A;551.
-
-
-LaTeX Warning: There were undefined references.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 106.
- ) 
+ 
 Here is how much of TeX's memory you used:
- 6300 strings out of 492616
- 93179 string characters out of 6129481
- 177143 words of memory out of 5000000
- 10111 multiletter control sequences out of 15000+600000
- 30115 words of font info for 66 fonts, out of 8000000 for 9000
+ 6272 strings out of 492616
+ 92728 string characters out of 6129481
+ 176862 words of memory out of 5000000
+ 10102 multiletter control sequences out of 15000+600000
+ 28908 words of font info for 59 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 35i,8n,31p,1126b,347s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
-></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
-</usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><
-/usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></u
-sr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr
-/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/l
-ocal/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/loc
-al/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/
-texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/t
-exlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/te
-xlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on cumBgMan_function.pdf (6 pages, 127364 bytes).
-PDF statistics:
- 116 PDF objects out of 1000 (max. 8388607)
- 95 compressed objects within 1 object stream
- 19 named destinations out of 1000 (max. 500000)
- 61 words of extra memory for PDF output out of 10000 (max. 10000000)
-
+ 35i,8n,28p,929b,340s stack positions out of 5000i,500n,10000p,200000b,80000s
+!  ==> Fatal error occurred, no output PDF file produced!

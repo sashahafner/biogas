@@ -24,8 +24,10 @@ library(biogas)
 \maketitle
 
 \section{Introduction}
-Biochemical methane potential (BMP) has become an important number in the biogas industri, as it can reveal essential knowledge of several factors of concern when producing biogas, such as substrate and inoculum behavior, or more process related variables (temp., pres., stirring, etc.). It is commonly used to determine the methane potential and biodegradability of a given substrate. A newly developed biogas package address issues with time-consuming calculations and lack of reproducible among laboratories for obtaining BMP (ref. biogas package or help file). The biogas package consists of ten function including cumBg(), which is used to calculate cumulative production of biogas and methane (CH$_4$) and production rates with either volumetric, manometric, gravimetric or gas density methods. These production values and rates can be furhter used to calculate BMP. cumBg() is a large and rather complicated function, which requires some proficiency in R for use. ##NTS: might be preferable to avoid including cumBg(), as these new functions should replace cumBg() at some point. 
-We developed a function that evaluate pressure measurements (manometric methods) only, to simplify functions within the biogas package, making it serviceable for public less experinced users. 
+Biochemical methane potential (BMP) has become an important number in the biogas industri, as it can reveal essential knowledge of several factors of concern when producing biogas, such as substrate and inoculum behavior, or more process related variables (temp., pres., stirring, etc.). It is commonly used to determine the methane potential and anaerobic biodegradability of a given substrate. 
+BMP is most commonly evaluated by monitoring the production of biogas. This can be done in several ways including volumetric, manometric, gravimetric and gas density methods. In volumetric methods biogas volumes are measured under constant conditions from different techniques such as.... NTS: add techniques. 
+
+We developed a function that evaluate pressure measurements only, to simplify functions within the biogas package, making it serviceable for public less experinced users. 
 This document provides a brief description of the manometric biogas calculation function (cumBgMan) for new users.
 We have assumed that readers are familiar with biogas data collection, the biogas package and R.
 
@@ -52,9 +54,43 @@ This document describes the use of cumBgMan().
 \end{table}
 
 In general, cumBg* functions are compiled of four sections: check arguments, restructuring and sorting data, interpolation if needed, and biogas standardization and calculations. Restructuring and sorting of data and interpolation are handled by the external functions interp() and cumBgDataPrep(), respectively. From interp() gas composition, cumulative biogas production, and other variables can be interpolated to a specified time if required. From cumBgDataPrep() 'wide' and 'long' data structure are restructured to 'longcombo' data, which is required for cumBgMan() to further calculate cumulative biogas and CH$_4$ production and production rates. Additionally, data is sorted, headspace is added if provided, and composition data is corrected if it seems to be a percentage. Subsequently, the now restructured and sorted data is standardized in cumBgVol() by an external function called stdVol(). 
-Two methods are commonly used to evaluate biogas pressure measurements. Method 1 is based on normalized CH4 concentrations, whereas method 2 accounts for the actual CH4 in the bottle headspace. Both methods are available through cumBgMan() and results is expected to be independent of method. The examples below describe cumulative biogas calculation by manometric method 1 on three datasets of different structures (wide, long, and longcombo). 
+
+Two methods are commonly used to evaluate biogas pressure measurements. Method 1 is based on normalized CH4 concentrations, whereas method 2 accounts for the actual CH4 in the bottle headspace. Both methods are available through cumBgMan() and results is expected to be independent of method. The examples below describe cumulative biogas calculation on two dataset having long and longcombo structures, using manometric method 1 and 2, respectibely 
 All external functions are within the biogas package
-##NTS: Might be beneficial to describe both methods. Ensure it is method 1 in all examples. Also, might make more sense to have longcombo as the first example, as this i default.
+
+
+The arguments for the function are:
+
+% Next line won't wrap correctly. Width doesn't affect args(). Done manually below by copying and editing output in .tex file.
+<<cumBgVolargs>>=
+  args(cumBgMan)
+@
+
+Most of the arguments have default values, but to calculate CH$_4$ production we must provide values for at least  \texttt{dat}, \texttt{comp} (methane concentration), \texttt{temp} (biogas temperature), and \texttt{pres} (biogas pressure)\footnote{.      
+  By default, temperature is in $^\circ$C and pressure in atm, but these can be changed in the function call with the \texttt{temp.unit} and \texttt{pres.unit} arguments, or globally with \texttt{options}. The same default values applies for temperature and pressure for presentation of biogas and methane, but these can be changed in the function call with the \texttt{temp.std} and \textttt{pres.std} argurments.}. along with the names of a few columns in the input data frames. If \texttt{temp} argument is not provided, biogas volumes will not be standardized. Similar, if \texttt{comp} argument is not provided, cumBgMan() will return calculations on biogas only and no calculations on CH$_4$.
+  
+By default \texttt{interval = TRUE} and \texttt{data.struct} is set as 'longcombo'. Wide and long structured data will be restructedered to 'longcombo' internally by cumBgDataPrep(), when specified by the \texttt{data.struct} argument. When data are cumulative, the interval argument should be set to FALSE. 
+
+Similarly, there is an \texttt{id.name} argument for the reactor identification code (ID) column (default = "id"). The default value is \texttt{"id"}. For \texttt{data.struct = "wide"}, there is no ID columns. Instead data for each bottle, have individual columns and column names, which are used as ID codes. Here, the name of the column containing the response variables (\texttt{dat.name}), is set as the name of the first column with respons variables. All following columns are assumed to also have measurement data.
+
+Furthermore, we need to specify the name of the time column containing time data using the \texttt{time.name} argument (default = "time").
+This name must be the same in both \texttt{dat} and \texttt{comp} data frames. Time data may be POSIX objects, but then t0 will not be added to rows by the cumBg* functions. In addition the \texttt{addt0} argument is used to add row with "time zero" (\texttt{time.name = 0}) for each reactor in order to calculate production rates for the first observation (default = TRUE). Whereas, \texttt{showt0} determines if the "time zero" should be returned in the output (default = TRUE if time.name is numeric and contains 0 and otherwise FALSE).
+
+The \texttt{comp.name} argument is used to indicate which column within the \texttt{comp} data frame contains the CH$_4$ content (as mole fraction in dry biogas, normalized so the sum of mole fractions of CH$_4$ and CO$_2$ sum to unity) (default = xCH4). \texttt{comp} may also just be a single value instead of a data frame or column. When providing a single value for \texttt{comp}, this value is extrapolated to all observations which pasifies the \texttt{comp.name} argument. 
+
+% temp.init, pres.init
+% pres.resid, rh.resid, rh.resid.init
+
+Additionally, a data frame containing headspace volumes may be accessible. A such data frame is generally optinal, but required if \texttt{imethod = "total"} (see description below) and should contain at least a headspace volume column (\texttt{vol.hs.name}) and a reactor identification column, with the same column name as \texttt{dat} and \texttt{comp} data frames. The headspace volume column can be set using the \texttt{vol.hs.name} argument (default = "vol.hs").
+
+% absolute
+% pres.amb
+
+By default (\texttt{cmethod = "removed"}) the function calculates volumes following \cite{richards_methods_1991} as the product of standardized volume of biogas removed and normalized CH$_4$ content. If results should be based on the sum of methane removed and methane remaining in the reactor headspace, \texttt{cmethod} should be set to \texttt{"total"}. When \texttt{cmethod = "total"}, CH$_4$ concentration is calculated using all components (CH$_4$, CO$_2$, N$_2$, H$_2$S, etc.) instead of CH$_4$ and CO$_2$ only.
+
+If any missing CH4 measurements, xCH4 is interpolated by the external "low-level" function \texttt{interp()}. Here, the \texttt{imethod} argument can be used to define interpolation method (default = "linear"), which is passed to interp().   
+Similar, an \texttt{extrap} argument is passed to \texttt{interp()} (default = "FALSE"). The \texttt{extrap} argument is used to indicate if compositional data (\texttt{comp.name}) should be extrapolation (e.g. missing initial composition values).  
+
 
 \newpage
 \section{Examples:calculation of cumulative production of biogas and CH$_4$ and production rates using a manometric calculation methods}
@@ -228,7 +264,7 @@ cum.prod.l <- cumBgMan(strawPressure, comp = strawComp, temp = 31,
                      extrap = TRUE, addt0 = TRUE, 
                      unit.pres = "kPa")
 
-head(cum.prodl.man)
+head(cum.prod.l)
 @
 
 Note the message about standard temperature and pressure--it is important to make sure these values are correct, therefore users are reminded by a message\footnote{
@@ -265,6 +301,8 @@ plot(ggplot.long)
 
 \newpage
 \subsection{'wide' data structure}
+# For example with wide structured input data frame refer to \code{\link{cumBgVol}}
+
 
 \subsubsection*{Cumulative production}
 

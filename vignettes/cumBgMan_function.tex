@@ -27,8 +27,10 @@
 \maketitle
 
 \section{Introduction}
-Biochemical methane potential (BMP) has become an important number in the biogas industri, as it can reveal essential knowledge of several factors of concern when producing biogas, such as substrate and inoculum behavior, or more process related variables (temp., pres., stirring, etc.). It is commonly used to determine the methane potential and biodegradability of a given substrate. A newly developed biogas package address issues with time-consuming calculations and lack of reproducible among laboratories for obtaining BMP (ref. biogas package or help file). The biogas package consists of ten function including cumBg(), which is used to calculate cumulative production of biogas and methane (CH$_4$) and production rates with either volumetric, manometric, gravimetric or gas density methods. These production values and rates can be furhter used to calculate BMP. cumBg() is a large and rather complicated function, which requires some proficiency in R for use. ##NTS: might be preferable to avoid including cumBg(), as these new functions should replace cumBg() at some point. 
-We developed a function that evaluate pressure measurements (manometric methods) only, to simplify functions within the biogas package, making it serviceable for public less experinced users. 
+Biochemical methane potential (BMP) has become an important number in the biogas industri, as it can reveal essential knowledge of several factors of concern when producing biogas, such as substrate and inoculum behavior, or more process related variables (temp., pres., stirring, etc.). It is commonly used to determine the methane potential and anaerobic biodegradability of a given substrate. 
+BMP is most commonly evaluated by monitoring the production of biogas. This can be done in several ways including volumetric, manometric, gravimetric and gas density methods. In volumetric methods biogas volumes are measured under constant conditions from different techniques such as.... NTS: add techniques. 
+
+We developed a function that evaluate pressure measurements only, to simplify functions within the biogas package, making it serviceable for public less experinced users. 
 This document provides a brief description of the manometric biogas calculation function (cumBgMan) for new users.
 We have assumed that readers are familiar with biogas data collection, the biogas package and R.
 
@@ -54,54 +56,35 @@ This document describes the use of cumBgMan().
   \end{center}
 \end{table}
 
+In general, cumBg* functions are compiled of four sections: check arguments, restructuring and sorting data, interpolation if needed, and biogas standardization and calculations. Restructuring and sorting of data and interpolation are handled by the external functions interp() and cumBgDataPrep(), respectively. From interp() gas composition, cumulative biogas production, and other variables can be interpolated to a specified time if required. From cumBgDataPrep() 'wide' and 'long' data structure are restructured to 'longcombo' data, which is required for cumBgMan() to further calculate cumulative biogas and CH$_4$ production and production rates. Additionally, data is sorted, headspace is added if provided, and composition data is corrected if it seems to be a percentage. Subsequently, the now restructured and sorted data is standardized in cumBgVol() by an external function called stdVol(). 
 
-\section{Examples:calculation of cumulative production of biogas and CH$_4$ and production rates using a manometric calculation methods}
-\subsection{'longcombo' data structure}
+Two methods are commonly used to evaluate biogas pressure measurements. Method 1 is based on normalized CH4 concentrations, whereas method 2 accounts for the actual CH4 in the bottle headspace. Both methods are available through cumBgMan() and results is expected to be independent of method. The examples below describe cumulative biogas calculation on two dataset having long and longcombo structures, using manometric method 1 and 2, respectibely 
+All external functions are within the biogas package
 
-\newpage
-\subsection{'long' data structure}
+\newline
+The arguments for the function are:
 
-\newpage
-\subsection{'wide' data structure}
+% Next line won't wrap correctly. Width doesn't affect args(). Done manually below by copying and editing output in .tex file.
+\begin{Schunk}
+\begin{Sinput}
+>   args(cumBg)
+\end{Sinput}
+\begin{Soutput}
+function (dat, dat.type = "vol", comp = NULL, temp = NULL, pres = NULL, 
+    interval = TRUE, data.struct = "long", id.name = "id", time.name = "time", 
+    dat.name = dat.type, comp.name = "xCH4", pres.resid = NULL, 
+    temp.init = NULL, pres.init = NULL, rh.resid.init = 1, headspace = NULL, 
+    vol.hs.name = "vol.hs", headcomp = "N2", absolute = TRUE, 
+    pres.amb = NULL, mol.f.name = NULL, vol.syr = NULL, cmethod = "removed", 
+    imethod = "linear", extrap = FALSE, addt0 = TRUE, showt0 = TRUE, 
+    dry = FALSE, std.message = TRUE, check = TRUE, temp.std = getOption("temp.std", 
+        as.numeric(NA)), pres.std = getOption("pres.std", as.numeric(NA)), 
+    unit.temp = getOption("unit.temp", "C"), unit.pres = getOption("unit.pres", 
+        "atm")) 
+NULL
+\end{Soutput}
+\end{Schunk}
 
-
-
-
-
-
-\newpage
-
-
-
-
-
-\section{Continuing with the cumBgMan function}
- 
- 
- 
- 
- 
-\bibliographystyle{plain}  
-\begin{thebibliography}{1}
-
-\bibitem{hafner_validation_2015}
-S.D. Hafner, C.~Rennuit, J.M.~Triolo, and B.K.~Richards.
-\newblock Validation of a simple gravimetric method for measuring biogas
-  production in laboratory experiments.
-\newblock {\em Biomass and Bioenergy}, 83:297--301, 2015.
-
-\bibitem{richards_methods_1991}
-B.K.~Richards, R.J.~Cummings, T.E.~White, and W.J.~Jewell.
-\newblock Methods for kinetic-analysis of methane fermentation in high solids
-  biomass digesters.
-\newblock {\em Biomass \& Bioenergy}, 1(2):65--73, 1991.
-
-\bibitem{rittmann_environmental_2001}
-B.~E. Rittmann and P.~L. McCarty.
-\newblock {\em Environmental Biotechnology: Principles and Applications}.
-\newblock {McGraw}-{Hill} series in water resources and environmental
-  engineering. McGraw-Hill, Boston, 2001.
-
-\end{thebibliography}
-\end{document}
+Most of the arguments have default values, but to calculate CH$_4$ production we must provide values for at least  \texttt{dat} (we will use \texttt{vol}), \texttt{comp} (methane concentration), \texttt{temp} (biogas temperature), and \texttt{pres} (biogas pressure)\footnote{.      
+  By default, temperature is in $^\circ$C and pressure in atm, but these can be changed in the function call with the \texttt{temp.unit} and \texttt{pres.unit} arguments, or globally with \texttt{options}. The same default values applies for temperature and pressure for presentation of biogas and methane, but these can be changed in the function call with the \texttt{temp.std} and \textttt{pres.std} argurments.}. along with the names of a few columns in the input data frames. If \texttt{temp} and/or \texttt{pres} arguments are not provided, biogas volumes will not be standardized.
 
