@@ -85,9 +85,12 @@ Input data may be structured in one of three ways: ``longcombo'', ``long'', and 
 \subsection{'longcombo' data structure}
 In this example, we will use the longcombo example data set included in the biogas package: \texttt{s3lcombo} for both biogas volumes and composition.
 These data are from a BMP test carried out on three different substrates D, E, and F.
-The experiment included three batch bottles: one for each substrate
+The experiment included three batch bottles - one for each substrate.
 
-# NTS: Do not have much information of these data yet. Maybe more info in GitHub.
+Reactors were 300 mL glass serum bottles with butyl rubber septa and screw caps. 
+Substrate was municipal wastewater sludge. Volume was measured using syringes.
+Methane and carbon dioxide contents were determined by gas chromatography using a thermal conductivity detector and normalized so methane and carbon dioxide sum to 1.0.
+% Reference to helpfile.
 
 <<>>=  
 library(biogas)
