@@ -2,7 +2,7 @@
 \alias{cumBgDataPrep}
 %- Also NEED an "\alias" for EACH other topic documented here.
 \title{
-  Sort and Restructure Biogas Data 
+  Preparation of Biogas Data 
 }
 \description{
   \code{cumBgDataPrep} sorts and restructures biogas data for further calculation of cumulative biogas, methane production and production rates. 
@@ -147,9 +147,20 @@ cumBgDataPrep(
 
 }
 \details{
-  This function sorts and restructures (if required) volume, mass, pressure, or molar quantity data from \code{dat} and gas composition from \code{comp} internally in the cumBg* functions, to match requirements for calculating cumulative biogas and methane production and production rates.
-  
-  
+  This function prepares biogas data by sorting and restructuring (if required) volume, mass, pressure, or molar quantity data from \code{dat} and gas composition from \code{comp} internally in the cumBg* functions, to match requirements for calculating cumulative biogas and methane production and production rates.
+ 
+ Data preparation is done in a xx-step process
+ 
+ First "wide" and "longcombo" data are restructured to "long" structured data frames. If data are cumulative, rows with missing respons variables are removed.
+Data structure and similar proporsitions are defined in and passed from cumBg* functions.
+ 
+ Secondly, composition data in the now "long" structured data are sorted if measuring method is not GCA (GCA method has no biogas composition data). 
+ % Describe how "long" data is restructured to "longcombo" in this section
+ 
+ Subsequently, headspace is added if provided and composition data are corrected if they seems to be percentage. Again GCA method is excluded from composition correction, as no composition data are provided from this method.
+ 
+ Finally, potential mixed interval/cumulative data in the now "longcombo" structured is sorted followed by standardizing vBg. 
+
 
 }
 
