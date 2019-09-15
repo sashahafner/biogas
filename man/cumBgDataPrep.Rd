@@ -73,11 +73,11 @@ cumBgDataPrep(
   \item{data.struct}{
     the structure of input data. The default of 'longcombo' means separate objects for volume and composition (if available). The composition column is in the \code{dat} data frame, and the \code{comp} argument should be set as comp. 
     The \code{dat} data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}, volume data in a single column with the name specified by \code{dat.name}, and biogas composition in a single column with the name specified by \code{comp.name}
-    For the \code{data.struct = 'long'} option, two separate data frames are needed with separate objects for volume and composition (if available).
+    For the \code{data.struct = "long"} option, two separate data frames are needed with separate objects for volume and composition (if available).
     Each data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}.
     The \code{dat} data frame must have volume data in a single column with the name specified by \code{dat.name}.
     The \code{comp} data frame must have biogas composition in a single column with the name specified by \code{comp.name}.
-    For the \code{data.struct = 'wide'} option, two separate data frames are needed as in \code{'long'}, but there are no reactor identification code columns.
+    For the \code{data.struct = "wide"} option, two separate data frames are needed as in \code{"long"}, but there are no reactor identification code columns.
     Instead, in \code{dat}, volume data are in a separate column for each bottle, and column names are reactor identification codes.
     Here, \code{dat.name} should be the name of the first column with volume data.
     All following columns are assumed to also have volume data.
@@ -152,14 +152,20 @@ cumBgDataPrep(
  Data preparation is done in a xx-step process
  
  First "wide" and "longcombo" data are restructured to "long" structured data frames. If data are cumulative, rows with missing respons variables are removed.
-Data structure and similar proporsitions are defined in and passed from cumBg* functions.
+Data structure and similar proporsitions are defined in and passed from cumBg* functions. Though, the \code{dat.type} argument needs to be specified directly in the cumBgDataPrep() call. 
+"wide" date are restructured to "long" format by initially defining number of bottles and then defining their names from the column names. Then missing dat values are omitted and a fixed id name is created. Similar, approach is used to restructure the related \code{comp} data frame to "long" data structure.   
+"longcombo" data are restructured to "long" by dividing the data frame in two separate: \code{dat} and \code{comp}, where \code{comp} consists \code{id.name, time.name, comp.name} and \code{dat} consists of all original columns except from \code{comp.name}.
  
- Secondly, composition data in the now "long" structured data are sorted if measuring method is not GCA (GCA method has no biogas composition data). 
+ Secondly, composition data in the now "long" structured data frame are sorted unless measuring method is GCA (GCA method has no biogas composition data) and finally restructured to "longcombo" format, which is required for cumBg* to evaluate the data.  
  % Describe how "long" data is restructured to "longcombo" in this section
  
+ First step in final sorting is to ignore first observation for mass data followed by dropping NAs from \code{comp}. 
+ 
+ This is followed by interpolation of gas composition to match the times of volume measurements. If only one xCH4 value is provided in the data frame, use it for all observations if \code{extrap = TRUE} or times match. If times does not match, a warning will be returned. Similar, if the \code{comp} argument is set to a single methane value, this value is used for all observations. If no composition data is provided, NA is used.     
+
  Subsequently, headspace is added if provided and composition data are corrected if they seems to be percentage. Again GCA method is excluded from composition correction, as no composition data are provided from this method.
  
- Finally, potential mixed interval/cumulative data in the now "longcombo" structured is sorted followed by standardizing vBg. 
+ Finally, potential mixed interval/cumulative data in the now "longcombo" structured is sorted followed by standardizing vBg and summarizing final volumes to get cumulative volumes, then interval from them. 
 
 
 }
@@ -173,7 +179,7 @@ Data structure and similar proporsitions are defined in and passed from cumBg* f
   Richards, B.K., Cummings, R.J., White, T.E., Jewell, W.J. 1991. Methods for kinetic analysis of methane fermentation in high solids biomass digesters. \emph{Biomass and Bioenergy} 1: 65-73.
 }
 \author{
-  Sasha D. Hafner and Charlotte Rennuit
+  Sasha D. Hafner and Nanna Løjborg
 }
 
 \seealso{
@@ -187,27 +193,45 @@ Data structure and similar proporsitions are defined in and passed from cumBg* f
 }
 
 \examples{
-# Example longcombo volume data
+# Example longcombo volume data (volumetric method)
+data("s3lcombo")
+
+head(s3lcombo)
+
 longcombo <- cumBgDataPrep(s3lcombo, temp = 25, pres = 1,
                       data.struct = "longcombo",
                       id.name = "id", time.name = "time.d",
                       dat.name = "vol.ml", comp.name = "xCH4",
                       extrap = TRUE)
 
-# Use default values for data.struct, id.name, dat.name, and comp.name
+# Use default values for data.struct, id.name, and comp.name
 longcombo <- cumBgDataPrep(s3lcombo, temp = 25, pres = 1,
                       time.name = "time.d", dat.name = "vol.ml",
                       extrap = TRUE)
 head(longcombo)
 
+
 # Example long volume data
+data("s3lcombo")
+data("s3compl")
+
+head(s3lcombo)
+head(s3compl)
+
 long <- cumBgDataPrep(s3lcombo, comp = s3compl, temp = 25, pres = 1,
                       time.name = 'time.d', dat.name = "vol.ml",
                       data.struct = 'long',
                       extrap = TRUE)
 head(long)
 
+
 # Example wide volume data
+data("s3volw")
+data("s3compw")
+
+head(s3volw)
+head(s3compw)
+
 wide <- cumBgDataPrep(s3volw, comp = s3compw, temp = 25, pres = 1,
                       time.name = 'time.d',
                       data.struct = 'wide',
@@ -215,6 +239,33 @@ wide <- cumBgDataPrep(s3volw, comp = s3compw, temp = 25, pres = 1,
                       extrap = TRUE)
 head(wide)
 
+
+# Example long mass data (gravimetric method)
+data("strawMass")
+data("strawComp")
+
+head(strawMass)
+head(strawComp)
+
+# Need to specify data type with \code{dat.type} argument.
+grav.long <- cumBgDataPrep(strawMass, comp = strawComp, dat.type = "mass",
+                           temp = 31, pres = 1, data.struct = "long",
+                           id.name = "bottle",
+                           headspace = strawSetup, vol.hs.name = "headspace",
+                           extrap = TRUE)
+
+
+# Example longcombo pressure data (manometric method)
+data("sludgeTwoBiogas")
+data("sludgeTwoSetup")
+
+head(sludgeTwoBiogas)
+head(sludgeTwoSetup)
+
+pres.longcombo <- cumBgDataPrep(sludgeTwoBiogas, dat.type = "pres",
+                                temp = 30,
+                                time.name = "time.d", 
+                                headspace = sludgeTwoSetup) 
 
 }
 %% Add one or more standard keywords, see file "KEYWORDS" in the
