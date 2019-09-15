@@ -232,7 +232,7 @@ cumBgVol(
   Richards, B.K., Cummings, R.J., White, T.E., Jewell, W.J. 1991. Methods for kinetic analysis of methane fermentation in high solids biomass digesters. \emph{Biomass and Bioenergy} 1: 65-73.
 }
 \author{
-  Sasha D. Hafner and Charlotte Rennuit
+  Sasha D. Hafner and Nanna Løjborg
 }
 
 \seealso{
