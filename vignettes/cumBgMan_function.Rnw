@@ -81,13 +81,12 @@ This name must be the same in both \texttt{dat} and \texttt{comp} data frames. T
 
 The \texttt{comp.name} argument is used to indicate which column within the \texttt{comp} data frame contains the CH$_4$ content (as mole fraction in dry biogas, normalized so the sum of mole fractions of CH$_4$ and CO$_2$ sum to unity) (default = xCH4). \texttt{comp} may also just be a single value instead of a data frame or column. When providing a single value for \texttt{comp}, this value is extrapolated to all observations which pasifies the \texttt{comp.name} argument. 
 
-% temp.init, pres.init
-% pres.resid, rh.resid, rh.resid.init
+Initial headspace temperature and pressure are required to determine initial gas volume in the bottles and can be set using the \texttt{temp.init} and \texttt{pres.init}, respectively. Default values are \texttt{NULL}. Similarly, headspace pressure post venting is required for manometric calculation methods and can be set using the \texttt{pres.resid} argument. If only a single value is provided, this will be used for all observations. Initial and post venting pressure can be aboslute or gauge, depending on the \texttt{absolute} argument. By default, pressure is absolute (\texttt{absolute = TRUE}). When \texttt{absolute = FALSE} pressure measurements need to be corrected using the \texttt{pres.amb} argument, representing the absolut ambient pressure. \texttt{pres.amb} can only be set as a single value and default is atmospheric pressure.     
 
 Additionally, a data frame containing headspace volumes may be accessible. A such data frame is generally optinal, but required if \texttt{imethod = "total"} (see description below) and should contain at least a headspace volume column (\texttt{vol.hs.name}) and a reactor identification column, with the same column name as \texttt{dat} and \texttt{comp} data frames. The headspace volume column can be set using the \texttt{vol.hs.name} argument (default = "vol.hs").
 
-% absolute
-% pres.amb
+% rh.resid, rh.resid.init
+ 
 
 By default (\texttt{cmethod = "removed"}) the function calculates volumes following \cite{richards_methods_1991} as the product of standardized volume of biogas removed and normalized CH$_4$ content. If results should be based on the sum of methane removed and methane remaining in the reactor headspace, \texttt{cmethod} should be set to \texttt{"total"}. When \texttt{cmethod = "total"}, CH$_4$ concentration is calculated using all components (CH$_4$, CO$_2$, N$_2$, H$_2$S, etc.) instead of CH$_4$ and CO$_2$ only.
 
