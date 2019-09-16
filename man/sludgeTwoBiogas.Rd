@@ -28,7 +28,7 @@
   
   Mass and pressure were measured using manual gravimetric and manometric method, respectively.
   Methane and carbon dioxide contents were determined by gas chromatography using a thermal conductivity detector and normalised so methane and carbon dioxide sum to 1.0. % NTS: make sure this was the approach. I have just assumed, as this is normally used. 
-  Data in \code{sludgeTwoSetup} and \code{sludgeTwoBiogas} are from the same batch bottles.
+  Data in \code{sludgeTwoBiogas} and \code{sludgeTwoSetup} are from the same batch bottles.
 }
 \source{
   Sasha D. Hafner. Data were originally collected by Sergi Astals at the University of Queensland.
