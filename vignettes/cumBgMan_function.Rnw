@@ -77,16 +77,14 @@ By default \texttt{interval = TRUE} and \texttt{data.struct} is set as 'longcomb
 Similarly, there is an \texttt{id.name} argument for the reactor identification code (ID) column (default = "id"). The default value is \texttt{"id"}. For \texttt{data.struct = "wide"}, there is no ID columns. Instead data for each bottle, have individual columns and column names, which are used as ID codes. Here, the name of the column containing the response variables (\texttt{dat.name}), is set as the name of the first column with respons variables. All following columns are assumed to also have measurement data.
 
 Furthermore, we need to specify the name of the time column containing time data using the \texttt{time.name} argument (default = "time").
-This name must be the same in both \texttt{dat} and \texttt{comp} data frames. Time data may be POSIX objects, but then t0 will not be added to rows by the cumBg* functions. In addition the \texttt{addt0} argument is used to add row with "time zero" (\texttt{time.name = 0}) for each reactor in order to calculate production rates for the first observation (default = TRUE). Whereas, \texttt{showt0} determines if the "time zero" should be returned in the output (default = TRUE if time.name is numeric and contains 0 and otherwise FALSE).
+This name must be the same in both \texttt{dat} and \texttt{comp} data frames. Time data may be date/time (POSIX) objects, but then t0 will not be added to rows by the cumBg* functions. In addition the \texttt{addt0} argument is used to add row with "time zero" (\texttt{time.name = 0}) for each reactor in order to calculate production rates for the first observation (default = TRUE). Whereas, \texttt{showt0} determines if the "time zero" should be returned in the output (default = TRUE if time.name is numeric and contains 0 and otherwise FALSE).
 
 The \texttt{comp.name} argument is used to indicate which column within the \texttt{comp} data frame contains the CH$_4$ content (as mole fraction in dry biogas, normalized so the sum of mole fractions of CH$_4$ and CO$_2$ sum to unity) (default = xCH4). \texttt{comp} may also just be a single value instead of a data frame or column. When providing a single value for \texttt{comp}, this value is extrapolated to all observations which pasifies the \texttt{comp.name} argument. 
 
 Initial headspace temperature and pressure are required to determine initial gas volume in the bottles and can be set using the \texttt{temp.init} and \texttt{pres.init}, respectively. Default values are \texttt{NULL}. Similarly, headspace pressure post venting is required for manometric calculation methods and can be set using the \texttt{pres.resid} argument. If only a single value is provided, this will be used for all observations. Initial and post venting pressure can be aboslute or gauge, depending on the \texttt{absolute} argument. By default, pressure is absolute (\texttt{absolute = TRUE}). When \texttt{absolute = FALSE} pressure measurements need to be corrected using the \texttt{pres.amb} argument, representing the absolut ambient pressure. \texttt{pres.amb} can only be set as a single value and default is atmospheric pressure.     
 
 Additionally, a data frame containing headspace volumes may be accessible. A such data frame is generally optinal, but required if \texttt{imethod = "total"} (see description below) and should contain at least a headspace volume column (\texttt{vol.hs.name}) and a reactor identification column, with the same column name as \texttt{dat} and \texttt{comp} data frames. The headspace volume column can be set using the \texttt{vol.hs.name} argument (default = "vol.hs").
-
-% rh.resid, rh.resid.init
- 
+Initial relative huimdity of gas in the headspace is set to 1 by default using the \texttt{rh.resid.init} argument. If values for relative humidity of gas in the headspace after experiment was initiated have been provided, it can be defined by using the \texttt{rh.resid} argument. 
 
 By default (\texttt{cmethod = "removed"}) the function calculates volumes following \cite{richards_methods_1991} as the product of standardized volume of biogas removed and normalized CH$_4$ content. If results should be based on the sum of methane removed and methane remaining in the reactor headspace, \texttt{cmethod} should be set to \texttt{"total"}. When \texttt{cmethod = "total"}, CH$_4$ concentration is calculated using all components (CH$_4$, CO$_2$, N$_2$, H$_2$S, etc.) instead of CH$_4$ and CO$_2$ only.
 
@@ -141,23 +139,28 @@ summary(sludgeTwoSetup)
 Calculating cumulative biogas and CH$_4$ production and production rates, is the first step in processing data from a BMP trial. Subsequently, BMP can be calculated by the high-level function summBg() included in the biogas package.
 Cumulative biogas and CH$_4$ production and production rates from manometric data with \texttt{sludgeTwoBiogas} and \texttt{sludgeTwoSetup} data frames as input, can be calculated from \texttt{cumBgMan()}.
 
-The arguments for the function are:
 % Describe arguments required for this dataset.
+To calculate CH$_4$ production from these "longcombo" data, we must provide values for at least \texttt{dat} and \texttt{comp}, which is in a combined data frame (we will use \texttt{sludgeTwoBiogas}), \texttt{temp} (biogas temperature), and \texttt{pres} (biogas pressure) along with the names of a few columns in our input data frame.
 
+We can use the default values \texttt{"longcombo"}, \texttt{"id"}, and \texttt{"pres"} for the \texttt{data.struct}, \texttt{id.name}, and \texttt{dat.name} arguments, respectively. Whereas, the \texttt{time.name} and \texttt{comp.name} arguments need to be specified as \texttt{"time.d"} and \texttt{"xCH4n"}, respectively.
+Similar, default values can be used for \texttt{cmethod = "removed"}, evaluating CH$_4$ concentration based on normalized CH$_4$ and CO$_2$ values, for \texttt{imethod = "linear"}, resulting in internal linear interpolation of xCH4n by calling the \texttt{interp} function, and for \texttt{extrap = FALSE}. 
+% Rephrase line above
+Initial headspace temperature and pressure and post venting headspace pressure are set as constant values using the \texttt{temp.init}, \texttt{pres.init}, and \texttt{pres.resid} arguments, respectively. Initial and post venting headspace pressure can be absolute or gauge depending on the value of the \texttt{absolute} argument. We will set \texttt{absolute = FALSE} to account for pressure measurements provided in gauge. In order to calculate absolute pressure from gauge pressure measurements when \texttt{absolute = FALSE}, a single absolute ambient pressure value is required. Here we will set \texttt{pres.amp} to atmospheric pressure. Note the unit of the pressure data in \texttt{strawPressure}. Default unit is atm, but this can be changed using the \texttt{unit.pres} argument. In this example we will set the \texttt{unit.pres = "mbar"} to match unit of \texttt{dat.name} and \texttt{pres.resid} column. Absolute ambient pressure should be provided in the same unit as defined in the \texttt{unit.pres} argument. 
+
+Finally, headspace volumes are provided from \texttt{sludgeTwoSetup}. The data frame containing headspace volumes is defined using the \texttt{headspace} argument, whereas the default value \texttt{"vol.hs"} can be used for the column containing headspace volume data.
 
 <<>>=
 cum.prod.lc <- cumBgMan(sludgeTwoBiogas, temp = 30,
                           time.name = "time.d", comp.name = "xCH4n",
-                          temp.init = 30, pres.resid = 0, pres.init = 0.0,
+                          temp.init = 30, pres.init = 0.0, pres.resid = 0,
                           headspace = sludgeTwoSetup,
                           pres.amb = 1013, absolute = FALSE,
-                          extrap = TRUE, 
                           unit.pres = "mbar")
 @
 
 Note the message about standard temperature and pressure--it is important to make sure these values are correct, therefore users are reminded by a message\footnote{
   Remember that standard conditions can be set in the function call with \texttt{temp.std} and \texttt{pres.std}, or globally with \texttt{options()}. 
-}.
+}. Also, note warning about pressure unit. This warning is to make sure all pressure measurements are gauge, as absolute is set to FALSE, meaning pressure data are corrected to absolute pressure by the cumBgMan function. 
 
 The output looks like this:
 
@@ -244,13 +247,13 @@ To calculate CH$_4$ production from these "long" structured data, we must provid
 For \texttt{data.struct != "longcombo"} the data structure needs to be specified. Here we set \texttt{data.struct = "long"} which is internally passed to \texttt{cumBgDataPrep()} and restructured to \texttt{"longcombo"} structure prior to entering manometric calculation methods.
 Furthermore, we need to specify the name of the id column in \texttt{strawPressure} as \texttt{bottle} using the \texttt{id.name} argument.
 
-We can use the default values \texttt{"time"}, \texttt{"pres"}, and \texttt{"xCH4"} for the \texttt{time.name}, \texttt{dat.name} and \texttt{comp.name} arguments, respectively.
+We can use the default values \texttt{"time"}, \texttt{"pres"}, and \texttt{"xCH4"} for the \texttt{time.name}, \texttt{dat.name} and \texttt{comp.name} arguments, respectively. The id and time columns creates a link between the two data frames. If observations are not from the same time this is solved by the external \texttt{interp} function by interpolation. 
 Similar, default values can be used for \texttt{cmethod = "removed"}, evaluating CH$_4$ concentration based on normalized CH$_4$ and CO$_2$ values and for \texttt{imethod = "linear"}, resulting in internal linear interpolation of xCH4 by calling the \texttt{interp} function.
 Additionally, the response variables are interval data only and hence, we can use the default \texttt{interval = TRUE}.
 
 In addition to interpolation for later observations, an extrapolation argument (\texttt{extrap}) can be provided if required. We do not have initial biogas composition (compare the heads of the \texttt{strawPressure} and \texttt{strawComp} data frames) so we will need to extrapolate, in addition to interpolation. Therefore, we need to set \texttt{extrap = TRUE}.
 
-Initial headspace temperature and pressure are set as constant values using the \texttt{temp.init} and \texttt{pres.init} arguments, respectively. Whereas, headspace pressure after venting is provided from the \texttt{strawPressure} data frame and can be defined by assigning the column name to the \texttt{pres.resid} argument. Initial and post venting headspace pressure can be absolute or gauge depending on the value of the \texttt{absolute} argument. We will set \texttt{absolute = FALSE} to account for pressure measurements provided in gauge. In order to calculate absolute pressure from gauge pressure measurements when \texttt{absolute = FALSE}, a single absolute ambient pressure value is required. Here we will set \texttt{pres.amp} to atmospheric pressure. Note the unit of the pressure data in \texttt{strawPressure}. Default unit is atm, but this can be changed using the \texttt{unit.pres} argument. In this example we will set the \texttt{unit.pres = "kpa"} to match unit of \texttt{dat.name} and \texttt{pres.resid} column. 
+Initial headspace temperature and pressure are set as constant values using the \texttt{temp.init} and \texttt{pres.init} arguments, respectively. Whereas, headspace pressure after venting is provided from the \texttt{strawPressure} data frame and can be defined by assigning the column name to the \texttt{pres.resid} argument. Similar to the "longcombo" data example, we will set \texttt{absolute = FALSE} to account for pressure measurements provided in gauge. In order to calculate absolute pressure from gauge pressure measurements when \texttt{absolute = FALSE}, a single absolute ambient pressure value is required. To correct gauge pressure data to absolute pressure, we will set \texttt{pres.amp} to atmospheric pressure. Again, note the unit of the pressure data in \texttt{strawPressure}. Default unit is atm, but this can be changed using the \texttt{unit.pres} argument. In this example we will set the \texttt{unit.pres = "kpa"} to match unit of \texttt{dat.name} and \texttt{pres.resid} column. 
 
 Finally, headspace volumes are provided from \texttt{strawSetup}. The data frame containing these volumes is defined using the \texttt{headspace} argument, whereas the column is set as \texttt{vol.hs.name = "headspace"}.
 
