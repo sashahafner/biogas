@@ -5,7 +5,7 @@
   Biogas Volume from Batch Reactors
 }
 \description{
-  Cumulative measurements of biogas volume from 12 batch bottles, organized in a \dQuote{wide} format.
+  Cumulative standardized measurements of biogas volume from 12 batch bottles, organized in a \dQuote{wide} format.
 }
 \usage{data("feedVol")}
 \format{
@@ -28,10 +28,10 @@
 }
 \details{
   These data are meant to be example data for \code{\link{cumBgVol}}.
-  Substrate was animal feed ingredients.
+Substrate was animal feed ingredients.
   
-  % Volume was measured using xxx.
-  Data in \code{feedSetup} and \code{feedVol} are from the same bottles.
+  Biogas productions was measured using the online volumtric AMPTS II method.
+Data in \code{feedSetup} and \code{feedVol} are from the same bottles.
 }
 \source{
   Sasha D. Hafner. Data were originally collected by Soeren Weinrich and others at DBFZ in Leipzig Germany.
