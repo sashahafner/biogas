@@ -212,7 +212,7 @@ Pressure was measured using an electronic manometer.
 Data in \code{strawMass}, \code{strawSetup}, and \code{strawComp} are from the same reactors.
 
 <<>>=  
-data("strawPressure")
+#data("strawPressure")
 
 dim(strawPressure)
 
@@ -222,7 +222,7 @@ summary(strawPressure)
 @
 
 <<>>=
-data("strawComp")
+#data("strawComp")
 
 dim(strawComp)
 
@@ -232,7 +232,7 @@ summary(strawComp)
 @
 
 <<>>=
-data("strawSetup")
+#data("strawSetup")
 
 dim(strawSetup)
 
@@ -261,8 +261,6 @@ Finally, headspace volumes are provided from \texttt{strawSetup}. The data frame
 
 
 <<>>=
-# strawPressure$pres.resid <- strawPressure$pres.resid - 101.3
-
 cum.prod.l <- cumBgMan(strawPressure, comp = strawComp, temp = 31,
                      data.struct = "long",
                      id.name = "bottle",
@@ -277,7 +275,8 @@ head(cum.prod.l)
 
 Note the message about standard temperature and pressure--it is important to make sure these values are correct, therefore users are reminded by a message\footnote{
   Remember that standard conditions can be set in the function call with \texttt{temp.std} and \texttt{pres.std}, or globally with \texttt{options()}. 
-}. Also, note warning concerning pressure ranges. The pressure range 101.3 to 203.4 kPa is reasonable and warning can be ignored. We are aware of this issue and it will be addressed (refer to Section~\ref{continuing}). 
+}. 
+Also, note warning concerning pressure ranges. The pressure range 101.3 to 203.4 kPa is reasonable and warning can be ignored. We are aware of this issue and it will be addressed (refer to Section~\ref{continuing}). 
 
 
 The output looks like this:
@@ -294,8 +293,6 @@ The data frame that is returned has been restructured to "longcombo" structure a
 As with the "longcombo" data example, the results may be easier to understand graphically using the \texttt{ggplot} function from the \texttt{ggplot2} package.
 
 <<fig.width=6, fig.height=4, fig.align="center">>=
-library(ggplot2)
-
 ggplot.long <- ggplot(cum.prod.l, aes(time, cvCH4, colour = factor(bottle))) + 
   geom_point() +
   geom_line(aes(group = bottle)) +
@@ -312,9 +309,9 @@ For examples using "wide" structured input data frame refer to \code{\link{cumBg
 
 \section{Continuing with the cumBgMan function}
 \label{continuing}
-The cumBgMan function is one of several cumBg* within the biogas package. The results from the cumBg* functions can be used directly in the summBg function from the biogas package to calculate BMP for the data in question. Though, this operation often requires additional setup information (e.g. inoculum and substrate mass), which is most commonly provided in an external data frame (\code{setup}). 
-% Discuss issue with warning regarding pressure range ("long" data example)
- 
+The cumBgMan function is one of several cumBg* within the biogas package. The results from the cumBg* functions can be used directly in the summBg function from the biogas package to calculate BMP for the data in question. Though, this operation often requires additional setup information (e.g. inoculum and substrate mass), which is most commonly provided in an external data frame (\code{setup}). More details can be found in the associated help file 
+
+In the current version of cumBgMan(), an issue is commonly observed with the warning regarding pressure range during cumulative biogas calculations. The warning is sometimes returned with the results even though range is reasonable. This has been raised as an issue and will be addressed in a future scope.   
  
  
 \bibliographystyle{plain}  
