@@ -16,22 +16,23 @@
     \item{\code{pres}}{bottle headspace pressure at \code{time} in mbar (gauge), a numeric vector}
     \item{\code{mass.init}}{total reactor mass at the start of its incubation in g, a numeric vector.}
     \item{\code{mass.final}}{total reactor mass at the end of its incubation in g, a numeric vector.}
-    \item{\code{xCH4}}{biogas methane content as a mole fraction, excluding water and all other gases other than carbon dioxide, a numeric vector}
-    \item{\code{xCO2}}{biogas carbon dioxide content as a mole fraction, excluding water and all other gases other than methane, a numeric vector}
-    \item{\code{xCH4n}}{biogas methane content as a mole fraction in dry biogas, normalized so the sum of mole fractions of CH$_4$ and CO$_2$ sum to unity, a numeric vector.}
+    \item{\code{xCH4}}{biogas methane content as a mole fraction, excluding water, a numeric vector}
+    \item{\code{xCO2}}{biogas carbon dioxide content as a mole fraction, excluding water, a numeric vector}
+    \item{\code{xCH4n}}{biogas methane content as a mole fraction in dry biogas, normalized so the sum of mole fractions of CH$_4$ and CO$_2$ is unity, a numeric vector.}
 
   }
 }
 \details{
-  These data are meant to be example data for \code{\link{cumBg} and \code{\link{cumBgMan}} for respectively, gravimetric and manometric determination of biogas production.
+  These data are meant to be example data for \code{\link{cumBg}} and \code{\link{cumBgMan}} for respectively, gravimetric and manometric determination of biogas production.
   Substrate was primary wastewater sludge.
   
-  Mass and pressure were measured using manual gravimetric and manometric method, respectively.
+  Mass and pressure were measured using manual gravimetric and manometric methods, respectively.
   Methane and carbon dioxide contents were determined by gas chromatography using a thermal conductivity detector and normalised so methane and carbon dioxide sum to 1.0. % NTS: make sure this was the approach. I have just assumed, as this is normally used. 
   Data in \code{sludgeTwoBiogas} and \code{sludgeTwoSetup} are from the same batch bottles.
 }
 \source{
-  Sasha D. Hafner. Data were originally collected by Sergi Astals at the University of Queensland.
+  Data were originally collected by Sergi Astals at the University of Queensland and are described in the following paper.
+  Hafner, S.D., Astals, S. 2019.Systematic error in manometric measurement of biochemical methane potential: Sources and solutions. \emph{Waste Management} \bold{91}, 147-155.
 }
 \examples{
 data(sludgeTwoBiogas)

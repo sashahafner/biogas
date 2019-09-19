@@ -34,7 +34,7 @@ Substrate was animal feed ingredients.
 Data in \code{feedSetup} and \code{feedVol} are from the same bottles.
 }
 \source{
-  Sasha D. Hafner. Data were originally collected by Soeren Weinrich and others at DBFZ in Leipzig Germany.
+  Data were originally collected by Soeren Weinrich and others at DBFZ in Leipzig Germany.
 }
 \examples{
 data(feedVol)

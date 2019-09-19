@@ -24,7 +24,7 @@
   Data in \code{feedVol} and \code{feedSetup} are from the same bottles.
 }
 \source{
-  Sasha D. Hafner. Data were originally collected by Soeren Weinrich and others at DBFZ in Leipzig Germany.
+  Data were originally collected by Soeren Weinrich and others at DBFZ in Leipzig Germany.
 }
 \examples{
 data(feedSetup)
