@@ -236,6 +236,7 @@ cumBg(
 
   If \code{check = TRUE}, the input values of mole fraction of methane in biogas are checked, and a warning is returned if the are outside 0, 1.
 
+  See associated vignette (\code{cumBgMan_function.Rnw}) for more information.
   
 }
 
