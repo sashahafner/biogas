@@ -27,11 +27,16 @@
   }
 }
 \details{
-  These data are meant to be example data for \code{\link{cumBgVol}}.
-Substrate was animal feed ingredients.
+  These data are meant to be example data for \code{\link{summBg}}.
+  Inoculum was digestate from a stable laboratory reactor (400 L) operated at mesophilic temperatures (38 ± 2 °C) and a retention time of ca. 98 days
+  Substrates were cellulose, wheat straw (WS), and animal feed ingredients (FI).
+  Additinally, 1 mL each of a vitamin mixture and trace element solution was added to each BMP bottle.
+
+  BMP tests were operated with a total volume of ca. 400 mL at 38 ± 1 °C. 
   
   Biogas productions was measured using the online volumtric AMPTS II method.
-Data in \code{feedSetup} and \code{feedVol} are from the same bottles.
+
+  Data in \code{feedSetup} and \code{feedVol} are from the same bottles.
 }
 \source{
   Data were originally collected by Soeren Weinrich and others at DBFZ in Leipzig Germany.
