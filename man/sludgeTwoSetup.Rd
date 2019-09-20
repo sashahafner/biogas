@@ -25,7 +25,8 @@
   Data in \code{sludgeTwoBiogas} and \code{sludgeTwoSetup} are from the same batch bottles.
 }
 \source{
-  Sasha D. Hafner. Data were originally collected by Sergi Astals at the University of Queensland.
+  Data were originally collected by Sergi Astals at the University of Queensland and are described in the following paper.
+  Hafner, S.D., Astals, S. 2019.Systematic error in manometric measurement of biochemical methane potential: Sources and solutions. \emph{Waste Management} \bold{91}, 147-155.
 }
 \examples{
 data(sludgeTwoSetup)
