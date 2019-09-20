@@ -25,7 +25,7 @@ for(j in files) load(j)
 @
 
 \title{Calculating methane and biogas production and production rates using volumetric methods}
-\author{Nanna Løjborg and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
+\author{Nanna L/o jborg and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
 
 \begin{document}
 \SweaveOpts{concordance=TRUE}
@@ -44,7 +44,6 @@ This document provides a brief description of the volumetric biogas calculation 
 We have assumed that readers are familiar with biogas data collection and R.
 
 \section{Overview of the function}
-% Use \texttt{cumBg()} throughout. (Also for other function names)
 \texttt{cumBgVol()} is a ''high-level'' function within the biogas package. The purpose of \texttt{cumBgVol()} is to convert volume data collected in the laboratory to cumulative biogas and CH$_4$ production and to calculate production rates. The function can handle data from any number of bottles and accepts different data structures such as "wide", "long", and "longcombo". For simple operations (e.g. interpolation and standardization of biogas volume) \texttt{cumBgVol()} is supported by calls to external low-level functions (refer to Section~\ref{function_internals}, Table \ref{tab:externalfunctionsummary}). The low-level functions are straight-forward to use, and details can be found in their individual help files.
 This document describes the use of \texttt{cumBgVol()}. 
 

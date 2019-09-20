@@ -25,7 +25,7 @@ for(j in files) load(j)
 @
 
 \title{Calculating methane and biogas production and production rates using manometric methods}
-\author{Nanna Løjborg and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
+\author{Nanna L/o jborg and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
 
 \begin{document}
 \SweaveOpts{concordance=TRUE}
