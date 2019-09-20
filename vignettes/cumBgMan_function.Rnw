@@ -25,7 +25,7 @@ for(j in files) load(j)
 @
 
 \title{Calculating methane and biogas production and production rates using manometric methods}
-\author{Nanna L/o jborg and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
+\author{Nanna L\o jborg and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
 
 \begin{document}
 \SweaveOpts{concordance=TRUE}
@@ -35,7 +35,7 @@ for(j in files) load(j)
 \section{Introduction}
 Biochemical methane potential (BMP) has become an important number in the biogas industry, as it can reveal essential knowledge of several factors of concern when producing biogas, such as substrate and inoculum behavior, or more process related variables (temp., pres., stirring, etc.). It is commonly used to determine the methane potential and anaerobic biodegradability of a given substrate. 
 
-BMP is most commonly evaluated by monitoring the production of biogas. This can be done in several ways including volumetric, manometric, gravimetric and gas density methods. In manometric methods bottle headspace pressure is measured under constant temperature conditions from different techniques such as using pressure manometers or transducers, manometer assisted syringes, or low flow pressure \cite{filer_BMP_2019}. The measured pressure is equivalent to a certain volume fraction and is converted to biogas and methane (if composition is provided) volume data using manometric calculation methods. 
+BMP is most commonly evaluated by monitoring the production of biogas. This can be done from several approaches including volumetric, manometric, gravimetric and gas density methods. In manometric methods bottle headspace pressure is measured under constant temperature conditions from different techniques such as using pressure manometers or transducers, manometer assisted syringes, or low flow pressure \cite{filer_BMP_2019}. The measured pressure is equivalent to a certain volume fraction and is converted to biogas and methane (if composition is provided) volume data using manometric calculation methods. 
 Pressure manometers requires a pressure to build up inside the headspace of the bottles. Headspace pressure is typically measured with a portable manometer, which evaluates the pressure relative to atmospheric pressure. 
 
 We developed a function to process manometric measurements only, to simplify functions within the biogas package, making it easier for new biogas package users to work with their data. 
@@ -221,8 +221,8 @@ The experiment included 12 batch bottles on the following six variables:
 
 Bottles were ca. 600 mL glass serum bottles with butyl rubber septa and screw caps. 
 Pressure was measured using an electronic manometer.
-Data in \code{strawMass}, \code{strawSetup}, and \code{strawComp} are from the same bottles. 
-More details can be found in the help file for these data (refer to \code{\link{strawPressure}}, \code{\link{strawComp}}, and \code{\link{strawSetup}}).
+Data in \texttt{strawMass}, \texttt{strawSetup}, and \texttt{strawComp} are from the same bottles. 
+More details can be found in the help file for these data.
 
 <<>>=  
 #data("strawPressure")
@@ -315,7 +315,7 @@ ggplot(cum.prod.l, aes(time, cvCH4, colour = factor(bottle))) +
 
 \newpage
 \subsection{"wide" data structure}
-For examples using "wide" structured input data frame refer to \code{\link{cumBgVol}}
+For examples using "wide" structured input data frame, refer to vignette for volumetric cumBg function (\texttt{cumBgVol_function.Rnw}). 
 
 \subsection{Other arguments}
 % Maybe it would be good to demonstrate some more of the flexibility. One thing I don't think is shown above is how
