@@ -37,6 +37,7 @@ Biochemical methane potential (BMP) has become an important number in the biogas
 
 BMP is most commonly evaluated by monitoring the production of biogas. This can be done from several approaches including volumetric, manometric, gravimetric and gas density methods. In manometric methods bottle headspace pressure is measured under constant temperature conditions from different techniques such as using pressure manometers or transducers, manometer assisted syringes, or low flow pressure \cite{filer_BMP_2019}. The measured pressure is equivalent to a certain volume fraction and is converted to biogas and methane (if composition is provided) volume data using manometric calculation methods. 
 Pressure manometers requires a pressure to build up inside the headspace of the bottles. Headspace pressure is typically measured with a portable manometer, which evaluates the pressure relative to atmospheric pressure. 
+Determination of CH4 volume from volumetric measurements required some data processing. For the purpose of this, an additional function (\texttt{cumBgDataPrep()}) was created just to handle data preparation (refer to cumBgDataPrep.R). \texttt{cumBgDataPrep()} sorts and restructures biogas data from volumetric, manometric, gravimetric, and gas density measurements for further calculation of cumulative biogas and methane production, and production rates.
 
 We developed a function to process manometric measurements only, to simplify functions within the biogas package, making it easier for new biogas package users to work with their data. 
 This document provides a brief description of the manometric biogas calculation function (\texttt{cumBgMan()}) for new users.
@@ -55,10 +56,6 @@ All external functions are within the biogas package
 \subsection{Function arguments}
 The arguments for the cumBgMan function are:
 
-% Next line won't wrap correctly. Width doesn't affect args(). Done manually below by copying and editing output in .tex file.
-<<cumBgVolargs>>=
-# args(cumBgMan)
-@
 \begin{verbatim}
 ## function (dat, comp = NULL, temp = NULL, 
 ##           interval = TRUE, data.struct = "longcombo", 
@@ -83,7 +80,7 @@ The arguments for the cumBgMan function are:
 Most of the arguments have default values, but to calculate CH$_4$ production we must provide values for at least  \texttt{dat} (data frame with pressure measurements), \texttt{comp} (data frame with gas composition), and \texttt{temp} (biogas temperature)\footnote{.      
   By default, temperature is in $^\circ$C and pressure in atm, but these can be changed in the function call with the \texttt{temp.unit} and \texttt{pres.unit} arguments, or globally with \texttt{options}. The same default values apply for temperature and pressure for presentation of biogas and methane, but these can be changed in the function call with the \texttt{temp.std} and \textttt{pres.std} arguments.}. along with the names of a few columns in the input data frames. If \texttt{temp} argument is not provided, biogas volumes will not be standardized. Similar, if \texttt{comp} argument is not provided, \texttt{cumBgMan()} will return calculations on biogas only and no calculations on CH$_4$.
   
-By default \texttt{interval = TRUE} and \texttt{data.struct} is set as "longcombo". "wide" and "long" structured data will be restructured to "longcombo" internally by \texttt{cumBgDataPrep()}, when specified by the \texttt{data.struct} argument. When data are cumulative, the interval argument should be set to FALSE (refer to Section~\ref{data_structures}). 
+By default \texttt{interval = TRUE} and \texttt{data.struct} is set as "longcombo". "wide" and "long" structured data will be restructured to "longcombo" internally by \texttt{cumBgDataPrep()}, when specified by the \texttt{data.struct} argument. When data are cumulative, the interval argument should be set to FALSE (refer to Section~\ref{structures}). 
 
 Similarly, there is an \texttt{id.name} argument for the bottle identification code (ID) column (default = "id"). For \texttt{data.struct = "wide"}, there is no ID column. Instead data for each bottle, have individual columns and column names, which are used as ID codes. Here, the name of the column containing the response variables (\texttt{dat.name}), is set as the name of the first column with response variables. All following columns are assumed to also have measurement data.
 
@@ -103,9 +100,8 @@ Additionally, a data frame containing headspace volumes is required if \texttt{c
 Initial relative humidity of gas in the headspace is set to 1 by default using the \texttt{rh.resid.init} argument. If values are provided for relative humidity of gas in the headspace after experiment was initiated, these can be defined by using the \texttt{rh.resid} argument. 
 
 \subsection{Data Structures}
-\label{data_structures}
-Input data may be structured in one of three ways: "long", "wide", or "longcombo". Default is "longcombo", where the composition column is in the \texttt{dat} data frame and no composition data frame is required. All three data structure inputs are accepted, but the manometric calculation methods within \texttt{cumBgMan()} only process "longcombo" data. "wide" and "long" data are restructured internally by the low-level function \texttt{cumBgDataPrep()}. In the following examples all three data structures will be addressed.
-% Might add more details about each structure or refer to biogas_quick_start vignette.
+\label{structures}
+Input data may be structured in one of three ways: "long", "wide", or "longcombo". Default is "longcombo", where the composition column is in the \texttt{dat} data frame and no composition data frame is required. All three data structure inputs are accepted, but the manometric calculation methods within \texttt{cumBgMan()} only process "longcombo" data. "wide" and "long" data are restructured internally by the low-level function \texttt{cumBgDataPrep()}. In the following examples all three data structures will be addressed. For more details about each of the three data structure see \texttt{biogas\_quick\_start} vignette.
 
 \newpage
 \section{Examples:calculation of cumulative production of biogas and CH$_4$ and production rates from manometric methods}
@@ -314,16 +310,8 @@ ggplot(cum.prod.l, aes(time, cvCH4, colour = factor(bottle))) +
 @
 
 \newpage
-\subsection{"wide" data structure}
-For examples using "wide" structured input data frame, refer to vignette for volumetric cumBg function (\texttt{cumBgVol_function.Rnw}). 
-
-\subsection{Other arguments}
-% Maybe it would be good to demonstrate some more of the flexibility. One thing I don't think is shown above is how
-% temp and pres can be taken from columns within dat. You would have to make up data for this, but it would be good to 
-% show. Maybe you could add a new section with these details, and include demonstration of other arguments, like
-% addt0, showt0, check. . .
-% And also show how unit.temp and unit.pres can be set (maybe you could add a column of pressure data from rnorm()
-% in mbar or something other than atm.
+\subsection{Additional examples}
+For examples using "wide" structured input data frame and varying settings of other arguments (e.g. \texttt{addt0} and \texttt{showt0}), refer to vignette for volumetric cumBg function (\texttt{cumBgVol\_function.Rnw}). 
 
 \section{Continuing with the cumBgMan function}
 \label{continuing}
