@@ -33,9 +33,7 @@ for(j in files) load(j)
 \maketitle
 
 \section{Introduction}
-Biochemical methane potential (BMP) has become an important number in the biogas industry, as it can reveal essential knowledge of several factors of concern when producing biogas, such as substrate and inoculum behavior, or more process related variables (temp., pres., stirring, etc.). It is commonly used to determine the methane potential and anaerobic biodegradability of a given substrate. 
-
-BMP is most commonly evaluated by monitoring the production of biogas. This can be done from several approaches including volumetric, manometric, gravimetric and gas density methods. In manometric methods bottle headspace pressure is measured under constant temperature conditions from different techniques such as using pressure manometers or transducers, manometer assisted syringes, or low flow pressure \cite{filer_BMP_2019}. The measured pressure is equivalent to a certain volume fraction and is converted to biogas and methane (if composition is provided) volume data using manometric calculation methods. 
+Manometric biogas calculation methods are commonly used for calculation of cumulative biogas and methane production and production rates prior to determining methane potential and anaerobic biodegradability of a given substrate.. In manometric methods bottle headspace pressure is measured under constant temperature conditions from different techniques such as using pressure manometers or transducers, manometer assisted syringes, or low flow pressure \cite{filer_BMP_2019}. The measured pressure is equivalent to a certain volume fraction and is converted to biogas and methane (if composition is provided) volume data using manometric calculation methods. 
 Pressure manometers requires a pressure to build up inside the headspace of the bottles. Headspace pressure is typically measured with a portable manometer, which evaluates the pressure relative to atmospheric pressure. 
 Determination of CH4 volume from volumetric measurements required some data processing. For the purpose of this, an additional function (\texttt{cumBgDataPrep()}) was created just to handle data preparation (refer to cumBgDataPrep.R). \texttt{cumBgDataPrep()} sorts and restructures biogas data from volumetric, manometric, gravimetric, and gas density measurements for further calculation of cumulative biogas and methane production, and production rates.
 
@@ -104,7 +102,7 @@ Initial relative humidity of gas in the headspace is set to 1 by default using t
 Input data may be structured in one of three ways: "long", "wide", or "longcombo". Default is "longcombo", where the composition column is in the \texttt{dat} data frame and no composition data frame is required. All three data structure inputs are accepted, but the manometric calculation methods within \texttt{cumBgMan()} only process "longcombo" data. "wide" and "long" data are restructured internally by the low-level function \texttt{cumBgDataPrep()}. In the following examples all three data structures will be addressed. For more details about each of the three data structure see \texttt{biogas\_quick\_start} vignette.
 
 \newpage
-\section{Examples:calculation of cumulative production of biogas and CH$_4$ and production rates from manometric methods}
+\section{Examples: Calculation of cumulative production of biogas and CH$_4$ and production rates from manometric methods}
 Calculation of cumulative biogas and CH$_4$ production and production rates, typically requires two data frames: Biogas volume measurements and biogas composition (CH$_4$ fraction)
 
 \subsection{"longcombo" data structure}
