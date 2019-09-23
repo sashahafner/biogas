@@ -33,20 +33,19 @@ for(j in files) load(j)
 \maketitle
 
 \section{Introduction}
-Manometric biogas calculation methods are commonly used for calculation of cumulative biogas and methane production and production rates prior to determining methane potential and anaerobic biodegradability of a given substrate.. In manometric methods bottle headspace pressure is measured under constant temperature conditions from different techniques such as using pressure manometers or transducers, manometer assisted syringes, or low flow pressure \cite{filer_BMP_2019}. The measured pressure is equivalent to a certain volume fraction and is converted to biogas and methane (if composition is provided) volume data using manometric calculation methods. 
+Manometric biogas calculation methods are commonly used for calculation of cumulative biogas and methane production and production rates prior to determining methane potential and anaerobic biodegradability of a given substrate. In manometric methods, bottle headspace pressure is measured under constant temperature conditions from different techniques such as using pressure manometers or transducers, manometer assisted syringes, or low flow pressure \cite{filer_BMP_2019}. The measured pressure is equivalent to a certain volume fraction and is converted to biogas and methane (if composition is provided) volume data using manometric calculation methods. 
 Pressure manometers requires a pressure to build up inside the headspace of the bottles. Headspace pressure is typically measured with a portable manometer, which evaluates the pressure relative to atmospheric pressure. 
-Determination of CH4 volume from volumetric measurements required some data processing. For the purpose of this, an additional function (\texttt{cumBgDataPrep()}) was created just to handle data preparation (refer to cumBgDataPrep.R). \texttt{cumBgDataPrep()} sorts and restructures biogas data from volumetric, manometric, gravimetric, and gas density measurements for further calculation of cumulative biogas and methane production, and production rates.
+Determination of CH$4$ volume from volumetric measurements requires some data processing. For the purpose of this, an additional function (\texttt{cumBgDataPrep()}) was created to handle all data preparation (refer to cumBgDataPrep.R). \texttt{cumBgDataPrep()} sorts and restructures biogas data from volumetric, manometric, gravimetric, and gas density measurements for further calculation of cumulative biogas and methane production, and production rates.
 
 We developed a function to process manometric measurements only, to simplify functions within the biogas package, making it easier for new biogas package users to work with their data. 
 This document provides a brief description of the manometric biogas calculation function (\texttt{cumBgMan()}) for new users.
 We have assumed that readers are familiar with biogas data collection and R.
 
 \section{Overview of the function}
-\texttt{cumBgMan()} is a "high-level" function within the biogas package. The purpose of \texttt{cumBgMan()} is to convert pressure data collected in the laboratory to cumulative biogas and CH$_4$ production and to calculate production rates. The function can handle data from any number of bottles. For simple operations (e.g. interpolation and standardization of biogas volume) \texttt{cumBgMan()} is supported by calls to external "low-level" functions (refer to Section~\ref{function_internals}, Table \ref{tab:externalfunctionsummary}). The "low-level" functions are straight-forward to use, and details can be found in their individual help files.
+\texttt{cumBgMan()} is a "high-level" function within the biogas package. The purpose of \texttt{cumBgMan()} is to convert pressure data collected in the laboratory to cumulative biogas and CH$_4$ production and to calculate production rates. The function can handle data from any number of bottles and accepts three different data structures: "longcombe", "long", and "wide". For simple operations (e.g. interpolation and standardization of biogas volume) \texttt{cumBgMan()} is supported by calls to external "low-level" functions (refer to Section~\ref{function_internals}, Table \ref{tab:externalfunctionsummary}). The "low-level" functions are straight-forward to use, and details can be found in their individual help files.
 This document describes the use of \texttt{cumBgMan()}. 
 
-
-In general, cumBg* functions are compiled of four sections: check arguments, restructuring and sorting data, interpolation if needed, and biogas standardization and calculations. Restructuring and sorting of data and interpolation are handled by the external functions \texttt{interp()} and \texttt{cumBgDataPrep()}, respectively. From \texttt{interp()} gas composition, cumulative biogas production, and other variables can be interpolated to a specified time if required. From \texttt{cumBgDataPrep()} "wide" and "long" data structure are restructured to "longcombo" data, which is required for \texttt{cumBgMan()} to further calculate cumulative biogas and CH$_4$ production and production rates. Additionally, data is sorted, headspace is added if provided, and composition data is corrected if it seems to be a percentage. Subsequently, the now restructured and sorted data is standardized in \texttt{cumBgVol()} by an external function called \texttt{stdVol()}. 
+In general, cumBg* functions are compiled of four sections: check arguments, restructuring and sorting data, interpolation if needed, and biogas standardization and calculations. Restructuring and sorting of data and interpolation are handled by the external functions \texttt{cumBgDataPrep()} and \texttt{interp()}, respectively. From \texttt{interp()} gas composition, cumulative biogas production, and other variables can be interpolated to a specified time if required. From \texttt{cumBgDataPrep()} "wide" and "long" data structure are restructured to "longcombo" data, which is required for \texttt{cumBgMan()} for further data processing. Additionally, data is sorted, headspace is added if provided, and composition data is corrected if it seems to be a percentage. Subsequently, the now restructured and sorted data is standardized in \texttt{cumBgVol()} by an external function called \texttt{stdVol()}. 
 
 Two manometric methods are commonly used to evaluate biogas pressure measurements. Method 1 is based on normalized CH4 concentrations, whereas method 2 accounts for the actual CH4 in the bottle headspace. Both methods are available through \texttt{cumBgMan()} and results is expected to be independent of method. The examples below describe cumulative biogas calculation on two different datasets. The "long" structured dataset is evaluated using manometric method 1, whereas the "longcombo" dataset is evaluated using manometric method 2, as true methane concentrations are provided.  
 All external functions are within the biogas package
@@ -76,25 +75,25 @@ The arguments for the cumBgMan function are:
 \end{verbatim}
 
 Most of the arguments have default values, but to calculate CH$_4$ production we must provide values for at least  \texttt{dat} (data frame with pressure measurements), \texttt{comp} (data frame with gas composition), and \texttt{temp} (biogas temperature)\footnote{.      
-  By default, temperature is in $^\circ$C and pressure in atm, but these can be changed in the function call with the \texttt{temp.unit} and \texttt{pres.unit} arguments, or globally with \texttt{options}. The same default values apply for temperature and pressure for presentation of biogas and methane, but these can be changed in the function call with the \texttt{temp.std} and \textttt{pres.std} arguments.}. along with the names of a few columns in the input data frames. If \texttt{temp} argument is not provided, biogas volumes will not be standardized. Similar, if \texttt{comp} argument is not provided, \texttt{cumBgMan()} will return calculations on biogas only and no calculations on CH$_4$.
+  By default, temperature is in $^\circ$C and pressure in atm, but these can be changed in the function call with the \texttt{temp.unit} and \texttt{pres.unit} arguments, or globally with \texttt{options}. The same default values apply for temperature and pressure for presentation of biogas and methane, but these can be changed in the function call with the \texttt{temp.std} and \textttt{pres.std} arguments.} along with the names of a few columns in the input data frames. If the \texttt{temp} argument is not provided, biogas volumes will not be standardized. Similar, if \texttt{comp} argument is not provided, \texttt{cumBgMan()} will return calculations on biogas only and no calculations on CH$_4$.
   
 By default \texttt{interval = TRUE} and \texttt{data.struct} is set as "longcombo". "wide" and "long" structured data will be restructured to "longcombo" internally by \texttt{cumBgDataPrep()}, when specified by the \texttt{data.struct} argument. When data are cumulative, the interval argument should be set to FALSE (refer to Section~\ref{structures}). 
 
-Similarly, there is an \texttt{id.name} argument for the bottle identification code (ID) column (default = "id"). For \texttt{data.struct = "wide"}, there is no ID column. Instead data for each bottle, have individual columns and column names, which are used as ID codes. Here, the name of the column containing the response variables (\texttt{dat.name}), is set as the name of the first column with response variables. All following columns are assumed to also have measurement data.
+Similarly, there is an \texttt{id.name} argument for the bottle identification code (ID) column (default is "id"). For \texttt{data.struct = "wide"}, there is no ID column. Instead data for each bottle, have individual columns and column names, which are used as ID codes. Here, the name of the column containing the response variables (\texttt{dat.name}), is set as the name of the first column with response variables. All following columns are assumed to also have measurement data.
 
-Furthermore, we need to specify the name of the time column containing time data using the \texttt{time.name} argument (default = "time").
-If separate data frames are used for \texttt{dat} and \texttt{comp}, the name must match. Time data may be POSIX objects, but then t0 will not be added to rows by the cumBgMan function. In addition the \texttt{addt0} argument is used to add row with "time zero" (\texttt{time.name = 0}) for each bottle in order to calculate production rates for the first observation (default = TRUE). Whereas, \texttt{showt0} determines if the "time zero" should be returned in the output (default = TRUE if time.name is numeric and contains 0 and otherwise FALSE).
+Furthermore, we need to specify the name of the time column containing time data using the \texttt{time.name} argument (default is "time").
+If separate data frames are used for \texttt{dat} and \texttt{comp}, the name must match. Time data may be POSIX objects, but then t0 will not be added to rows by the cumBgMan function. In addition the \texttt{addt0} argument is used to add row with "time zero" (\texttt{time.name = 0}) for each bottle in order to calculate production rates for the first observation (default is TRUE). Whereas, \texttt{showt0} determines if the "time zero" should be returned in the output (default is TRUE if time.name is numeric and contains 0 and otherwise FALSE).
 
-The \texttt{comp.name} argument is used to indicate which column within the \texttt{comp} data frame contains CH$_4$ concentrations (as mole fraction in dry biogas, normalized so the sum of mole fractions of CH$_4$ and CO$_2$ sum to unity). Default is xCH$_4$. \texttt{comp} may also just be a single value instead of a data frame or column. When providing a single value for \texttt{comp}, this value is applied to all observationsand the \texttt{comp.name} argument is not needed. The definition of xCH4 depends on the cmethod argument.
+The \texttt{comp.name} argument is used to indicate which column within the \texttt{comp} data frame contains CH$_4$ concentrations (as mole fraction in dry biogas, normalized so the sum of mole fractions of CH$_4$ and CO$_2$ sum to unity). Default is xCH4. \texttt{comp} may also just be a single value instead of a data frame or column. When providing a single value for \texttt{comp}, this value is applied to all observationsand the \texttt{comp.name} argument is not needed. The definition of xCH4 depends on the cmethod argument.
 By default (\texttt{cmethod = "removed"}) the function calculates volumes following \cite{richards_methods_1991} as the product of standardized volume of biogas removed and normalized CH$_4$ content. If results should be based on the sum of methane removed and methane remaining in the bottle headspace, \texttt{cmethod} should be set to \texttt{"total"}. When \texttt{cmethod = "total"}, CH$_4$ concentration is calculated using all components (CH$_4$, CO$_2$, N$_2$, H$_2$S, etc.) instead of CH$_4$ and CO$_2$ only.
 
-If any CH4 measurements are missing, xCH4 is interpolated by the external "low-level" function \texttt{interp()}. Here, the \texttt{imethod} argument can be used to define interpolation method (default = "linear"), which is passed to \texttt{interp()}.   
-Similar, an \texttt{extrap} argument is passed to \texttt{interp()} (default = "FALSE"). The \texttt{extrap} argument is used to indicate if composition data (\texttt{comp.name}) should be extrapolation (e.g., in the case of missing initial composition values). Extrapolation is constant (the value of the nearest observation is taken).   
+If any CH4 measurements are missing, xCH4 is interpolated by the external "low-level" function \texttt{interp()}. Here, the \texttt{imethod} argument can be used to define interpolation method (default is "linear"), which is passed to \texttt{interp()}.   
+Similar, an \texttt{extrap} argument is passed to \texttt{interp()} (default is FALSE). The \texttt{extrap} argument is used to indicate if composition data (\texttt{comp.name}) should be extrapolation (e.g., in the case of missing initial composition values). Extrapolation is constant (the value of the nearest observation is taken).   
 In general, extrapolation and extensive interpolation should be avoided.
 
 Initial headspace temperature and pressure are required to determine initial gas volume in the bottles and can be set using the \texttt{temp.init} and \texttt{pres.init}, respectively. Default values are \texttt{NULL}. Similarly, post venting headspace pressure is required for manometric calculation methods and can be set using the \texttt{pres.resid} argument. If only a single value is provided, this will be used for all observations. Initial and post venting headspace pressure can be absolute or gauge, depending on the \texttt{absolute} argument. By default, pressure is absolute (\texttt{absolute = TRUE}). When \texttt{absolute = FALSE} pressure measurements need to be corrected using the \texttt{pres.amb} argument, representing the absolute ambient pressure. \texttt{pres.amb} can only be set as a single value and is set as 1 atm or 101.325 kPa by default.     
 
-Additionally, a data frame containing headspace volumes is required if \texttt{cmethod = "total"} (see description below) and should contain at least a headspace volume column (\texttt{vol.hs.name}) and a bottle identification column, with the same column name as in the \texttt{dat} and \texttt{comp} data frames. The headspace volume column can be set using the \texttt{vol.hs.name} argument (default = "vol.hs").
+Additionally, a data frame containing headspace volumes is required if \texttt{cmethod = "total"} and should contain at least a headspace volume column (\texttt{vol.hs.name}) and a bottle identification column, with the same column name as in the \texttt{dat} and \texttt{comp} data frames. The headspace volume column can be set using the \texttt{vol.hs.name} argument (default is "vol.hs").
 Initial relative humidity of gas in the headspace is set to 1 by default using the \texttt{rh.resid.init} argument. If values are provided for relative humidity of gas in the headspace after experiment was initiated, these can be defined by using the \texttt{rh.resid} argument. 
 
 \subsection{Data Structures}
@@ -107,7 +106,7 @@ Calculation of cumulative biogas and CH$_4$ production and production rates, typ
 
 \subsection{"longcombo" data structure}
 \label{longcombo}
-In this example, we will use a "longcombo" example dataset included in the biogas package: \texttt{sludgeTwoBiogas} for both biogas volumes and composition and \texttt{sludgeTwoSetup} for grouping and headspace volumes. Substrate and inoculum masses provided from \texttt{sludgeTwoSetup} are not interesting before calculation of BMP using summBg() (refer to Section~\ref{continuing}).
+In this example, we will use "longcombo" example datasets included in the biogas package: \texttt{sludgeTwoBiogas} for both biogas volumes and composition and \texttt{sludgeTwoSetup} for grouping and headspace volumes. Substrate and inoculum masses provided from \texttt{sludgeTwoSetup} are not interesting before calculation of BMP using summBg() (refer to Section~\ref{continuing}).
 
 These data are from an experiment carried out with seven different substrates all from primary wastewater sludge.
 The experiment included 24 batch bottles, all with inoculum and one with no substrate (blank): 
@@ -122,7 +121,7 @@ The experiment included 24 batch bottles, all with inoculum and one with no subs
   \item Three bottles with wastewater sludge 75 (WWS75)
 \end{itemize}
 
-Data were originally collected by Sergi Astals at the University of Queensland. For more information, please contact Sasha D. Hafner at \texttt{sasha.hafner@eng.au.dk}.
+More details can be found in the helpfiles for these data.
 
 <<>>=  
 #data("sludgeTwoBiogas")
@@ -150,11 +149,10 @@ Cumulative biogas and CH$_4$ production and production rates from pressure data 
 
 To calculate CH$_4$ production from these "longcombo" data, we must provide values for at least \texttt{dat} and \texttt{comp}, which is in a combined data frame (we will use \texttt{sludgeTwoBiogas}), and \texttt{temp} (biogas temperature) along with the names of a few columns in our input data frame.
 
-We can use the default values \texttt{"longcombo"}, \texttt{"id"}, and \texttt{"pres"} for the \texttt{data.struct}, \texttt{id.name}, and \texttt{dat.name} arguments, respectively. Whereas, the \texttt{time.name} and \texttt{comp.name} arguments need to be specified as \texttt{"time.d"} and \texttt{"xCH4n"}, respectively.
+We can use default values \texttt{"longcombo"}, \texttt{"id"}, and \texttt{"pres"} for the \texttt{data.struct}, \texttt{id.name}, and \texttt{dat.name} arguments, respectively. Whereas, the \texttt{time.name} and \texttt{comp.name} arguments need to be specified as \texttt{"time.d"} and \texttt{"xCH4n"}, respectively.
 Similar, default values can be used for \texttt{cmethod = "removed"}, evaluating CH$_4$ concentration based on normalized CH$_4$ and CO$_2$ values, for \texttt{imethod = "linear"}, resulting in internal linear interpolation of xCH4n by calling the \texttt{interp} function, and for \texttt{extrap = FALSE}. 
-% Rephrase line above
 
-Initial headspace temperature and pressure and post venting headspace pressure are set as constant values using the \texttt{temp.init}, \texttt{pres.init}, and \texttt{pres.resid} arguments, respectively. Initial and post venting headspace pressure can be absolute or gauge depending on the value of the \texttt{absolute} argument. We will set \texttt{absolute = FALSE} to account for pressure measurements provided in gauge. In order to calculate absolute pressure from gauge pressure measurements when \texttt{absolute = FALSE}, a single absolute ambient pressure value is required. Here we will set \texttt{pres.amp} to 1013 mbar. Note the unit of the pressure data in \texttt{strawPressure}. Default unit is atm, but this can be changed using the \texttt{unit.pres} argument. In this example we will set the \texttt{unit.pres = "mbar"} to match unit of \texttt{dat.name} and \texttt{pres.resid} column. Absolute ambient pressure should be provided in the same unit as defined in the \texttt{unit.pres} argument. 
+Initial headspace temperature and pressure and post venting headspace pressure are set as constant values using the \texttt{temp.init}, \texttt{pres.init}, and \texttt{pres.resid} arguments, respectively. Initial and post venting headspace pressure can be absolute or gauge depending on the value of the \texttt{absolute} argument. We will set \texttt{absolute = FALSE} to account for pressure measurements provided in gauge. In order to calculate absolute pressure from gauge pressure measurements when \texttt{absolute = FALSE}, a single absolute ambient pressure value is required. Here we will set \texttt{pres.amp} to 1013 mbar. Note the unit of the pressure data in \texttt{sludgeTwoBiogas}. Default unit is atm, but this can be changed using the \texttt{unit.pres} argument. In this example we set the \texttt{unit.pres = "mbar"} to match unit of \texttt{dat.name} and \texttt{pres.resid} column. Absolute ambient pressure is provided in the same unit as defined in the \texttt{unit.pres} argument. 
 
 Finally, headspace volumes are provided from \texttt{sludgeTwoSetup}. The data frame containing headspace volumes is defined using the \texttt{headspace} argument, whereas the default value \texttt{"vol.hs"} can be used for the column containing headspace volume data.
 
@@ -169,7 +167,7 @@ cum.prod.lc <- cumBgMan(sludgeTwoBiogas, temp = 30,
 
 Note the message about standard temperature and pressure--it is important to make sure these values are correct, therefore users are reminded by a message\footnote{
   Remember that standard conditions can be set in the function call with \texttt{temp.std} and \texttt{pres.std}, or globally with \texttt{options()}. 
-}. Also, note warning about pressure unit. This warning is to make sure all pressure measurements are gauge, as absolute is set to FALSE, meaning pressure data are corrected to absolute pressure by the cumBgMan function. 
+}. Also, note warning about pressure unit. This warning is to make sure all pressure measurements are gauge, as absolute is set to FALSE, meaning all pressure data are corrected to absolute pressure by the cumBgMan function. 
 
 The output looks like this:
 
@@ -200,7 +198,7 @@ ggplot(cum.prod.lc, aes(time.d, cvCH4, colour = factor(id))) +
 \newpage
 \subsection{"long" data structure}
 \label{long}
-In this example, we will use a long example data set included in the biogas package: \texttt{strawPressure} for headspace pressure in batch bottles, \texttt{strawComp} for methane content of biogas, and \texttt{strawSetup} for grouping and headspace volumes.
+In this example, we will use long example data set included in the biogas package: \texttt{strawPressure} for headspace pressure in batch bottles, \texttt{strawComp} for methane content of biogas, and \texttt{strawSetup} for grouping and headspace volumes.
 
 These data are interval-based BMP measurement of headspace pressure in 12 anaerobic bottles with straw as the substrate.
 The experiment included 12 batch bottles on the following six variables: 
@@ -216,7 +214,7 @@ The experiment included 12 batch bottles on the following six variables:
 Bottles were ca. 600 mL glass serum bottles with butyl rubber septa and screw caps. 
 Pressure was measured using an electronic manometer.
 Data in \texttt{strawMass}, \texttt{strawSetup}, and \texttt{strawComp} are from the same bottles. 
-More details can be found in the help file for these data.
+More details can be found in the helpfiles for these data.
 
 <<>>=  
 #data("strawPressure")
@@ -252,17 +250,17 @@ summary(strawSetup)
 As with the "longcombo" data, cumulative production of CH$_4$ is needed in order to calculate BMP.
 Again, we can calculate these with the \texttt{cumBgMan} function, using \texttt{strawPressure}, \texttt{strawComp}, and \texttt{strawSetup} data frames as input.
 
-To calculate CH$_4$ production from these "long" structured data, we must provide values for at least \texttt{dat}, \texttt{comp}, and \texttt{temp} along with the names of a few columns in our input data frame. The \texttt{dat} and \texttt{comp} arguments are set as the data frames: \texttt{strawPressure} and \texttt{strawComp}, whereas \texttt{temp} is set as single values of 31 $^{\circ}$C.
+To calculate CH$_4$ production from these "long" structured data, we must provide values for at least \texttt{dat}, \texttt{comp}, and \texttt{temp} along with the names of a few columns in our input data frame. The \texttt{dat} and \texttt{comp} arguments are set as the data frames: \texttt{strawPressure} and \texttt{strawComp}, respectively, whereas \texttt{temp} is set as single values of 31 $^{\circ}$C.
 For \texttt{data.struct != "longcombo"} the data structure needs to be specified. Here we set \texttt{data.struct = "long"} which is internally passed to \texttt{cumBgDataPrep()} and restructured to \texttt{"longcombo"} structure prior to entering the manometric calculations
 Furthermore, we need to specify the name of the id column in \texttt{strawPressure} as \texttt{bottle} using the \texttt{id.name} argument.
 
-We can use the default values \texttt{"time"}, \texttt{"pres"}, and \texttt{"xCH4"} for the \texttt{time.name}, \texttt{dat.name} and \texttt{comp.name} arguments, respectively. The id and time columns create a link between the two data frames. If observations are not from the same time this is solved by the external \texttt{interp} function by interpolation. 
+We can use default values \texttt{"time"}, \texttt{"pres"}, and \texttt{"xCH4"} for the \texttt{time.name}, \texttt{dat.name} and \texttt{comp.name} arguments, respectively. The id and time columns create a link between the two data frames. If observations are not from the same time this is solved by the external \texttt{interp} function by interpolation. 
 Similar, default values can be used for \texttt{cmethod = "removed"}, evaluating CH$_4$ concentration based on normalized CH$_4$ and CO$_2$ values and for \texttt{imethod = "linear"}, resulting in internal linear interpolation of xCH4 by calling the \texttt{interp} function.
 Additionally, the response variables are interval data only and hence, we can use the default \texttt{interval = TRUE}.
 
 In addition to interpolation for later observations, an extrapolation argument (\texttt{extrap}) can be provided if required. We do not have initial biogas composition (compare the heads of \texttt{strawPressure} and \texttt{strawComp}) so extrapolation is required to calculate initial volumes and rates. Therefore, we need to set \texttt{extrap = TRUE}.
 
-Initial headspace temperature and pressure are set as constant values using the \texttt{temp.init} and \texttt{pres.init} arguments, respectively. Whereas, headspace pressure after venting is provided from the \texttt{strawPressure} data frame and can be defined by assigning the column name to the \texttt{pres.resid} argument. Similar to the "longcombo" data example, we will set \texttt{absolute = FALSE} to account for pressure measurements provided in gauge. In order to calculate absolute pressure from gauge pressure measurements when \texttt{absolute = FALSE}, a single absolute ambient pressure value is required. To correct gauge pressure data to absolute pressure, we will set \texttt{pres.amp} to 101.3 kPa. Again, note the unit of the pressure data in \texttt{strawPressure}. Pressure unit is set as atm by default, but this can be changed using the \texttt{unit.pres} argument. In this example we will set the \texttt{unit.pres = "kpa"} to match unit of \texttt{dat.name} and \texttt{pres.resid} column. 
+Initial headspace temperature and pressure are set as constant values using the \texttt{temp.init} and \texttt{pres.init} arguments, respectively. Whereas, headspace pressure after venting is provided from the \texttt{strawPressure} data frame and can be defined by assigning the column name to the \texttt{pres.resid} argument. Similar to the "longcombo" data example, we will set \texttt{absolute = FALSE} to account for pressure measurements provided in gauge. In order to calculate absolute pressure from gauge pressure measurements when \texttt{absolute = FALSE}, a single absolute ambient pressure value is required. To correct gauge pressure data to absolute pressure, we will set \texttt{pres.amp} to 101.3 kPa. Again, note the unit of the pressure data in \texttt{strawPressure}. Pressure unit is set as atm by default, but this can be changed using the \texttt{unit.pres} argument. In this example we will set the \texttt{unit.pres = "kPa"} to match unit of \texttt{dat.name} and \texttt{pres.resid} column. 
 
 Finally, headspace volumes are provided from \texttt{strawSetup}. The data frame containing these volumes is defined using the \texttt{headspace} argument, whereas the column is set as \texttt{vol.hs.name = "headspace"}.
 
@@ -283,7 +281,7 @@ head(cum.prod.l)
 Note the message about standard temperature and pressure--it is important to make sure these values are correct, therefore users are reminded by a message\footnote{
   Remember that standard conditions can be set in the function call with \texttt{temp.std} and \texttt{pres.std}, or globally with \texttt{options()}. 
 }. 
-Also, note warning concerning pressure ranges. The pressure ranges from 101.3 to 203.4 kPa is reasonable and warning can be ignored. We are aware of this issue and it will be addressed (refer to Section~\ref{continuing}). 
+Also, note warning concerning pressure ranges. The pressure range (101.3 to 203.4 kPa) is reasonable and warning can be ignored. We are aware of this issue and it will be addressed (refer to Section~\ref{continuing}). 
 
 
 The output looks like this:
@@ -315,7 +313,7 @@ For examples using "wide" structured input data frame and varying settings of ot
 \label{continuing}
 The cumBgMan function is one of several cumBg* functions within the biogas package. Results from the cumBg* functions can be used directly in the summBg function from the biogas package to calculate BMP for the data in question. Though, this operation often requires additional setup information (e.g. inoculum and substrate mass), which is most commonly provided in an external data frame (\texttt{setup}). More details can be found in the associated help file 
 
-In the current version of \texttt{cumBgMan()}, an issue is commonly observed with the warning regarding pressure range during cumulative biogas calculations. The warning is sometimes returned with the results even though range is reasonable. This has been raised as an issue and should be addressed in a future scope.   
+In the current version of \texttt{cumBgMan()}, an issue is commonly observed with the warning regarding pressure range during cumulative biogas calculations. The warning is sometimes returned together with the results even though range is reasonable. This has been raised as an issue in GitHub and should be addressed in a future scope.   
  
 \section{Function internals}
 \label{function_internals}
