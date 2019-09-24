@@ -16,13 +16,13 @@
 
 \maketitle
 \subtitle{Summary of an R\&D project}
-The purpose of this document is to give an overview of an R\&D project about standardization of biohemical methane potential calculations in R and what products resulted from this project.
+The purpose of this document is to provide an overview of a R\&D project about standardization of biochemical methane potential calculations in R and what products resulted from this project.
 
-I created two functions: one for processing manometric measurements and one for processing volumetric measurements. The idea with these functions is to simplify functions within the biogas package, making it easier for new biogas package users to work with and process their data. In the process of creating these functions, a third function was created to enhance the simplification of each new function. The purpose of the third function is to process (sorting and restructuring) all data prior to biogas calculations. To support the new functions, I created help files descriping ussage of the functions and R scripts for new example datasets (including accosiated helpfiles) and test files to test the functions. Additionally, I have updated BMP methods documents for volumetric and manometric calculation to include example calculations.  
+As the major product of this R\&D proejct, I created two functions: one for processing manometric measurements and one for processing volumetric measurements. The idea with these functions is to simplify functions within the biogas package, making it easier for new biogas package users to work with and process their data. In the process of creating these functions, a third function was created to enhance the simplification of each new function. The purpose of the third function is to process (sorting and restructuring) all data prior to biogas calculations. To support the new functions, I created help files describing usage of the functions and R scripts for new example datasets (including acossiated helpfiles) and test files to test the functions. Additionally, I have updated BMP methods documents for volumetric and manometric calculation to include example calculations.  
 This document provides a brief description of the objective of this project and a summary of the work process and topics included. 
 
 \section{Introduction}
-Biochemical methane potential (BMP) has become an important number in the biogas industry, as it can reveal essential knowledge of several factors of concern when producing biogas, such as substrate, product and inoculum behavior, or more process related variables (temp., pres., stirring, etc.). It is commonly used to determine the methane potential and anaerobic biodegradability of a given substrate. BMP is a measure of the potential yield of methane (CH4) from a substrate treated by anaerobic digestion and is most commonly evaluated by monitoring the production of biogas Several methods are available for measurement of BMP including gravimetric, manometric, volumetric, and gas density approaches. Each method requires a specific set of calculations to go from raw measurements to standardized CH4 volume, which can then be used to calculate BMP. This R\&D project will focus on standardization of BMP calculations and refinement of a software tool for BMP data processing.
+Biochemical methane potential (BMP) has become an important number in the biogas industry, as it can reveal essential knowledge of several factors of concern when producing biogas, such as substrate, product and inoculum behavior, or more process related variables (temp., pres., stirring, etc.). It is commonly used to determine the methane potential and anaerobic biodegradability of a given substrate. BMP is a measure of the potential yield of methane (CH$_4$) from a substrate treated by anaerobic digestion and is most commonly evaluated by monitoring the production of biogas Several methods are available for measurement of BMP including gravimetric, manometric, volumetric, and gas density approaches. Each method requires a specific set of calculations to go from raw measurements to standardized CH$_4$ volume, which can then be used to calculate BMP. This R\&D project will focus on standardization of BMP calculations and refinement of a software tool for BMP data processing.
 
 The aim of the project is to create and test a volumetric and manometric BMP functions for R, a public environment for statistical computing. These developments will include writing new and improving functions within the already existing biogas package. Testing will include writing R scripts for example datasets from existing Excel sheets (creating csv and Rda files) and evaluating results visual and comparing qualitatively and quantitative with the existing \texttt{cumBg} function through analysis of existing data and newly created Rda files.  
 
@@ -34,28 +34,13 @@ A newly developed software package for biogas calculations, known as the biogas 
 The biogas package consists of ten function including \texttt{cumBg()}, which is used for processing all the types of BMP measurements listed above. The resulting biogas and methane production values and production rates can be further used to calculate BMP. \texttt{cumBg()} is a large and rather somewhat complex function, which requires some proficiency in R for use. 
 A second objective of this project is the development of simpler method-specific versions of the \texttt{cumBg()} function: one for volumetric data and one for manometric data. 
 
-A complete list of project objectives is shown below (refer to Table \ref{tab:objectives})
+A complete list of project objectives is shown below:
 % Remeber to insert Hafner et al., 2018 reference in ref list. 
-
-\begin{table}[h!]
-  \begin{center}
-  \caption{Objectives}
-  \label{tab:objectives}
-  \vspace{3pt}
-  
-  \begin{tabular}{l>{\RaggedRight}p{2cm}ll}
-    \hline
-    Topic                                         &   Description \\
-    \hline
-    
-    1. & Contribute to documentation of calculation methods through example calculations \\
-    2. & Develop new R functions for calculation biogas and methane production and production rates from volumetric and manometric BMP measurements \\ 
-    % How do I make this table look nice? The sentence is to long!
-    3. & Create related files for testing and documentation of the new functions \\
-    \hline
-  \end{tabular}
-  \end{center}
-\end{table}
+\begin{itemize}
+  \item Contribute to documentation of calculation methods through example calculations.
+  \item Develop new R functions for calculation biogas and methane production and production rates from volumetric and manometric BMP measurements.
+  \item Create related files for testing and documentation of the new functions
+\end{itemize}
 
 \section{Project summary}
 In total, in this project I created: three new R functions and three associated help files, three new R scripts to test functions, four new R datasets from existing Excel files, four associated help files, two vignettes to describe the new functions, and I also contributed new example calculations to two documents on BMP methods. A complete list is shown below (refer to Table \ref{tab:products}). For most documents, existing files were used as a starting point or template for creating the new files: \texttt{cumBg()} was the starting point for \texttt{cumBgVol()}, \texttt{cumBgMan()}, and \texttt{cumBgDataPrep()} and \texttt{biogas\_quick\_start.Rnw} was used as a template for the two vignettes \texttt{cumBgVol\_function.Rnw} and \texttt{cumBgMan\_function.Rnw}.
