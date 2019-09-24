@@ -7,7 +7,7 @@
 %%\usepackage[version=3]{mhchem} %chemical formulas
 \usepackage[colorlinks = true, urlcolor = blue]{hyperref}
 
-% Package to make subtitle
+% Package to add subtitle to \maketitle
 \usepackage{etoolbox}
 \makeatletter
 \providecommand{\subtitle}[1]{% add subtitle to \maketitle
@@ -37,8 +37,8 @@ The aim of the project is to create and test a volumetric and manometric BMP fun
 \section{Objectives}
 Results from a recent large inter-laboratory comparison of BMP measurement show that manual volumetric and manometric measurements of biogas production in laboratory experiments are handled differently from one laboratory to another. These different calculation approaches have shown to give minor deviations (up to about 10 percentage in results from the same measurements. In order to eliminate these completely avoidable deviations, a set of standard approaches for calculations is essential. Documentation of a standardized mathematical approach for calculations used for at least one measurement method was one objective of this project.
 
-A newly developed software package for biogas calculations, known as the biogas package, is available for the R environment \cite{hafner_et_al_2018}. This package address issues with time-consuming calculations and lack of reproducible among laboratories for obtaining BMP.
-The biogas package consists of ten function including \texttt{cumBg()}, which is used for processing all the types of BMP measurements listed above. The resulting biogas and methane production values and production rates can be further used to calculate BMP. \texttt{cumBg()} is a large and rather somewhat complex function, which requires some proficiency in R for use. Additionally, \texttt{cumBg()} is difficult to improve or debug. 
+A newly developed software package for biogas calculations, known as the biogas package, is available for the R environment \cite{softwarex}. This package address issues with time-consuming calculations and lack of reproducible among laboratories for obtaining BMP.
+The biogas package consists of ten function including \texttt{cumBg()}, which is used for processing all the types of BMP measurements listed above. The resulting biogas and methane production values and production rates can be further used to calculate BMP. \texttt{cumBg()} is a large and rather somewhat complex function, which requires some proficiency in R for use. Furthermore, \texttt{cumBg()} is difficult to improve or debug. 
 A second objective of this project was the development of simpler method-specific versions of the \texttt{cumBg()} function: one for volumetric data and one for manometric data.
 
 A complete list of project objectives is shown below:
@@ -99,15 +99,15 @@ This document (project summary) and the two above mentioned vignettes were submi
 \begin{thebibliography}{1}
 
 \bibitem{filer_BMP_2019}
-J. Filer, H.~H. Ding and S. Chang
+Filer, J., Ding, H.H., and Chang, S.
 \newblock Biochemical Methane Potential (BMP) Assay Method for Anaerobic Digestion Research.
 \newblock {\em Water}, 11, 921, 2019.
 
-\bibitem{hafner_et_al_2018}
-S.D. Hafner, C.~Rennuit, H.~Carrere, K.~Koch, S.~Astals, and S.~Weinrich
-\newblock Software for biogas research: Tools for measurement and prediction
-  of methane production
-\newblock {\em SoftwareX}, 7:205--210, 2018.
+\bibitem{softwarex}
+Hafner, S.D., Koch, K., Carrere, H., Astals, S., Weinrich, S., Rennuit, C.
+  \newblock{2018}
+  \newblock{Software for biogas research: Tools for measurement and prediction of methane production}. 
+  \newblock{SoftwareX} 7: 205-210
 
 \end{thebibliography}
 \end{document}
