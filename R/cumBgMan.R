@@ -2,13 +2,13 @@ cumBgMan <- function(
   # Main arguments
   dat,
   comp = NULL,                # Composition of biogas measurement
-  temp = NULL,                # Temperature for biogas measurement
+  temp,                       # Temperature for biogas measurement
   interval = TRUE,            # Indicates if pressure measurements are from time interval only 
   data.struct = 'longcombo',  # long, wide, longcombo
   # Column names 
   id.name = 'id',             # Name of column containing reactor identification code
   time.name = 'time',         # Name of time column 
-  dat.name = 'pres',      # Name of column containing respons variable (pressure measurements)
+  dat.name = 'pres',          # Name of column containing headspace pressure measurements
   comp.name = 'xCH4',         # Name of xCH4 column in the data frame
   # Additional arguments 
   temp.init = NULL,           # Initial headspace temperature
@@ -40,7 +40,7 @@ cumBgMan <- function(
   # Check arguments
   checkArgClassValue(dat, 'data.frame')
   checkArgClassValue(comp, c('data.frame', 'integer', 'numeric', 'NULL'))
-  checkArgClassValue(temp, c('integer', 'numeric', 'character', 'NULL'))
+  checkArgClassValue(temp, c('integer', 'numeric', 'character'))
   checkArgClassValue(interval, 'logical')
   checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
   checkArgClassValue(id.name, 'character')

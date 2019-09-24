@@ -69,9 +69,9 @@ cumBgVol(
   }
 
   \item{data.struct}{
-    the structure of input data. The default of 'longcombo' means separate objects for volume and composition (if available). The composition column is in the \code{dat} data frame, and the \code{comp} argument should be set as comp. 
+    the structure of input data. The default of 'longcombo' means separate objects for volume and composition (if available).
     The \code{dat} data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}, volume data in a single column with the name specified by \code{dat.name}, and biogas composition in a single column with the name specified by \code{comp.name}
-    For the \code{data.struct = 'long'} option, two separate data frames are needed with separate objects for volume and composition (if available).
+    For the \code{data.struct = 'long'} option, two separate data frames are needed, one for volume and one for composition (if available).
     Each data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}.
     The \code{dat} data frame must have volume data in a single column with the name specified by \code{dat.name}.
     The \code{comp} data frame must have biogas composition in a single column with the name specified by \code{comp.name}.
