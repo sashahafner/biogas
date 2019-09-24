@@ -398,22 +398,22 @@ ggplot(cum.prod, aes(days, cvCH4, colour = factor(id))) +
 @
 
 
-% Cannot get the example with the check argument to work......
-By default, input data are checked for unreasonable values using the \texttt{check} argument. If data seems unreasonable, a warning is returned. In the example below, \texttt{} has been set to... for the purpose of demonstrating the function of the \texttt{check} argument. 
+% Cannot get the example with the check argument to work. Still shows warning when check is set to FALSE... 
+By default, input data are checked for unreasonable values using the \texttt{check} argument. If \texttt{check= TRUE}, the input values of xCH4 in biogas are checked. If data seems unreasonable (0 > xCH4 > 1), a warning is returned. In the example below, a single methane value in the composition data frame \texttt{comp} has been set to 1.5 for the purpose of demonstrating the function of the \texttt{check} argument. 
 <<>>=
-#vol[10,"days"] <- NA
-#vol$temp <- "temperature"
-cum.prod <- cumBgVol(vol, comp = comp, temp = "temp", pres = "pres",
+data("vol")
+data("comp")
+
+comp[10,"xCH4"] <- 1.5
+cum.prod <- cumBgVol(vol, comp = comp, temp = 35, pres = 1,
                        data.struct = "long",
                        time.name = "days",
                        extrap = TRUE)
 @
 
-Note the warning about.... 
-
-If we instead set \texttt{check = FALSE}, this warning will not be returned and it is not as obvious why the function call does not work. 
+Note the warning about methane concentration being outside the range 0-1 (exceeding 1 mol/mol) for at least one observation. By default it is assumed to be a percentage and corrected. If this warning is not provided (\texttt{check= TRUE}), we are not necessarily aware of this default correction of the observation.   
 <<>>=
-cum.prod <- cumBgVol(vol, comp = comp, temp = "temp", pres = "pres",
+cum.prod <- cumBgVol(vol, comp = comp, temp = 35, pres = 1,
                        data.struct = "long",
                        time.name = "days",
                        extrap = TRUE, check = FALSE)
