@@ -59,6 +59,18 @@ cumBgVol <- function(
   checkArgClassValue(pres.std, c('integer', 'numeric'))
   checkArgClassValue(unit.temp, 'character')
   checkArgClassValue(unit.pres, 'character') 
+
+  # Create logical variable showing whether composition data were included
+  have.comp <- TRUE
+  if(data.struct == 'longcombo') {
+    if(is.null(comp.name)) {
+      have.comp <- FALSE
+    }
+  } else {
+    if(is.null(comp)) {
+      have.comp <- FALSE
+    }
+  }
   
   # Hard-wire rh for now at least
   if(!dry) {
@@ -110,6 +122,7 @@ cumBgVol <- function(
   dat <- cumBgDataPrep(dat = dat, dat.type = 'vol', dat.name = dat.name, 
                        comp.name = comp.name, id.name = id.name, 
                        time.name = time.name, data.struct = data.struct, comp = comp, 
+                       have.comp = have.comp,
                        interval = interval, imethod = imethod, extrap = extrap, 
                        headspace = headspace, vol.hs.name = vol.hs.name, 
                        temp = temp, pres = pres, empty.name = empty.name, 
@@ -133,7 +146,9 @@ cumBgVol <- function(
   # For data.struct = 'wide', data and composition names are fixed, added manually in cumBgDataPrep()
   if(data.struct == 'wide') {
     dat.name <- 'vol'
-    comp.name <- 'xCH4'
+    if(have.comp) {
+      comp.name <- 'xCH4'
+    }
   }
   
   # Mixed data is standardized in cumBgDataPrep() and changed to interval
@@ -142,17 +157,14 @@ cumBgVol <- function(
     interval <- TRUE
   }
   
-  # Volumetric calculation methods 
-  # Function needs id, time, and vol and will add columns
-  
   # Volumetric method 1
   # Standardize total gas volumes
   # Note that temperature and pressure units are not converted at all in cumBgVol (but are in stdVol)
   if(!standardized) {
     if(!is.null(temp) | !is.null(pres)) {
-        dat$vBg <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, pres.std = pres.std, 
-                          temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
-                          std.message = std.message)
+        dat$vBg <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, 
+                          pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
+                          unit.pres = unit.pres, std.message = std.message)
     } else {
         dat$vBg <- dat[, dat.name]
         message('Either temperature or pressure is missing (temp and pres arguments) so volumes are NOT standardized.')
@@ -162,22 +174,24 @@ cumBgVol <- function(
   }
   
   # Calculate interval (or cum if interval = FALSE) methane production
-  dat$vCH4 <- dat$vBg*dat[, comp.name]
+  if(have.comp) {
+    dat$vCH4 <- dat$vBg*dat[, comp.name]
   
-  # Volumetric method 2  
-  # For cmethod = 'total', calculate headspace CH4 to add for total below
-  if(cmethod=='total') {
-    if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as values in ', temp, ' column, pressure as values in ', pres, ' column, and relative humidity as 1.0 (100%).')
-    # Note that rh is assumed to be 1 at all times 
-    # Also assume vol meas pressure = residual headspace pressure
-    dat$vhsCH4 <- dat[, comp.name] *
-                    stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres], rh = 1, 
-                           pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                           unit.pres = unit.pres, std.message = std.message)
+    # Volumetric method 2  
+    # For cmethod = 'total', calculate headspace CH4 to add for total below
+    if(cmethod=='total') {
+      if(!quiet) message('For cmethod = \"total\", headspace temperature is taken as values in ', temp, ' column, pressure as values in ', pres, ' column, and relative humidity as 1.0 (100%).')
+      # Note that rh is assumed to be 1 at all times 
+      # Also assume vol meas pressure = residual headspace pressure
+      dat$vhsCH4 <- dat[, comp.name] *
+                      stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres], rh = 1, 
+                             pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
+                             unit.pres = unit.pres, std.message = std.message)
+    }
+      # vhsCH4 is added to cvCH4 below
+      # Calculations are up here to avoid t0 issues
   }
-    # vhsCH4 is added to cvCH4 below
-    # Calculations are up here to avoid t0 issues
-  
+
   # Add t0 row if requested
   # Not added if column is not numeric, integer, or difftime (e.g., date/time)
   if(addt0 & !class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) addt0 <- FALSE
@@ -185,11 +199,15 @@ cumBgVol <- function(
   if(addt0 & !any(dat[, time.name]==0)) {
     t0 <- data.frame(id = unique(dat[, id.name]), tt = 0, check.names = FALSE)
     names(t0) <- c(id.name, time.name)
-    t0[, 'vBg'] <- t0[, 'vCH4'] <- 0
+    t0[, 'vBg'] <- 0 
+    
+    if(have.comp) {
+      t0[, 'vCH4'] <- 0
   
-  # Calculation of vCH4 by difference when cmethod = 'total' and interval = FALSE
-    if(cmethod == 'total') {
-      t0[, 'vhsCH4'] <- 0
+      # Calculation of vCH4 by difference when cmethod = 'total' and interval = FALSE
+      if(cmethod == 'total') {
+        t0[, 'vhsCH4'] <- 0
+      }
     }
 
     dat <- rbindf(dat, t0)
@@ -211,10 +229,12 @@ cumBgVol <- function(
   # Set dt to NA for first observations for each reactor
   dt[c(TRUE, dat[, id.name][-1] != dat[, id.name][-nrow(dat)])] <- NA 
   
-  # May already have cumulative production, if so move it to cvCH4, and calculate vCH4 down below
+  # May already have cumulative production, if so move it to cv*, and calculate v* down below
   if(!interval) {
     dat$cvBg <- dat$vBg
-    dat$cvCH4 <- dat$vCH4
+    if(have.comp) {
+      dat$cvCH4 <- dat$vCH4
+    }
   }
   
   # Calculate cumulative production or interval production (depending on interval argument)
@@ -222,25 +242,31 @@ cumBgVol <- function(
   if(interval & cmethod != 'total') {
     for(i in unique(dat[, id.name])) {
       dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
-      dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
+      if(have.comp) {
+        dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
+      }
     } 
   } else {
     for(i in unique(dat[, id.name])) {
       dat[dat[, id.name]==i, 'vBg'] <- diff(c(0, dat[dat[, id.name]==i, 'cvBg' ]))
-      dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+      if(have.comp) {
+        dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+      }
     }
   }
   
   # Method 2
   # For method 2, cmethod = 'total', add headspace CH4 to cvCH4
-  if(cmethod == 'total') {
-    dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
-  }
-  # For method 2, when cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
-  # vBg is not affected by cmethod = 'total'
-  if(cmethod == 'total') {
-    for(i in unique(dat[, id.name])) {
-      dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+  if(have.comp) {
+    if(cmethod == 'total') {
+      dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
+    }
+    # For method 2, when cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
+    # vBg is not affected by cmethod = 'total'
+    if(cmethod == 'total') {
+      for(i in unique(dat[, id.name])) {
+        dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+      }
     }
   }
   
@@ -248,7 +274,9 @@ cumBgVol <- function(
   # Calculate rates for all cases 
   for(i in unique(dat[, id.name])) {
     dat[dat[, id.name]==i, 'rvBg'] <- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
-    dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
+    if(have.comp) {
+      dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
+    }
   }
   
   # Drop t0 if not requested (whether originally present or added)
@@ -259,9 +287,10 @@ cumBgVol <- function(
   # Sort and return results
   dat <- dat[order(dat[, id.name], dat[, time.name]), ]
   
-  if(is.null(comp) & data.struct != 'longcombo') {
-    warning('Biogas composition date (\'comp\' argument) not provided so CH4 results will not be returned.')
-    dat <- dat[, ! names(dat) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
+  # Check for completely missing comp data and omit CH4 results in this case
+  if(!have.comp) {
+    warning('Biogas composition data (\'comp\' or \'comp.name\' arguments) not provided so only biogas and not CH4 results will be returned.')
+    #dat <- dat[, ! names(dat) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
   }
   
   if(all(is.na(dt))) {

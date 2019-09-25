@@ -12,6 +12,7 @@ cumBgDataPrep <- function(
   time.name = 'time',         # Name of time column 
   dat.name = dat.type,        # Will be used for first dat column for data.struct = 'wide'
   comp.name = 'xCH4',         # Name of column containing xCH4 values. Use for first comp col for data.struct = 'wide'
+  have.comp,                  #
   headspace = NULL,           # Required if cmethod = 'total'
   vol.hs.name = 'vol.hs',     # Name of column containing headspace volume data
   # Calculation method and other settings
@@ -99,27 +100,29 @@ cumBgDataPrep <- function(
     names(dat)[names(dat) == 'idxyz'] <- id.name
     
     # Now for comp
-    if(!is.numeric(comp)) {
-      which.first.col <- which(names(comp) == comp.name)
-      comp.name <- 'xCH4'
-      
-      # Number of bottles
-      if((ncol(comp) - which.first.col + 1) != nr) stop('Apparent number of bottles in dat and comp do not match. Problem with wide data.struct.')
-      
-      comp2 <- comp
-      comp <- comp[ , 1:which.first.col]
-      names(comp)[which.first.col] <- comp.name
-      comp <- data.frame(idxyz = ids[1], comp, check.names = FALSE)
-      
-      for(i in 2:nr - 1) {
-        x <- comp2[ , c(1:(which.first.col - 1), which.first.col + i)]
-        names(x)[which.first.col] <- comp.name
-        x <- data.frame(idxyz = ids[i + 1], x, check.names = FALSE)
-        comp <- rbind(comp, x)
+    if(have.comp) {
+      if(!is.numeric(comp)) { # If comp is numeric it is added to data frame below
+        which.first.col <- which(names(comp) == comp.name)
+        comp.name <- 'xCH4'
+        
+        # Number of bottles
+        if((ncol(comp) - which.first.col + 1) != nr) stop('Apparent number of bottles in dat and comp do not match. Problem with wide data.struct.')
+        
+        comp2 <- comp
+        comp <- comp[ , 1:which.first.col]
+        names(comp)[which.first.col] <- comp.name
+        comp <- data.frame(idxyz = ids[1], comp, check.names = FALSE)
+        
+        for(i in 2:nr - 1) {
+          x <- comp2[ , c(1:(which.first.col - 1), which.first.col + i)]
+          names(x)[which.first.col] <- comp.name
+          x <- data.frame(idxyz = ids[i + 1], x, check.names = FALSE)
+          comp <- rbind(comp, x)
+        }
+        
+        # Fix id name
+        names(comp)[names(comp) == 'idxyz'] <- id.name
       }
-      
-      # Fix id name
-      names(comp)[names(comp) == 'idxyz'] <- id.name
     }
     data.struct <- 'long'
   }
@@ -132,23 +135,23 @@ cumBgDataPrep <- function(
   # Rearrange longcombo data
   # If there are missing values in a longcombo data frame, switch to long
   # NTS: this is not the most efficient approach, maybe revisit
-  if(data.struct == 'longcombo' && any(is.na(dat[, comp.name]))) {
+  if(have.comp && data.struct == 'longcombo' && any(is.na(dat[, comp.name]))) {
     comp <- dat[, c(id.name, time.name, comp.name)]
     dat <- dat[, names(dat) != comp.name]
     
     data.struct <- 'long'
   }
   
-  # Sort out composition data
+  # Sort out composition data for long data structure
   # GCA method has no biogas composition
-  if(data.struct == 'long' & dat.type != 'gca') {
+  if(have.comp && data.struct == 'long' && dat.type != 'gca') {
     
     mssg.no.time <- mssg.interp <- FALSE
     # First sort to identify first observation for mass data in order to ignore it
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     dat[, comp.name] <- NA
     
-    if(!is.null(comp) && class(comp)[1] == 'data.frame'){
+    if(class(comp)[1] == 'data.frame'){
       
       # Drop NAs from comp - this applies to wide, long, and longcombo data.struct
       comp <- comp[!is.na(comp[, comp.name]), ]
@@ -198,14 +201,12 @@ cumBgDataPrep <- function(
           }
         }
       }
-    } else if (!is.null(comp) && class(comp)[1] %in% c('numeric', 'integer') && length(comp)==1) {
+    } else if (class(comp)[1] %in% c('numeric', 'integer') && length(comp)==1) {
       # Or if a single value is given, use it
       if (!quiet) message('Only a single value was provided for biogas composition (', comp, '), so applying it to all observations.')
       dat[, comp.name] <- comp
-    } else if (dat.type != 'gca') {
-      # If no composition data is given, just use NA
-      dat[, comp.name] <- NA 
-    }
+    } 
+
     if(!quiet & mssg.no.time) message('A time column was not found in comp (', deparse(substitute(comp)), '), and a single value was used for each bottle.')
     if(!quiet & mssg.interp) message('Biogas composition is interpolated.')
   } 
@@ -224,7 +225,7 @@ cumBgDataPrep <- function(
   }
   
   # Correct composition data if it seems to be a percentage
-  if (dat.type != 'gca') {
+  if (have.comp) {
     if (any(na.omit(dat[, comp.name] > 1))) {
       dat[, comp.name] <- dat[, comp.name]/100
       warning('Methane concentration was > 1.0 mol/mol for at least one observation, so is assumed to be a percentage, and was corrected by dividing by 100. ',
@@ -233,6 +234,7 @@ cumBgDataPrep <- function(
   }
   
   # Now that all data are in longcombo structure sort out mixed interval/cumulative data followed by standardizing vBg
+  # Only applies to mixed interval/cumulative data
   if(!is.null(empty.name)) {
     # Sort by id and time
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
