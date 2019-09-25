@@ -10,7 +10,7 @@
 \usage{
 cumBg(
   # Main arguments
-  dat, comp = NULL, temp = NULL, interval = TRUE,
+  dat, comp = NULL, temp, interval = TRUE,
   data.struct = 'longcombo',
   # Column names 
   id.name = 'id', time.name = 'time',
@@ -50,10 +50,9 @@ cumBg(
     Default is \code{NULL}.
 }
   \item{temp}{
-    the temperature at which pressure was measured.
-    A length-one numeric vector.
+    the temperature at which headspace pressure was measured.
+    A length-one numeric vector or length-one character vector referring to a column in \code{dat}.
     Degrees Celcius by default (see \code{unit.temp} argument). 
-    Default is \code{NULL}, which suppresses correction for temperature and pressure. 
 }
 
   \item{interval}{
@@ -64,9 +63,9 @@ cumBg(
   }
 
   \item{data.struct}{
-    the structure of input data. The default of 'longcombo' means separate objects for volume and composition (if available). The composition column is in the \code{dat} data frame, and the \code{comp} argument should be set as comp. 
+    the structure of input data. The default of 'longcombo' means headspace pressure and composition in a single column.
     The \code{dat} data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}, volume data in a single column with the name specified by \code{dat.name}, and biogas composition in a single column with the name specified by \code{comp.name}
-    For the \code{data.struct = 'long'} option, two separate data frames are needed with separate objects for volume and composition (if available).
+    For the \code{data.struct = 'long'} option, two separate data frames are needed, one with volume and one with composition.
     Each data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}.
     The \code{dat} data frame must have volume data in a single column with the name specified by \code{dat.name}.
     The \code{comp} data frame must have biogas composition in a single column with the name specified by \code{comp.name}.
