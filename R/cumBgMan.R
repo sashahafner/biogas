@@ -67,6 +67,19 @@ cumBgMan <- function(
   checkArgClassValue(unit.temp, 'character')
   checkArgClassValue(unit.pres, 'character')
 
+  # Create logical variable showing whether composition data were included
+  have.comp <- TRUE
+  if(data.struct == 'longcombo') {
+    if(is.null(comp.name)) {
+      have.comp <- FALSE
+    }
+  } else {
+    if(is.null(comp)) {
+      have.comp <- FALSE
+    }
+  }
+  
+
   # Hard-wire rh for now at least
   rh <- 1 # NTS: would it make sense to make this an argument instead? 
   
@@ -101,6 +114,7 @@ cumBgMan <- function(
   dat <- cumBgDataPrep(dat = dat, dat.type = 'pres', dat.name = dat.name, 
                        comp.name = comp.name, id.name = id.name, time.name = time.name, 
                        data.struct = data.struct, comp = comp, 
+                       have.comp = have.comp,
                        interval = interval, imethod = imethod, 
                        headspace = headspace, vol.hs.name = vol.hs.name, 
                        temp = temp, pres = NULL, 
@@ -117,7 +131,9 @@ cumBgMan <- function(
   # For data.struct = 'wide', data and composition names are fixed, added manually in cumBgDataPrep()
   if(data.struct == 'wide') {
     dat.name <- 'vol'
-    comp.name <- 'xCH4'
+    if(have.comp) {
+      comp.name <- 'xCH4'
+    }
   }
 
   # Manometric calculation methods
@@ -172,11 +188,15 @@ cumBgMan <- function(
       pr <- dat[dat[, id.name]==i, pres.resid]
       tt <- dat[dat[, id.name]==i, temp]
       rhr <- dat[dat[, id.name]==i, 'rh.resid']
-      xr <- dat[dat[, id.name]==i, comp.name]
+      if(have.comp) {
+        xr <- dat[dat[, id.name]==i, comp.name]
+      }
       dat[dat[, id.name]==i, 'pres.resid.prev'] <- c(pres.init, pr[-length(pr)])
       dat[dat[, id.name]==i, 'rh.resid.prev'] <- c(rh.resid.init, rhr[-length(rhr)])
       dat[dat[, id.name]==i, 'temp.prev'] <- c(temp.init, tt[-length(tt)])
-      dat[dat[, id.name]==i, paste0(comp.name, '.prev')] <- c(0, xr[-length(xr)])
+      if(have.comp) {
+        dat[dat[, id.name]==i, paste0(comp.name, '.prev')] <- c(0, xr[-length(xr)])
+      }
     }
         
     # Standardize residual headspace volume at end of previous interval
@@ -189,10 +209,12 @@ cumBgMan <- function(
       
     # Calculate methane production, vCH4
     # Method 1  
-    if(cmethod == 'removed') {
-      dat$vCH4 <- dat$vBg*dat[, comp.name]
-    } else { # Method 2
-      dat$vCH4 <- vHS * dat[, comp.name] - vHSr * dat[, paste0(comp.name, '.prev')]
+    if(have.comp) {
+      if(cmethod == 'removed') {
+        dat$vCH4 <- dat$vBg*dat[, comp.name]
+      } else { # Method 2
+        dat$vCH4 <- vHS * dat[, comp.name] - vHSr * dat[, paste0(comp.name, '.prev')]
+      }
     }
     
   } else {
@@ -206,7 +228,9 @@ cumBgMan <- function(
     # vHSi is original bottle headspace (standardized), assumed to start at first pres.resid 
     # Calculate biogas and methane production. These are actually cumulative volumes, changed below.
     dat$vBg <- vHS - vHSi
-    dat$vCH4 <- dat$vBg * dat[, comp.name]
+    if(have.comp) {
+      dat$vCH4 <- dat$vBg * dat[, comp.name]
+    }
   }
     
   # Add t0 row if requested
@@ -216,12 +240,17 @@ cumBgMan <- function(
   if(addt0 & !any(dat[, time.name]==0)) {
     t0 <- data.frame(id = unique(dat[, id.name]), tt = 0, check.names = FALSE)
     names(t0) <- c(id.name, time.name)
-    t0[, 'vBg'] <- t0[, 'vCH4'] <- 0
-      
+    t0[, 'vBg'] <- 0 
+    
     # This messy, but needed for calculating vCH4 by diff when this method is used and interval = FALSE
-    if(cmethod == 'total') {
-      t0[, 'vhsCH4'] <- 0
+    if(have.comp) {
+      t0[, 'vCH4'] <- 0
+  
+      if(cmethod == 'total') {
+        t0[, 'vhsCH4'] <- 0
+      }
     }
+      
     dat <- rbindf(dat, t0)
   }
     
@@ -241,17 +270,21 @@ cumBgMan <- function(
   # Set dt to NA for first observations for each reactor
   dt[c(TRUE, dat[, id.name][-1] != dat[, id.name][-nrow(dat)])] <- NA 
     
-  # May already have cumulative production, if so move it to cvCH4, and calculate vCH4 down below
+  # May already have cumulative production, if so move it to cv*, and calculate v* down below
   if(!interval) {
     dat$cvBg <- dat$vBg
-    dat$cvCH4 <- dat$vCH4
+    if(have.comp) {
+      dat$cvCH4 <- dat$vCH4
+    }
   }
     
   # For interval results, calculate cumulative production
   if(interval) {
     for(i in unique(dat[, id.name])) {
       dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
-      dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
+      if(have.comp) {
+        dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
+      }
     } 
   }
     
@@ -259,14 +292,18 @@ cumBgMan <- function(
   if(!interval) {
     for(i in unique(dat[, id.name])) {
       dat[dat[, id.name]==i, 'vBg'] <- diff(c(0, dat[dat[, id.name]==i, 'cvBg' ]))
-      dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+      if(have.comp) {
+        dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+      }
     }
   }
 
   # Calculate production rates
   for(i in unique(dat[, id.name])) {
     dat[dat[, id.name]==i, 'rvBg'] <- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
-    dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
+    if(have.comp) {
+      dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
+    }
   }
     
   # Drop t0 if not requested (whether originally present or added)
@@ -277,13 +314,13 @@ cumBgMan <- function(
   # Sort and return results
   dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     
-  if(is.null(comp) & data.struct != 'longcombo') {
+  if(!have.comp) {
     warning('Biogas composition date (\'comp\' argument) not provided so CH4 results will not be returned.')
-    dat <- dat[, ! names(dat) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
+    #dat <- dat[, ! names(dat) %in% c(comp.name, 'vCH4', 'cvCH4', 'rvCH4')]
   }
     
   if(all(is.na(dt))) {
-    dat <- dat[, ! names(dat) %in% c('rvBg','rvCH4')]
+    dat <- dat[, ! grepl('^rv', names(dat))]
   }
     
   # Drop NAs if they extend to the latest time for a given bottle (based on problem with wide (originally AMPTSII) data, sometimes shorter for some bottles)
