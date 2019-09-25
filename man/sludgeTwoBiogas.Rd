@@ -24,10 +24,15 @@
 }
 \details{
   These data are meant to be example data for \code{\link{cumBg}} and \code{\link{cumBgMan}} for respectively, gravimetric and manometric determination of biogas production.
+  BMP test were carried out in 160 mL serum bottles sealed with a butyl rubber septum retained with an aluminum crimp seal at mesophilic conditions (37 ± 1°C). 
   Substrate was primary wastewater sludge.
   
-  Mass and pressure were measured using manual gravimetric and manometric methods, respectively.
-  Methane and carbon dioxide contents were determined by gas chromatography using a thermal conductivity detector and normalised so methane and carbon dioxide sum to 1.0. % NTS: make sure this was the approach. I have just assumed, as this is normally used. 
+  Cumulative methane production was measured from the same set of bottles by both manometric and gravimetric methods. 
+  BMP was evaluated at 18 days
+  At each sampling event, headspace pressure was measured using a manometer and composition (CH4 and CO2) with a gas chromatograph). 
+  All reported pressure measurements are gauge unless stated otherwise.
+  After each sampling event, the headspace of the serum bottles (including blanks) was vented to near atmospheric pressure.
+  
   Data in \code{sludgeTwoBiogas} and \code{sludgeTwoSetup} are from the same batch bottles.
 }
 \source{
