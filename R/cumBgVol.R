@@ -294,7 +294,7 @@ cumBgVol <- function(
   }
   
   if(all(is.na(dt))) {
-    dat <- dat[, ! names(dat) %in% c('rvBg','rvCH4')]
+    dat <- dat[, ! grepl('^rv', names(dat))]
   }
   
   # Drop NAs if they extend to the latest time for a given bottle (based on problem with AMPTSII data, sometimes shorter for some bottles)
