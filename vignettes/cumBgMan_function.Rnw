@@ -28,8 +28,6 @@ for(j in files) load(j)
 \author{Nanna L\o jborg and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
-
 \maketitle
 
 \section{Introduction}
@@ -75,7 +73,7 @@ The arguments for the cumBgMan function are:
 \end{verbatim}
 
 Most of the arguments have default values, but to calculate CH$_4$ production we must provide values for at least  \texttt{dat} (data frame with pressure measurements), \texttt{comp} (data frame with gas composition), and \texttt{temp} (biogas temperature)\footnote{.      
-  By default, temperature is in $^\circ$C and pressure in atm, but these can be changed in the function call with the \texttt{temp.unit} and \texttt{pres.unit} arguments, or globally with \texttt{options}. The same default values apply for temperature and pressure for presentation of biogas and methane, but these can be changed in the function call with the \texttt{temp.std} and \textttt{pres.std} arguments.} along with the names of a few columns in the input data frames. If the \texttt{temp} argument is not provided, biogas volumes will not be standardized. Similar, if \texttt{comp} argument is not provided, \texttt{cumBgMan()} will return calculations on biogas only and no calculations on CH$_4$.
+  By default, temperature is in $^\circ$C and pressure in atm, but these can be changed in the function call with the \texttt{temp.unit} and \texttt{pres.unit} arguments, or globally with \texttt{options}. The same default values apply for temperature and pressure for presentation of biogas and methane, but these can be changed in the function call with the \texttt{temp.std} and \texttt{pres.std} arguments.} along with the names of a few columns in the input data frames. If the \texttt{temp} argument is not provided, biogas volumes will not be standardized. Similar, if \texttt{comp} argument is not provided, \texttt{cumBgMan()} will return calculations on biogas only and no calculations on CH$_4$.
   
 By default \texttt{interval = TRUE} and \texttt{data.struct} is set as "longcombo". "wide" and "long" structured data will be restructured to "longcombo" internally by \texttt{cumBgDataPrep()}, when specified by the \texttt{data.struct} argument. When data are cumulative, the interval argument should be set to FALSE (refer to Section~\ref{structures}). 
 

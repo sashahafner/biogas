@@ -28,8 +28,6 @@ for(j in files) load(j)
 \author{Nanna L\o jborg and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
-
 \maketitle
 
 \section{Introduction}
@@ -71,7 +69,7 @@ The arguments for the function are:
 \end{verbatim}
 
 Most of the arguments have default values, but to calculate CH$_4$ production we must provide values for at least  \texttt{dat} (data frame with response variable - here volume measurements), \texttt{comp} (data frame with methane concentration),  \texttt{pres} (biogas pressure), and \texttt{temp} (biogas temperature)\footnote{.      
-  By default, temperature is in $^\circ$C and pressure in atm, but these can be changed in the function call with the \texttt{temp.unit} and \texttt{pres.unit} arguments, or globally with \texttt{options}. The same default values apply for temperature and pressure for presentation of biogas and methane, but these can be changed in the function call with the \texttt{temp.std} and \textttt{pres.std} argurments.} along with the names of a few columns in the input data frames. If \texttt{temp} and/or \texttt{pres} arguments are not provided, biogas volumes will not be standardized.
+  By default, temperature is in $^\circ$C and pressure in atm, but these can be changed in the function call with the \texttt{temp.unit} and \texttt{pres.unit} arguments, or globally with \texttt{options}. The same default values apply for temperature and pressure for presentation of biogas and methane, but these can be changed in the function call with the \texttt{temp.std} and \texttt{pres.std} argurments.} along with the names of a few columns in the input data frames. If \texttt{temp} and/or \texttt{pres} arguments are not provided, biogas volumes will not be standardized.
 
 By default \texttt{interval = TRUE} and \texttt{data.struct} is set as "longcombo." "wide" and "long" structured data will be restructured to "longcombo" internally by \texttt{cumBgDataPrep()}, when specified by the \texttt{data.struct} argument. When data are cumulative, the interval argument should be set to FALSE. When data are mixed interval and cumulative response variables (\texttt{empty.name != TRUE}), the interval argument is ignored (refer to Section~\ref{structures}).
 
@@ -176,7 +174,7 @@ The experiment included 12 batch bottles:
   \item Three bottles with animal feed ingredient 2 and inoculum (SD)
 \end{itemize}
 
-A typical automated volumetric method called AMPTS II was used to measure biogas production: an online, standardized lab-measurement platform for BMP tests. Applying AMPTS II, the measured volumes are standardized, and the composition is 100\% methane. Therefore, the \texttt{comp} argument is set to 1 when calling the cumBgVol function. Furthermore, pressure is set to a fixed value (1 atm or 101.325 kPa) and temperature to 0°C. 
+A typical automated volumetric method called AMPTS II was used to measure biogas production: an online, standardized lab-measurement platform for BMP tests. Applying AMPTS II, the measured volumes are standardized, and the composition is 100\% methane. Therefore, the \texttt{comp} argument is set to 1 when calling the cumBgVol function. Furthermore, pressure is set to a fixed value (1 atm or 101.325 kPa) and temperature to 0$^\circ$C. 
 <<>>=  
 data("feedVol")
 
