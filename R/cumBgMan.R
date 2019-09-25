@@ -139,7 +139,7 @@ cumBgMan <- function(
   # Manometric calculation methods
   # Function needs id, time, and pres and will add columns
   # Note that temperature and pressure units are not converted at all in cumBg (but are in stdVol of course)
-  if(!quiet) message('Pressure measurements are', if (absolute) ' ABSOLUTE' else ' GAUGE', 
+  if(!quiet) message('Pressure measurements are', if (absolute) ' ABSOLUTE.' else ' GAUGE.', 
                       ' If this is incorrect, change \'absolute\' argument to ', !absolute, '.')
       
   # Add pres.resid to dat if it isn't already present
@@ -200,9 +200,10 @@ cumBgMan <- function(
     }
         
     # Standardize residual headspace volume at end of previous interval
-    vHSr <- stdVol(dat[, vol.hs.name], temp = dat[, 'temp.prev'], pres = dat$pres.resid.prev, rh = dat$rh.resid.prev,  
-                    pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
-                    unit.pres = unit.pres, std.message = std.message)
+    vHSr <- stdVol(dat[, vol.hs.name], temp = dat[, 'temp.prev'], pres = dat$pres.resid.prev, 
+                   rh = dat$rh.resid.prev,  pres.std = pres.std, temp.std = temp.std, 
+                   unit.temp = unit.temp, unit.pres = unit.pres, std.message = std.message,
+                   warn = FALSE)
         
     # Calculate biogas production, vBg
     dat$vBg <- vHS - vHSr
