@@ -5,7 +5,7 @@
   Calculate Cumulative Biogas Production from Pressure Data
 }
 \description{
-  \code{cumBgMan} (for \emph{cum}ulative \emph{b}io\emph{g}as man}ometric) calculates cumulative biogas, methane production and production rates from individual pressure and composition measurements for any number of reactors.
+  \code{cumBgMan} (for \emph{cum}ulative \emph{b}io\emph{g}as \emph{man}ometric) calculates cumulative biogas, methane production and production rates from individual pressure and composition measurements for any number of reactors.
 }
 \usage{
 cumBg(
