@@ -191,6 +191,7 @@ cumBg(
     should input data be checked for unreasonable values (with warnings)? 
     Currently only composition values are checked.
     Default is \code{TRUE}.
+    Values are changed if outside 0, 1 (divided by 100).
   }
  
  

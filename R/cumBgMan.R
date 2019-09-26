@@ -118,7 +118,7 @@ cumBgMan <- function(
                        interval = interval, imethod = imethod, 
                        headspace = headspace, vol.hs.name = vol.hs.name, 
                        temp = temp, pres = NULL, 
-                       extrap = extrap, std.message = std.message)
+                       extrap = extrap, std.message = std.message, check = check)
   
   # Temperature was added to dat if single numeric values were provided
   if(!is.null(temp)) {

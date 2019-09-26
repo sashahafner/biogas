@@ -225,7 +225,7 @@ cumBgDataPrep <- function(
   }
   
   # Correct composition data if it seems to be a percentage
-  if (have.comp) {
+  if (have.comp && check) {
     if (any(na.omit(dat[, comp.name] > 1))) {
       dat[, comp.name] <- dat[, comp.name]/100
       warning('Methane concentration was > 1.0 mol/mol for at least one observation, so is assumed to be a percentage, and was corrected by dividing by 100. ',

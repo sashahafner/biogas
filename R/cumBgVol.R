@@ -126,7 +126,7 @@ cumBgVol <- function(
                        interval = interval, imethod = imethod, extrap = extrap, 
                        headspace = headspace, vol.hs.name = vol.hs.name, 
                        temp = temp, pres = pres, empty.name = empty.name, 
-                       std.message = std.message)
+                       std.message = std.message, check = check)
 
   # Temperature and pressure were added to dat if single numeric values were provided
   if(!is.null(temp)) {
