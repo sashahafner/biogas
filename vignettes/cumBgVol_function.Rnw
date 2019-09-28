@@ -1,6 +1,6 @@
 %% Next 2 lines needed for non-Sweave vignettes
 %\VignetteEngine{knitr::knitr} 
-%\VignetteIndexEntry{Calculating methane and biogas production and production rates using volumetric methods}
+%\VignetteIndexEntry{Calculating methane and biogas production and production rates from volumetric measurements}
 
 \documentclass{article}
 
@@ -12,41 +12,32 @@ library(knitr)
 #opts_chunk$set(cache=FALSE,tidy=FALSE,highlight=FALSE)
 opts_chunk$set(cache = FALSE, tidy = FALSE, fig.align = "center")
 
-#library(biogas)
+library(biogas)
 
 options(width=65)
-
-# NTS: Delete following lines before submission!
-files <- list.files('../R', full.names = TRUE)
-for(i in files) source(i)
-
-files <- list.files('../data', full.names = TRUE)
-for(j in files) load(j)
 @
 
-\title{Calculating methane and biogas production and production rates using volumetric methods}
-\author{Nanna L\o jborg and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
+\title{Calculating methane and biogas production and production rates from volumetric measurements}
+\author{Nanna L\o jborg}
 
 \begin{document}
 \maketitle
 
 \section{Introduction}
-Volumetric biogas calculation methods are commonly used for calculation of cumulative biogas and methane production and production rates prior to determining methane potential and anaerobic biodegradability of a given substrate. In volumetric methods, biogas volumes are measured under constant pressure conditions from different methods such as liquid displacement and syringe methods \cite{rozzi_environmental_2004}. In liquid displacement method, the biogas is transferred to an external system measuring the volume. As biogas is produced it is collected in the external liquid displacement system where it displaces an amount of the barrier liquid equivalent to the biogas volume. In the syringe method, lubricated syringes are manually placed in the bottle of interest. Here, the pressure increase resulting from biogas production forces the piston inwards the syringe until the pressure equilibrates the surrounding pressure (most commonly atmospheric). Produced biogas volume is equivalent to the displacement of the piston and can be read directly off the syringe \cite{filer_BMP_2019}.
-Determination of CH$_4$ volume from volumetric measurements requires some data processing. For the purpose of this, an additional function (\texttt{cumBgDataPrep()}) was created to handle all data preparation (refer to cumBgDataPrep.R). \texttt{cumBgDataPrep()} sorts and restructures biogas data from volumetric, manometric, gravimetric, and gas density measurements for further calculation of cumulative biogas and CH$_4$ production, and production rates.  
+Volumetric methods are commonly used for measuring cumulative biogas and methane production in order to determine methane potential and anaerobic biodegradability of a given substrate. In volumetric methods, biogas volumes are measured under constant pressure using different methods such as liquid displacement and syringe methods \cite{rozzi_environmental_2004}. In liquid displacement method, the biogas is transferred to an external system measuring the volume. As biogas is produced it is collected in the external liquid displacement system where it displaces an amount of the barrier liquid equivalent to the biogas volume. In the syringe method, lubricated syringes are manually placed in the bottle of interest. Here, the pressure increase resulting from biogas production forces the piston inwards the syringe until the pressure equilibrates the surrounding pressure (most commonly atmospheric). Produced biogas volume is equivalent to the displacement of the piston and can be read directly off the syringe \cite{filer_BMP_2019}. Determination of CH$_4$ volume from volumetric measurements requires some data processing. 
 
-A newly developed biogas package address issues with time-consuming calculations and lack of reproducible among laboratories for obtaining BMP. The biogas package consists of ten function including cumBg(), which is used to calculate cumulative production of biogas and CH$_4$ and production rates with either volumetric, manometric, gravimetric or gas density methods. These production values and rates can be furhter used to calculate BMP. cumBg() is a large and rather complicated function, which requires some proficiency in R for use.
-We developed a function to process volumetric measurements only, to simplify functions within the biogas package, making it easier for new biogas package users to work with their data.
-This document provides a brief description of the volumetric biogas calculation function (\texttt{cumBgVol()}) for new users.
+The \texttt{cumBgVol()} function was developed to process volumetric data. 
+A newly developed biogas package (available for the R environment since 2015) address issues with time-consuming calculations and lack of reproducible among laboratories for obtaining BMP \cite{softwarex}. The biogas package consists of ten function including \texttt{cumBg()}, which is used for processing volumetric, manometric, gravimetric, and gas density measurements.  The resulting biogas and methane production values and production rates can be further used to calculate BMP using the \texttt{summBg()} function. 
+
+This document describes how to process volumetric biogas measurements using the \texttt{cumBgVol()} function. 
 We have assumed that readers are familiar with biogas data collection and R.
 
 \section{Overview of the function}
-\texttt{cumBgVol()} is a "high-level" function within the biogas package. The purpose of \texttt{cumBgVol()} is to convert volume data collected in the laboratory to cumulative biogas and CH$_4$ production and to calculate production rates. The function can handle data from any number of bottles and accepts three different data structures: "wide", "long", and "longcombo". For simple operations (e.g. interpolation and standardization of biogas volume) \texttt{cumBgVol()} is supported by calls to external low-level functions (refer to Section~\ref{function_internals}, Table \ref{tab:externalfunctionsummary}). The low-level functions are straight-forward to use, and details can be found in their individual help files.
-This document describes the use of \texttt{cumBgVol()}. 
+\texttt{cumBgVol()} is a "high-level" function within the biogas package. The purpose of \texttt{cumBgVol()} is to convert volume data collected in the laboratory to cumulative biogas and CH$_4$ production and production rates.Typically, these vaues will then be used for calculation of BMP, e.g., using the \texttt{summBg()} function. \texttt{cumBgVol()} can handle data from any number of bottles and accepts three different data structures. For simple operations (e.g. interpolation and standardization of biogas volume) \texttt{cumBgVol()} is supported by calls to external low-level functions (refer to Section~\ref{function_internals}, Table \ref{tab:externalfunctionsummary}).
 
-In general, cumBg* functions are compiled of four sections: check arguments, restructure and sorting data, interpolation if needed, and biogas standardization and calculations. Restructuring and sorting data and interpolation are handled by the external functions \texttt{cumBgDataPrep()} and \texttt{interp()}, respectively. From \texttt{interp()} gas composition, cumulative biogas production, and other variables can be interpolated to a specified time if required. From \texttt{cumBgDataPrep()} "wide" and "long" data structure are restructured to "longcombo" data, which is required for \texttt{cumBgVol()} to process data. Additionally, data is sorted, headspace is added if provided, and composition data is corrected if it seems to be a percentage. If data of concern are mixed (interval and cumulative, \texttt{empty.name = TRUE}), these will be sorted and biogas volume standardized within \texttt{cumBgDataPrep()} to obtain interval data only. Subsequently, the now restructured and sorted data is standardized in \texttt{cumBgVol()} by an external function called \texttt{stdVol()}, if not already standardized. 
+In general, cumBg* functions consist of four sections: argument checks, restructure and sorting data, interpolation if needed, and biogas standardization and calculations. Restructuring and sorting data and interpolation are handled by the external functions \texttt{cumBgDataPrep()} and \texttt{interp()}, respectively. From \texttt{interp()} gas composition, cumulative biogas production, and other variables can be interpolated to a specified time if required. From \texttt{cumBgDataPrep()} "wide" and "long" data structure are restructured to "longcombo" data, which is required for \texttt{cumBgVol()} to process data. Additionally, data are sorted, headspace is added if provided, and composition data is corrected if it seems to be a percentage. If data of concern are mixed (interval and cumulative, \texttt{empty.name = TRUE}), these will be sorted and biogas volume standardized within \texttt{cumBgDataPrep()} to obtain interval data only. Subsequently, the now restructured and sorted data is standardized in \texttt{cumBgVol()} by an external function called \texttt{stdVol()}, if not already standardized. 
 
-Two methods are commonly used to evaluate volumetric biogas measurements. Method 1 is based on normalized CH$_4$ concentrations, whereas method 2 accounts for the actual CH$_4$ in the bottle headspace. Both methods are available through \texttt{cumBgVol()} and results is expected to be independent of method. The examples below describe cumulative biogas calculation from three datasets of different structures ("wide", "long", and "longcombo") using volumetric method 1. For method 2 examples, refer to vignette for manometric cumBg function (\texttt{cumBgMan\_function.Rnw}). 
-All external functions are included in the biogas package
+Two methods are commonly used to calculate methane production from volume and composition measurements. Method 1 is based on normalized CH$_4$ concentrations, whereas method 2 accounts for the actual CH$_4$ in the bottle headspace. Both methods are available through \texttt{cumBgVol()} and results are expected to be virtual identical. The examples below describe cumulative biogas calculation from three datasets of different structures ("wide", "long", and "longcombo") using volumetric method 1. For method 2 examples, refer to vignette for manometric cumBg function (\texttt{cumBgMan\_function.Rnw}). 
 
 \subsection{Function arguments}
 The arguments for the function are:
@@ -76,10 +67,11 @@ By default \texttt{interval = TRUE} and \texttt{data.struct} is set as "longcomb
 Similarly, there is an \texttt{id.name} argument for the bottle identification code (ID) column (default is "id"). The default value is \texttt{"id"}. For \texttt{data.struct = "wide"}, there is no ID column. Instead data for each bottle, have individual columns and column names, which are used as ID codes. Here, the name of the column containing the response variables (\texttt{dat.name}), is set as the name of the first column with response variables. All following columns are assumed to also have measurement data. 
 
 Furthermore, we need to specify the name of the time column containing time data using the \texttt{time.name} argument (default is "time").
-If separate data frames are used for \texttt{dat} and \texttt{comp}, the name must match. Time data may be POSIX objects, but then t0 will not be added to rows by the cumBgVol function. In addition the \texttt{addt0} argument is used to add row with "time zero" (\texttt{time.name = 0}) for each bottle in order to calculate production rates for the first observation (default is TRUE). Whereas, \texttt{showt0} determines if the "time zero" should be returned in the output (default is TRUE if time.name is numeric and contains 0 and otherwise FALSE). 
+If separate data frames are used for \texttt{dat} and \texttt{comp}, the name must match. Time data may be POSIX objects, but then t0 will not be added to rows by the cumBgVol function. In addition the \texttt{addt0} argument is used to add row with "time zero" (\texttt{time.name = 0}) for each bottle in order to calculate production rates for the first observation (default is TRUE). Whereas, \texttt{showt0} determines if the "time zero" should be returned in the output (default is TRUE if time.name is numeric and contains 0 and otherwise FALSE). The use of t0 output is for plotting. 
+% rephrase the use of t0 sentence
 
-The \texttt{comp.name} argument is used to indicate which column within the \texttt{comp} data frame contains the CH$_4$ content (as mole fraction in dry biogas, normalized so the sum of mole fractions of CH$_4$ and CO$_2$ sum to unity). Default is xCH$_4$. The \texttt{comp} argument may be a single value instead of a data frame or column. When providing a single value for \texttt{comp}, this value is applied to all observations, and the \texttt{comp.name} argument is not needed. Note that if the \texttt{comp} argument is not provided, \texttt{cumBgVol()} will return calculations on biogas only and no calculations on CH$_4$. The definition of xCH4 depends on the cmethod argument. 
-By default (\texttt{cmethod = "removed"}) the function calculates volumes following \cite{richards_methods_1991} as the product of standardized volume of biogas removed and normalized CH$_4$ content. If results should be based on the sum of methane removed and methane remaining in the bottle headspace, \texttt{cmethod} should be set to \texttt{"total"}. When \texttt{cmethod = "total"}, CH$_4$ concentration is calculated using all components (CH$_4$, CO$_2$, N$_2$, H$_2$S, etc.) instead of CH$_4$ and CO$_2$ only.
+The \texttt{comp.name} argument is used to indicate which column within the \texttt{comp} data frame contains the CH$_4$ content. Default is xCH$_4$. The \texttt{comp} argument may be a single value instead of a data frame or column. When providing a single value for \texttt{comp}, this value is applied to all observations, and the \texttt{comp.name} argument is not needed. Note that if the \texttt{comp} argument is not provided, \texttt{cumBgVol()} will return results for biogas only and not CH$_4$. The definition of xCH4 depends on the cmethod argument.
+By default (\texttt{cmethod = "removed"}) the function calculates volumes following \cite{richards_methods_1991} as the product of standardized volume of biogas removed and normalized CH$_4$ content (as mole fraction in dry biogas, normalized so the sum of mole fractions of CH$_4$ and CO$_2$ sum to unity). If results should be based on the sum of methane removed and methane remaining in the bottle headspace, \texttt{cmethod} should be set to \texttt{"total"}. When \texttt{cmethod = "total"}, CH$_4$ concentration is expressed relative to all biogas components except water (CH$_4$, CO$_2$, N$_2$, H$_2$S, etc.) instead of CH$_4$ and CO$_2$ only.
 
 If any CH$_4$ measurements are missing, xCH4 is interpolated by the external "low-level" function \texttt{interp()}. Here, the \texttt{imethod} argument can be used to define interpolation method (default is "linear"), which is passed to \texttt{interp()}.   
 Similar, an \texttt{extrap} argument is passed to \texttt{interp()} (default is FALSE). The \texttt{extrap} argument is used to indicate if composition data (\texttt{comp.name}) should be extrapolated (e.g., in the case of missing initial composition values). Extrapolation is constant (the value of the nearest observation is taken).   
@@ -91,7 +83,7 @@ By default biogas is assumed to be saturated with water vapor. If biogas volumes
 
 \subsection{Data Structures}
 \label{structures}
-Input data may be structured in one of three ways: "longcombo", "long", and "wide." Default is "longcombo", where the composition column is in the \texttt{dat} data frame and no composition data frame is required. All three data structure inputs are accepted, but the volumetric calculation methods within \texttt{cumBgVol()} only process "longcombo" data. "wide" and "long" data are restructured internally by the low-level function \texttt{cumBgDataPrep()}. In the following examples all three data structures will be addressed. For more details about each of the three data structure see \texttt{biogas\_quick\_start} vignette.
+Input data may be structured in one of three ways: "longcombo", "long", and "wide." Default is "longcombo", where the composition column is in the \texttt{dat} data frame and no separate composition data frame is required. In the following examples all three data structures will be addressed. For more details about each of the three data structure see \texttt{biogas\_quick\_start} vignette.
 
 \newpage
 \section{Examples: Calculation of cumulative production of biogas and CH$_4$ and production rates from volumetric measurements}
@@ -149,7 +141,7 @@ The data frame that is returned has maintained the "longcombo" structure with al
 In these columns, \texttt{v} stands for (standardized) volume, \texttt{cv} (standardized) cumulative volume, \texttt{rv} stands for (standardized) volume production rate, and \texttt{Bg} and \texttt{CH4} for biogas and methane.
 So \texttt{cvBg} contains standardized cumulative biogas production and \texttt{cvCH4} contains standardized cumulative CH$_4$ production.
 
-It is probably easier to understand the data in the output graphically.
+It is probably easier to understand the data in the output graphically. Plotting results is recommended, and can be used to catch strange responses.
 Here we'll use the \texttt{ggplot} function from the \texttt{ggplot2} package to plot it.
 
 <<fig.width=6, fig.height=4, fig.align="center">>=
@@ -192,7 +184,7 @@ In other cases (see \texttt{s3volw} for example), volume standardization and oth
 
 To calculate CH$_4$ production from these "wide" structured data, we must provide values for at least \texttt{dat}, \texttt{comp}, \texttt{temp}, and \texttt{pres} along with the names of a few columns in our input data frame. The \texttt{dat} argument is set as the \texttt{feedVol} data frame, whereas \texttt{comp}, \texttt{temp}, and \texttt{pres} are set as single values of 1 (mole fraction), 0 (degree C), and 1 (atm), respectively. Since a single value is provided for \texttt{comp}, the \texttt{comp.name} argument is not required.
 
-For \texttt{data.struct != "longcombo"} the data structure needs to be specified. Here we set \texttt{data.struct = "wide"} which is internally passed to \texttt{cumBgDataPrep()} and restructured to \texttt{"longcombo"} structure prior to entering volumetric calculation methods.
+For \texttt{data.struct != "longcombo"} the data structure needs to be specified. Here we set \texttt{data.struct = "wide"}.
 Furthermore, we need to specify the name of the time column in \texttt{feedVol} using the \texttt{time.name} argument. 
 
 As mentioned, there are no ID columns for \texttt{data.struct = "wide"}. Instead column name of the first column with response variables (volume measurements) is used as ID code.  
@@ -271,7 +263,7 @@ summary(comp)
 @
 
 To calculate CH$_4$ production from these "long" structured data, we must provide values for at least \texttt{dat} (we will use \texttt{vol}), \texttt{comp} (we will use \texttt{comp}), \texttt{temp}, and \texttt{pres}.
-For \texttt{data.struct != "longcombo"} the data structure needs to be specified. Here we set \texttt{data.struct = "long"} which is internally passed to \texttt{cumBgDataPrep()} and restructured to \texttt{"longcombo"} structure prior to entering volumetric calculation methods.
+For \texttt{data.struct != "longcombo"} the data structure needs to be specified. Here we set \texttt{data.struct = "long"}.
 Furthermore, we need to specify the name of the time column in \texttt{feedVol} using the \texttt{time.name} argument. 
 
 We can use default values \texttt{"id"}, \texttt{"vol"}, and \texttt{"xCH4"} for the \texttt{id.name}, \texttt{dat.name} and \texttt{comp.name} arguments, respectively.
@@ -396,7 +388,6 @@ ggplot(cum.prod, aes(days, cvCH4, colour = factor(id))) +
 @
 
 
-% Cannot get the example with the check argument to work. Still shows warning when check is set to FALSE... 
 By default, input data are checked for unreasonable values using the \texttt{check} argument. If \texttt{check= TRUE}, the input values of xCH4 in biogas are checked. If data seems unreasonable (0 > xCH4 > 1), a warning is returned. In the example below, a single methane value in the composition data frame \texttt{comp} has been set to 1.5 for the purpose of demonstrating the function of the \texttt{check} argument. 
 <<>>=
 data("vol")
@@ -409,7 +400,7 @@ cum.prod <- cumBgVol(vol, comp = comp, temp = 35, pres = 1,
                        extrap = TRUE)
 @
 
-Note the warning about methane concentration being outside the range 0-1 (exceeding 1 mol/mol) for at least one observation. By default it is assumed to be a percentage and corrected. If this warning is not provided (\texttt{check= TRUE}), we are not necessarily aware of this default correction of the observation.   
+Note the warning about methane concentration being outside the range 0-1 (exceeding 1 mol/mol) for at least one observation. By default it is assumed to be a percentage and corrected. If this warning is not provided (\texttt{check= TRUE}), we are not made aware of this default correction of the observation.   
 <<>>=
 cum.prod <- cumBgVol(vol, comp = comp, temp = 35, pres = 1,
                        data.struct = "long",
@@ -448,6 +439,8 @@ The cumBgVol function is one of several cumBg* within the biogas package. The re
 
 \section{Function internals}
 \label{function_internals}
+ which is internally passed to \texttt{cumBgDataPrep()} and restructured to \texttt{"longcombo"} structure prior to entering volumetric calculation methods.
+ 
 \begin{table}[h!]
   \begin{center}
   \caption{Operations done with the low-level functions in \texttt{cumBgVol()}. All functions are vectorized. See help files for more details.}
@@ -481,11 +474,18 @@ J. Filer, H.~H. Ding and S. Chang
 \newblock Biochemical Methane Potential (BMP) Assay Method for Anaerobic Digestion Research.
 \newblock {\em Water}, 11, 921, 2019.
 
+\bibitem{softwarex}
+Hafner, S.D., Koch, K., Carrere, H., Astals, S., Weinrich, S., Rennuit, C.
+  \newblock{2018}
+  \newblock{Software for biogas research: Tools for measurement and prediction of methane production}. 
+  \newblock{SoftwareX} 7: 205-210
+
 \bibitem{rozzi_environmental_2004}
 B.K.~Richards, R.J.~Cummings, T.E.~White, and W.J.~Jewell.
 \newblock Methods of assessing microbial activity and inhibition under anaerobic conditions: a literature review.
 \newblock {\em Rev Environ Sci Biotechnol}, 3: 93-115, 2004.
 
+  
 
 \end{thebibliography}
 \end{document}

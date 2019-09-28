@@ -34,13 +34,15 @@ for(j in files) load(j)
 Manometric methods are commonly used for measuring biogas and methane production in order to determine methane potential and anaerobic biodegradability of a given substrate. In manometric methods, bottle headspace pressure is measured under constant temperature conditions from different techniques such as using pressure manometers or transducers, manometer assisted syringes, or low flow pressure \cite{filer_BMP_2019}. The measured pressure converted to biogas and methane (if composition is provided) volume data using manometric calculation methods. 
 Menometric methods require accumulation of biogas within the bottle headspace. Headspace pressure is typically measured with a portable manometer, which evaluates the pressure relative to atmospheric pressure. Determination of CH$_4$ volume from manometric measurements requires some data processing. 
 
-This document describes how to process manometric biogas measurements using the \texttt{cumBgMan(){} function.
+The \texttt{cumBgMan()} function was developed to process manometric data. 
+A newly developed biogas package (available for the R environment since 2015) address issues with time-consuming calculations and lack of reproducible among laboratories for obtaining BMP \cite{softwarex}. The biogas package consists of ten function including \texttt{cumBg()}, which is used for processing volumetric, manometric, gravimetric, and gas density measurements.  The resulting biogas and methane production values and production rates can be further used to calculate BMP using the \texttt{summBg()} function. 
+This document describes how to process manometric biogas measurements using the \texttt{cumBgMan()} function. 
 We have assumed that readers are familiar with biogas data collection and R.
 
 \section{Overview of the function}
-\texttt{cumBgMan()} is a "high-level" function within the biogas package. The purpose of \texttt{cumBgMan()} is to convert pressure data collected in the laboratory to cumulative biogas and CH$_4$ production and production rates. Typicall, these vaues will then be used for calculation of BMP, e.g., using the \texttt{summBg()} function. \texttt{cumBgMan()} can handle data from any number of bottles and accepts three different data structures. For simple operations (e.g. interpolation and standardization of biogas volume) \texttt{cumBgMan()} is supported by calls to external "low-level" functions (refer to Section~\ref{function_internals}, Table \ref{tab:externalfunctionsummary}).
+\texttt{cumBgMan()} is a "high-level" function within the biogas package. The purpose of \texttt{cumBgMan()} is to convert pressure data collected in the laboratory to cumulative biogas and CH$_4$ production and production rates. Typically, these vaues will then be used for calculation of BMP, e.g., using the \texttt{summBg()} function. \texttt{cumBgMan()} can handle data from any number of bottles and accepts three different data structures. For simple operations (e.g. interpolation and standardization of biogas volume) \texttt{cumBgMan()} is supported by calls to external "low-level" functions (refer to Section~\ref{function_internals}, Table \ref{tab:externalfunctionsummary}).
 
-In general, cumBg* functions are consists of four sections: argument checks, restructuring and sorting data, interpolation if needed, and biogas standardization and calculations. Restructuring and sorting of data and interpolation are handled by the external functions \texttt{cumBgDataPrep()} and \texttt{interp()}, respectively. From \texttt{interp()} gas composition, cumulative biogas production, and other variables can be interpolated to a specified time if required. From \texttt{cumBgDataPrep()} "wide" and "long" data structure are restructured to "longcombo" data, which is required for \texttt{cumBgMan()} for further data processing. Additionally, data are sorted, headspace is added if provided, and composition data is corrected if it seems to be a percentage. Subsequently, the now restructured and sorted data is standardized in \texttt{cumBgVol()} by an external function called \texttt{stdVol()}. 
+In general, cumBg* functions are consist of four sections: argument checks, restructuring and sorting data, interpolation if needed, and biogas standardization and calculations. Restructuring and sorting of data and interpolation are handled by the external functions \texttt{cumBgDataPrep()} and \texttt{interp()}, respectively. From \texttt{interp()} gas composition, cumulative biogas production, and other variables can be interpolated to a specified time if required. From \texttt{cumBgDataPrep()} "wide" and "long" data structure are restructured to "longcombo" data, which is required for \texttt{cumBgMan()} for further data processing. Additionally, data are sorted, headspace is added if provided, and composition data is corrected if it seems to be a percentage. Subsequently, the now restructured and sorted data is standardized in \texttt{cumBgVol()} by an external function called \texttt{stdVol()}. 
 
 Two manometric methods are commonly used to calculate methane production from pressure and composition measurements. Method 1 is based on normalized CH$_4$ concentrations, whereas method 2 accounts for the actual CH$_4$ in the bottle headspace. Both methods are available through \texttt{cumBgMan()} and results are expected to be virtually identical. The examples below describe cumulative biogas calculation on two different datasets. The "long" structured dataset is evaluated using manometric method 1, whereas the "longcombo" dataset is evaluated using manometric method 2, as true methane concentrations are provided.  
 
@@ -336,6 +338,12 @@ The cumBgMan function is one of several cumBg* functions within the biogas packa
 J. Filer, H.~H. Ding and S. Chang
 \newblock Biochemical Methane Potential (BMP) Assay Method for Anaerobic Digestion Research.
 \newblock {\em Water}, 11, 921, 2019.
+
+\bibitem{softwarex}
+Hafner, S.D., Koch, K., Carrere, H., Astals, S., Weinrich, S., Rennuit, C.
+  \newblock{2018}
+  \newblock{Software for biogas research: Tools for measurement and prediction of methane production}. 
+  \newblock{SoftwareX} 7: 205-210
 
 \bibitem{richards_methods_1991}
 B.K.~Richards, R.J.~Cummings, T.E.~White, and W.J.~Jewell.
