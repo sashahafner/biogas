@@ -25,8 +25,6 @@ for(j in files) load(j)
 
 options(width=65)
 
-Sys.which("pdflatex")
-
 @
 
 \title{Calculation of Methane and Biogas Production and Production Rates from Manometric Measurements}
@@ -304,7 +302,6 @@ ggplot(cum.prod.l, aes(time, cvCH4, colour = factor(bottle))) +
 
 Plotting results is recommended, and can be used to catch strange responses like for bottle # 2 here.
 
-\newpage
 \subsection{Additional Examples}
 For examples using \texttt{``wide''} structured input data frame and varying settings of other arguments (e.g. \texttt{addt0} and \texttt{showt0}), refer to vignette for volumetric cumBg function (\texttt{cumBgVol\_function.Rnw}). 
 
