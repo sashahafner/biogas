@@ -7,6 +7,8 @@
 %%\usepackage[version=3]{mhchem} %chemical formulas
 \usepackage[colorlinks = true, urlcolor = blue]{hyperref} % Must be loaded as the last package
 
+\emergencystretch 3em
+
 <<include=FALSE, cache=FALSE>>=
 library(knitr)
 #opts_chunk$set(cache=FALSE,tidy=FALSE,highlight=FALSE)
