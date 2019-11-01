@@ -1,25 +1,25 @@
 cumBgGD <- function(
   # Main arguments
   dat,
-  temp.vol,                    # Temperature for gas volume measurement, numeric or column name
-  temp.grav,                   # Temperature for grav measurement, numeric or column name
-  pres.vol,                    # Pressure for gas volume measurement, numeric or column name
-  pres.grav,                   # Pressure for grav measurement, numeric or column name
-  id.name = 'id',
-  time.name = 'time',
-  vol.name = 'vol',        # As-measured biogas volume (not standardized)
-  m.pre.name,              # Name of column with mass before venting (NTS: should not be required)
+  temp.vol,                # Temperature for gas volume measurement, numeric or column name
+  temp.grav,               # Temperature for grav measurement, numeric or column name
+  pres.vol,                # Pressure for gas volume measurement, numeric or column name
+  pres.grav,               # Pressure for grav measurement, numeric or column name
+  id.name,
+  time.name,
+  vol.name,                # As-measured biogas volume (not standardized)
+  m.pre.name = NULL,       # Name of column with mass before venting
   m.post.name,             # Name of column with mass after venting
   comp.name = 'xCH4',      # Name of xCH4 column *added* to the data frame
-  vented.mass = TRUE,      # Which type of mass loss to use in calculations for xCH4 (vented or total) 
+  vented.mass = FALSE,     # Which type of mass loss to use in calculations for xCH4 (vented or total) 
   averaging = 'interval',  # Interval, cumulative, or final mass loss for calculating xCH4?
-  temp.init = NULL,        # For GDcomp()
-  pres.init = NULL,        # For GDcomp()
-  headspace = NULL,        # for GDcomp()
-  vol.hs.name = 'vol.hs',  # for GDcomp()
-  headcomp = 'N2',         # 
+  temp.init = NULL,        # For GDcomp(), headspace correction 
+  pres.init = NULL,        # For GDcomp(), headspace correction
+  headspace = NULL,        # For GDcomp(), headspace correction
+  vol.hs.name = NULL,      # For GDcomp()
+  headcomp = 'N2',         # For headspace correction
   # Calculation method and other settings
-  vmethod = 'vol',         # Method for biogas calculations, vol or grav or both. NTS: Return warning if vol and venting mass loss is used (or leakage is present)
+  vmethod = 'vol',         # Method for biogas calculations, vol or grav
   comp.lim = c(0, 1),      # Allowed limits on xCH4
   comp.sub = NA,           # Value substituted in when xCH4 is outside comp.lim. Use 'lim' for comp.lim values (e.g., 0, 1), or 'NA' or NA for NA
   imethod = 'linear',
@@ -46,7 +46,7 @@ cumBgGD <- function(
   checkArgClassValue(id.name, 'character')
   checkArgClassValue(time.name, 'character')
   checkArgClassValue(vol.name, 'character')  
-  checkArgClassValue(m.pre.name, 'character') #(NTS: this argument should not be required)
+  checkArgClassValue(m.pre.name, c('character', 'NULL'))
   checkArgClassValue(m.post.name, 'character')
   checkArgClassValue(comp.name, 'character')
   checkArgClassValue(vented.mass, 'logical')
@@ -54,11 +54,11 @@ cumBgGD <- function(
   checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
   checkArgClassValue(pres.init, c('integer', 'numeric', 'NULL'))
   checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL')) # NTS: check
-  checkArgClassValue(vol.hs.name, 'character')
+  checkArgClassValue(vol.hs.name, c('character', 'NULL'))
   checkArgClassValue(headcomp, 'character')
   checkArgClassValue(vmethod, 'character', expected.values = c('vol', 'volume', 'grav', 'gravimetric'))
   checkArgClassValue(comp.lim, c('integer', 'numeric'))
-  checkArgClassValue(comp.sub, 'logical', expected.values = c(NA, 'lim', 'numeric'))
+  checkArgClassValue(comp.sub, c('logical', 'character'), expected.values = c(NA, 'lim', 'numeric'))
   # Skip imethod, checked in interp
   checkArgClassValue(addt0, 'logical')
   checkArgClassValue(extrap, 'logical')
@@ -70,6 +70,11 @@ cumBgGD <- function(
   checkArgClassValue(pres.std, c('integer', 'numeric'))
   checkArgClassValue(unit.temp, 'character')
   checkArgClassValue(unit.pres, 'character')                   
+
+  # Additional checks
+  if (vented.mass & vmethod == 'vol') {
+    warning('You specified that vented mass should be used with volumetric calculations. This does not make much sense.')
+  }
 
   # Sort out which mass and volume results to use
   averaging <- substr(averaging, 1, 3)
@@ -179,7 +184,7 @@ cumBgGD <- function(
   if(averaging != 'fin') {
 
     dat[, comp.name] <- GDComp(mass = dat[, mass.name], vol = dat[, std.vol.name], temp = dat[, temp.grav], 
-                             pres = dat[, pres.grav], unit.temp = unit.temp, unit.pres = unit.pres, fill.value = 0)
+                             pres = dat[, pres.grav], unit.temp = unit.temp, unit.pres = unit.pres) 
 
   } else {
 
@@ -187,13 +192,20 @@ cumBgGD <- function(
     for(i in unique(dat[, id.name])) {
       which.id <- which(dat[, id.name]==i)
 
+      if (!is.null(vol.hs.name)) {
+        vol.hs <- dat[which.id, vol.hs.name][1]
+      } else {
+        vol.hs <- NULL
+      }
+
       dat[which.id, comp.name] <- GDComp(mass = sum(dat[which.id, mass.name]), 
                                          vol = sum(dat[which.id, std.vol.name]), 
-                                         temp = dat[which.id, temp.grav][1], pres = dat[which.id, pres.grav][1], 
-                                         vol.hs = dat[which.id, vol.hs.name][1],
+                                         temp = dat[which.id, temp.grav][1], 
+                                         pres = dat[which.id, pres.grav][1], 
+                                         vol.hs = vol.hs,
                                          headcomp = headcomp,
                                          temp.init = temp.init, pres.init = pres.init,
-                                         unit.temp = unit.temp, unit.pres = unit.pres, fill.value = 0)
+                                         unit.temp = unit.temp, unit.pres = unit.pres)
     } 
   }
 
@@ -201,8 +213,10 @@ cumBgGD <- function(
   # NTS: some of these checks can go after argument list
   dat[, paste0(comp.name, '.lim.flag')] <- ''
   if(all(!is.null(comp.lim)) & all(!is.na(comp.lim)) & is.numeric(comp.lim) & length(comp.lim) == 2) {
-    if(!is.na(comp.sub) & comp.sub != 'NA') {
-      comp.lim <- sort(comp.lim)
+    comp.lim <- sort(comp.lim)
+    if(!is.na(comp.sub) & comp.sub == 'lim') {
+      dat[dat[, comp.name] < comp.lim[1], paste0(comp.name, '.lim.flag')] <- 'low'
+      dat[dat[, comp.name] > comp.lim[2], paste0(comp.name, '.lim.flag')] <- 'high'
       dat[dat[, comp.name] < comp.lim[1], comp.name] <- comp.lim[1]
       dat[dat[, comp.name] > comp.lim[2], comp.name] <- comp.lim[2]
     } else {
@@ -211,6 +225,11 @@ cumBgGD <- function(
       dat[!is.na(dat[, comp.name]) & dat[, comp.name] < comp.lim[1], comp.name] <- NA
       dat[!is.na(dat[, comp.name]) & dat[, comp.name] > comp.lim[2], comp.name] <- NA
     }
+  }
+
+  # Warn if there are any NAs in xCH4
+  if (any(is.na(dat[, comp.name]))) {
+    warning('Some NA values present in calculated xCH4. May cause problems in calculations. You can set comp.sub argument to \"lim\" instead but check results!')
   }
 
   # Proceed with either vol or grav method
@@ -227,7 +246,6 @@ cumBgGD <- function(
       dat[dat[, id.name]==i, comp.name] <- interp(dc[, time.name], dc[, comp.name], time.out = dat[dat[, id.name]==i, time.name], method = imethod, extrap = extrap)
     }
 
- 
     # Calculate CH4 production from vBg calculated above
     if (averaging == 'cum') {
       dat$cvCH4 <- dat[, comp.name] * dat$cvBg
@@ -326,12 +344,6 @@ cumBgGD <- function(
                                           value = 'all', std.message = FALSE)[, c('vBg', 'vCH4')]
     }
 
-
-    #if(!is.null(headspace)) {
-    #  # Apply initial headspace correction only for times 1 and 2 (i.e., one mass loss measurement per reactor)
-    #  which1and2 <- sort(c(which(starts$start), which(starts$start) + 1) )
-    #  dat[which1and2, c('vBg', 'vCH4')] <- mass2vol(mass = dat$mass.tot[which1and2], xCH4 = dat[which1and2, comp.name], temp = dat[which1and2, temp.grav], pres = dat[which1and2, pres.grav], temp.std = temp.std, pres.std = pres.std, unit.temp = unit.temp, unit.pres = unit.pres, value = 'all', headspace = dat[which1and2, vol.hs.name], headcomp = 'N2', temp.init = temp.init, std.message = FALSE)[, c('vBg', 'vCH4')]
-    #}
 
     # Set time zero volumes to zero--necessary because xCH4 is always missing
     if (averaging == 'cum') {

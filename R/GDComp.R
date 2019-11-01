@@ -13,8 +13,7 @@ GDComp <- function(
   temp.init = NULL,
   pres.init = NULL,
   unit.temp = getOption('unit.temp', 'C'),   # Optional unit for temperature
-  unit.pres = getOption('unit.pres', 'atm'), # Optional unit for pressure
-  fill.value = NA                            # What to use when 
+  unit.pres = getOption('unit.pres', 'atm')  # Optional unit for pressure
 ) {
   
   # Check arguments~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,8 +70,5 @@ GDComp <- function(
   # Mole fraction of CH4 in biogas
   xCH4 <- (molMass('CO2') - mmb) / (molMass('CO2') - molMass('CH4'))
 
-  # Observations with missing or negative mass or volume get fill value
-  xCH4[is.na(vol) | is.na(mass) | vol <= 0 | mass <= 0] <- fill.value
- 
   return(xCH4) 
 }
