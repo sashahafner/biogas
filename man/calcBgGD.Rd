@@ -18,13 +18,13 @@ cumBgVol(
   # Column names
   id.name, 
   time.name, 
-  vol = 'vol',
+  vol.name,
   m.pres.name = NULL,
   m.post.name,
   comp.name = 'xCH4',       
   # Settings
   vented.mass = FALSE,
-  averaging = 'interval',  
+  averaging = 'final',  
   temp.init = NULL,       
   pres.init = NULL,      
   headspace = NULL,     
@@ -77,15 +77,62 @@ cumBgVol(
     name of the bottle identification code column in \code{dat}. Must be the same in all data frames used in the function. 
 }
   \item{time.name}{
-    name of column containing time data in \code{dat} and \code{comp} data frames. 
+    name of column containing time data (cumulative time) in \code{dat}. 
 }
 
   \item{vol.name}{
     name of the measured biogas volume column in \code{dat}. 
 }
-  \item{time.name}{
-    name of column containing time data in \code{dat} and \code{comp} data frames. 
+  \item{m.pre.name}{
+    name of column containing pre-venting bottle mass in \code{dat} data frame. 
+    Optional, required for \code{vented.mass = TRUE} and to calculate leakage.
 }
+
+  \item{m.post.name}{
+    name of column containing post-venting bottle mass in \code{dat} data frame. 
+    See details.
+}
+
+  \item{comp.name}{
+    name of column with biogas composition to be added to output data frame. 
+}
+
+  \item{vented.mass}{
+    Set to \code{TRUE} to use vented mass loss (GD_v method) instead of total mass loss (GD_t method) in calculations.
+    See details.
+}
+
+  \item{averaging}{
+   type of averaging used for calculating biogas composition.
+   Default is \code{final}.
+    See details.
+}
+
+  \item{temp.init}{
+    optional initial headspace temperature.
+    Used to correct results for initial headspace.
+    See details.
+}
+
+  \item{}{
+
+  }
+
+  \item{}{
+
+  }
+
+  \item{}{
+
+  }
+
+  \item{}{
+
+  }
+
+  \item{}{
+
+  }
 
   \item{std.message}{
     should a message with the standard conditions be displayed? 

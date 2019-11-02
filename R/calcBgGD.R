@@ -12,7 +12,7 @@ cumBgGD <- function(
   m.post.name,             # Name of column with mass after venting
   comp.name = 'xCH4',      # Name of xCH4 column *added* to the data frame
   vented.mass = FALSE,     # Which type of mass loss to use in calculations for xCH4 (vented or total) 
-  averaging = 'interval',  # Interval, cumulative, or final mass loss for calculating xCH4?
+  averaging = 'final',  # Interval, cumulative, or final mass loss for calculating xCH4?
   temp.init = NULL,        # For GDcomp(), headspace correction 
   pres.init = NULL,        # For GDcomp(), headspace correction
   headspace = NULL,        # For GDcomp(), headspace correction
