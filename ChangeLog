@@ -4,6 +4,15 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+13 November 2019 and earlier SDH and NL
+Version 1.22
+
+calcBgVol.R, calcBgMan.R
+Additional development and name changes from cumBg.
+
+calcBgGD.R
+Additional improvement of function and name change from cumBgGD.
+
 18 August 2019 and earlier NL and SDH
 Version 1.17
 
