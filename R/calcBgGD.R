@@ -23,8 +23,8 @@ cumBgGD <- function(
   comp.lim = c(0, 1),      # Allowed limits on xCH4
   comp.sub = NA,           # Value substituted in when xCH4 is outside comp.lim. Use 'lim' for comp.lim values (e.g., 0, 1), or 'NA' or NA for NA
   imethod = 'linear',
-  addt0 = TRUE,
   extrap = FALSE,
+  addt0 = TRUE,
   showt0 = TRUE,
   dry = FALSE,
   # Warnings and messages
