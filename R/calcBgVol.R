@@ -1,4 +1,4 @@
-cumBgVol <- function(
+calcBgVol <- function(
   # Main arguments
   dat,
   comp = NULL,                # Composition of gas measurement

@@ -1,4 +1,4 @@
-cumBgGD <- function(
+calcBgGD <- function(
   # Main arguments
   dat,
   temp.vol,                # Temperature for gas volume measurement, numeric or column name

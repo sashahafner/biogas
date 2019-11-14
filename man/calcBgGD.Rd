@@ -8,7 +8,7 @@
   \code{calcBgGD} (for \emph{calc}ulate \emph{b}io\emph{g}as from \emph{GD} (gas density) measurements) calculates cumulative biogas, methane production and production rates from mass loss and volume measurements for any number of bottles.
 }
 \usage{
-cumBgVol(
+calcBgGD(
   # Main arguments
   dat, 
   temp.vol,
@@ -255,9 +255,9 @@ cumBgVol(
   \item{cvCH4}{Standardized cumulative volume of methane production.}
   \item{rvBg}{Production rate of biogas.}
   \item{rvCH4}{Production rate of methane.}
+Units are based on units in input data.
 }
 
-Units are based on units in input data.
 
 \references{
   Justesen, C.G., Astals, S., Mortensen, J.R., Thorsen, R., Koch, K., Weinrich, S., Triolo, J.M., Hafner, S.D. 2019. Development of validation of a low-cost gas density method for measuring biochemical potential (BMP) \emph{Water (MDPI)} under review.
@@ -284,7 +284,7 @@ data("UQGDSetup")
 head(UQGDBiogas)
 head(UQGDSetup)
 
-cum.prod <- cumBgGD(UQGDBiogas,
+cum.prod <- calcBgGD(UQGDBiogas,
                     temp.vol = 20, pres.vol = 1013.25,
                     temp.grav = 30, pres.grav = 1500,
                     id.name = 'id', vol.name = 'vol',

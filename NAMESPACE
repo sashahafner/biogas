@@ -2,6 +2,9 @@ importFrom("stats", "approx", "na.omit", "sd", "spline")
 
 export(
 calcCOD,
+calcBgVol,
+calcBgMan,
+calcBgGD,
 cumBg,
 interp,
 mass2vol,

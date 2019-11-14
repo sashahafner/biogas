@@ -1,4 +1,4 @@
-cumBgMan <- function(
+calcBgMan <- function(
   # Main arguments
   dat,
   comp = NULL,                # Composition of biogas measurement
