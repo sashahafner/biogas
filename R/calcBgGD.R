@@ -386,16 +386,21 @@ calcBgGD <- function(
       dat[dat[, id.name]==i, 'rvCH4'] <- dat[dat[, id.name]==i, 'vCH4']/dt[dat[, id.name]==i]
     }
 
+    # Sort results
+    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
+    rownames(dat) <- 1:nrow(dat)
+
+    # start is binary, used to track first observation for each bottle, considered the start
+    starts <- dat[, c(id.name, time.name)]
+    starts$start <- FALSE
+    starts[c(TRUE, starts[-1, id.name] != starts[-nrow(starts), id.name]), 'start'] <- TRUE
+
     # Drop time 0 or initial times, works even if time column not recognized
+    # Seems to rely on addition of time 0 above if missing in input
     if(!showt0) {
       dat <- dat[!starts$start, ]
     }
 
-    # Sort and return results
-    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-
-    rownames(dat) <- 1:nrow(dat)
-    
     return(dat)
   }
 

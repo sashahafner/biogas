@@ -117,7 +117,7 @@ calcBgMan <- function(
                        have.comp = have.comp,
                        interval = interval, imethod = imethod, 
                        headspace = headspace, vol.hs.name = vol.hs.name, 
-                       temp = temp, pres = NULL, 
+                       temp = temp, pres = NULL, rh = rh,
                        extrap = extrap, std.message = std.message, check = check)
   
   # Temperature was added to dat if single numeric values were provided

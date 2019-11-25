@@ -5,6 +5,7 @@ cumBgDataPrep <- function(
   comp = NULL,                # Composition of gas measurement. Leave NULL for wide and longcombo
   temp = NULL,                # Temperature for biogas volume measurement
   pres = NULL,                # Pressure for biogas volume measurement
+  rh,
   interval = TRUE,            # When empty.name is used, there is a mix, and interval is ignored
   data.struct = 'longcombo',  # long, wide, longcombo
   # Column names
@@ -246,8 +247,10 @@ cumBgDataPrep <- function(
     dat[is.na(dat[, empty.name]), empty.name] <- FALSE
     
     # Standardize biogas volume (needed in order to get interval production, and cannot use cum prod because composition wouldn't work)
-    dat[, paste0(dat.name, '.std')] <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, pres.std = pres.std, 
-                                              temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, std.message = std.message)
+    dat[, paste0(dat.name, '.std')] <- stdVol(dat[, dat.name], temp = dat[, temp], 
+                                              pres = dat[, pres], rh = rh, pres.std = pres.std, 
+                                              temp.std = temp.std, unit.temp = unit.temp, 
+                                              unit.pres = unit.pres, std.message = std.message)
     
     # Sum final volumes to get cumulative volumes, then interval from them (must have interval data here, because that is what biogas composition is for)
     for(i in unique(dat[, id.name])) {
