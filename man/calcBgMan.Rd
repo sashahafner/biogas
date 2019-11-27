@@ -1,5 +1,5 @@
-\name{cumBgMan}
-\alias{cumBgMan}
+\name{calcBgMan}
+\alias{calcBgMan}
 %- Also NEED an "\alias" for EACH other topic documented here.
 \title{
   Calculate Cumulative Biogas Production from Pressure Data
@@ -14,7 +14,7 @@ cumBg(
   data.struct = 'longcombo',
   # Column names 
   id.name = 'id', time.name = 'time',
-  dat.name = 'dat.name', comp.name = 'xCH4',
+  pres.name = 'pres', comp.name = NULL,
   # Additional arguments
   pres.resid = NULL, temp.init = NULL, pres.init = NULL,
   rh.resid = NULL,
@@ -259,12 +259,13 @@ cumBg(
   Richards, B.K., Cummings, R.J., White, T.E., Jewell, W.J. 1991. Methods for kinetic analysis of methane fermentation in high solids biomass digesters. \emph{Biomass and Bioenergy} 1: 65-73.
 }
 \author{
-  Sasha D. Hafner and Nanna Løjborg
+  Sasha D. Hafner and Nanna Lojborg
 }
 
 \seealso{
-  \code{\link{cumBgMan}},
-  \code{\link{cumBgGD}},
+  \code{\link{cumBg}},
+  \code{\link{calcBgVol}},
+  \code{\link{calcBgGD}},
   \code{\link{summBg}},
   \code{\link{interp}},
   \code{\link{stdVol}},
@@ -277,108 +278,48 @@ cumBg(
 data("sludgeTwoBiogas")
 data("sludgeTwoSetup")
 
+
 head(sludgeTwoBiogas)
 head(sludgeTwoSetup)
 
-# Calculate cumulative production and rates from sludgeTwoBiogasPres
-# Add initial headspace correction (alternatively, headspace could be in the same data frame, instead of a separate with a different volume for each reactor)
-cum.prod <- cumBgMan(sludgeTwoBiogas, temp = 30,
-                     data.struct = "longcombo",
-                     id.name = "id", time.name = "time.d", 
-                     dat.name = "pres", comp.name = "xCH4n",
-                     temp.init = 30, pres.resid = 0, pres.init = 0.0,
-                     headspace = sludgeTwoSetup, vol.hs.name = "vol.hs",
-                     pres.amb = 1013, absolute = FALSE,
-                     addt0 = TRUE, extrap = FALSE,
-                     unit.pres = "mbar")
-head(cum.prod)
-
-# In this case, we can use default values for some column names, so this call is identical
-cum.prod <- cumBgMan(sludgeTwoBiogas, temp = 30,
-                     time.name = "time.d", comp.name = "xCH4n",
-                     temp.init = 30, pres.resid = 0, pres.init = 0.0,
-                     headspace = sludgeTwoSetup,
-                     pres.amb = 1013, absolute = FALSE,
-                     unit.pres = "mbar")
-head(cum.prod)
+# Calculate cumulative production and rates 
+# Pressure is gauge (not absolute) so absolute argument needed
+# Data structure is default of longcombo
+cbg <- calcBgMan(sludgeTwoBiogas, temp = 30,
+                 id.name = "id", time.name = "time.d", 
+                 pres.name = "pres", comp.name = "xCH4n",
+                 temp.init = 30, pres.resid = 0, pres.init = 0,
+                 headspace = sludgeTwoSetup, vol.hs.name = "vol.hs",
+                 pres.amb = 1013, absolute = FALSE,
+                 unit.pres = "mbar")
+head(cbg)
 
 # Plot results
 \dontrun{
   # Not run just because it is a bit slow
   library(ggplot2)
-  ggplot <- ggplot(cum.prod, aes(time.d, cvCH4, colour = factor(id))) + 
+
+  ggplot(cbg, aes(time.d, cvCH4, colour = factor(id))) + 
     geom_point() +
     geom_line(aes(group = id)) +
-    labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle id")  + 
+    labs(x = "Time (d)", y = "Cumulative methane production  (mL)", colour = "Bottle id")  + 
     theme_bw() 
-  
-  plot(ggplot)
 }
 
-# Omit added time zero rows
-cum.prod <- cumBgMan(sludgeTwoBiogas, temp = 30,
-                     time.name = "time.d", comp.name = "xCH4n",
-                     temp.init = 30, pres.resid = 0, pres.init = 0.0,
-                     headspace = sludgeTwoSetup,
-                     pres.amb = 1013, absolute = FALSE,
-                     showt0 = FALSE,
-                     unit.pres = "mbar")
+# This sludgeTwoBiogas dataset has original xCH4 as well as normalized values
+# So "method 2" can also be used by changing comp.name and cmethod arguments
+cbg2 <- calcBgMan(sludgeTwoBiogas, temp = 30,
+                  id.name = "id", time.name = "time.d", 
+                  pres.name = "pres", comp.name = "xCH4",
+                  temp.init = 30, pres.resid = 0, pres.init = 0,
+                  headspace = sludgeTwoSetup, vol.hs.name = "vol.hs",
+                  pres.amb = 1013, cmethod = 'total', absolute = FALSE,
+                  unit.pres = "mbar")
+head(cbg2)
 
-head(cum.prod)
-
-\dontrun{
-  # Not run just because it is a bit slow
-  ggplot <- ggplot(cum.prod, aes(time.d, cvCH4, colour = factor(id))) + 
-    geom_point() +
-    geom_line(aes(group = id)) +
-    labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle id")  + 
-    theme_bw() 
-  
-  plot(ggplot)
-}
-
-# Previous is different from never adding them in the first place (rates not calculated for first 
-# observations here)
-cum.prod <- cumBgMan(sludgeTwoBiogas, temp = 30,
-                     time.name = "time.d", comp.name = "xCH4n",
-                     temp.init = 30, pres.resid = 0, pres.init = 0.0,
-                     headspace = sludgeTwoSetup,
-                     pres.amb = 1013, absolute = FALSE,
-                     addt0 = FALSE,
-                     unit.pres = "mbar")
-head(cum.prod)
-
-\dontrun{
-  # Not run just because it is a bit slow
-  ggplot <- ggplot(cum.prod, aes(time.d, cvCH4, colour = factor(id))) + 
-    geom_point() +
-    geom_line(aes(group = id)) +
-    labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle id")  + 
-    theme_bw() 
-  
-  plot(ggplot)
-}
-
-# Can leave out composition data, and then CH4 is not included in results
-cum.prod <- cumBgMan(sludgeTwoBiogas, temp = 30, 
-                     time.name = "time.d",
-                     temp.init = 30, pres.resid = 0, pres.init = 0.0,
-                     headspace = sludgeTwoSetup,
-                     pres.amb = 1013, absolute = FALSE,
-                     addt0 = FALSE,
-                     unit.pres = "mbar")
-head(cum.prod)
-
-# Leave out temp, and results are not standardised
-cum.prod <- cumBgMan(sludgeTwoBiogas, 
-                     time.name = "time.d", comp.name = "xCH4n",
-                     temp.init = 30, pres.resid = 0, pres.init = 0.0,
-                     headspace = sludgeTwoSetup,
-                     pres.amb = 1013, absolute = FALSE,
-                     addt0 = FALSE,
-                     unit.pres = "mbar")
-head(cum.prod)
-
+# Compare
+quantile(cbg2$vCH4 - cbg$vCH4)
+# Median difference of 0.2 mL
 
 # Example with long structured input data frame
 data("strawPressure")
@@ -386,21 +327,29 @@ data("strawComp")
 data("strawSetup")
 
 # Need to specify data structure with \code{data.struct} argument
-# Using default values for time.name, dat.name, and comp.name
-cum.prod <- cumBgMan(strawPressure, comp = strawComp, temp = 31,
-                          data.struct = "long",
-                          id.name = "bottle", 
-                          temp.init = 21.55, pres.resid = "pres.resid", pres.init = 0.0,
-                          headspace = strawSetup, vol.hs.name = "headspace",
-                          pres.amb = 101.3, absolute = FALSE,
-                          extrap = TRUE,
-                          unit.pres = "kPa")
-head(cum.prod)
+# Using default values for time.name, pres.name
+cbg <- calcBgMan(strawPressure, comp = strawComp, temp = 31,
+                 data.struct = "long",
+                 id.name = "bottle", comp.name = "xCH4",
+                 temp.init = 21.55, pres.resid = "pres.resid", pres.init = 0,
+                 headspace = strawSetup, vol.hs.name = "headspace",
+                 pres.amb = 101.3, absolute = FALSE,
+                 unit.pres = "kPa")
+
+# Because of missing composition measurements at last time for some bottles
+# CH4 volume will be missing
+# Can estimate xCH4 here by extrapolation using argument of same name
+
+cbg2 <- calcBgMan(strawPressure, comp = strawComp, temp = 31,
+                 data.struct = "long",
+                 id.name = "bottle", comp.name = "xCH4",
+                 temp.init = 21.55, pres.resid = "pres.resid", pres.init = 0,
+                 headspace = strawSetup, vol.hs.name = "headspace",
+                 pres.amb = 101.3, absolute = FALSE, 
+                 extrap = TRUE, unit.pres = "kPa")
 
 
-
-# For example with wide structured input data frame refer to \code{\link{cumBgVol}}
-
+# For example with wide structured input data frame cumBgVol() help file
 
 }
 %% Add one or more standard keywords, see file "KEYWORDS" in the

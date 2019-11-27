@@ -8,8 +8,8 @@ calcBgMan <- function(
   # Column names 
   id.name = 'id',             # Name of column containing reactor identification code
   time.name = 'time',         # Name of time column 
-  dat.name = 'pres',          # Name of column containing headspace pressure measurements
-  comp.name = 'xCH4',         # Name of xCH4 column in the data frame
+  pres.name = 'pres',          # Name of column containing headspace pressure measurements
+  comp.name = NULL,           # Name of xCH4 column in the data frame
   # Additional arguments 
   temp.init = NULL,           # Initial headspace temperature
   pres.init = NULL,           # Initial headspace pressure
@@ -45,7 +45,7 @@ calcBgMan <- function(
   checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
   checkArgClassValue(id.name, 'character')
   checkArgClassValue(time.name, 'character')
-  checkArgClassValue(dat.name, 'character')
+  checkArgClassValue(pres.name, 'character')
   checkArgClassValue(comp.name, c('character', 'NULL'))
   checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric'))
   checkArgClassValue(vol.hs.name, 'character')
@@ -92,10 +92,10 @@ calcBgMan <- function(
   }
   
   # For pressure dat missing values are OK only if they are cumulative (NAs obs can be dropped with no error in cvBg)
-  if(!is.null(dat.name)) {
-    if(any(is.na(dat[, dat.name])) & interval & data.struct != 'wide') {
-      w <- which(is.na(dat[, dat.name]))
-      stop('Missing values in dat.name column! See rows ', paste(w, collapse = ', '), '.')
+  if(!is.null(pres.name)) {
+    if(any(is.na(dat[, pres.name])) & interval & data.struct != 'wide') {
+      w <- which(is.na(dat[, pres.name]))
+      stop('Missing values in pres.name column! See rows ', paste(w, collapse = ', '), '.')
     }
   }
   
@@ -111,14 +111,15 @@ calcBgMan <- function(
 
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'longcombo'
-  dat <- cumBgDataPrep(dat = dat, dat.type = 'pres', dat.name = dat.name, 
+  dat <- cumBgDataPrep(dat = dat, dat.type = 'pres', dat.name = pres.name, 
                        comp.name = comp.name, id.name = id.name, time.name = time.name, 
                        data.struct = data.struct, comp = comp, 
                        have.comp = have.comp,
                        interval = interval, imethod = imethod, 
                        headspace = headspace, vol.hs.name = vol.hs.name, 
-                       temp = temp, pres = NULL, rh = rh,
-                       extrap = extrap, std.message = std.message, check = check)
+                       temp = temp, pres = NULL, rh = rh, extrap = extrap, 
+                       temp.std = temp.std, pres.std = pres.std, unit.temp = unit.temp,
+                       unit.pres = unit.pres, std.message = std.message, check = check)
   
   # Temperature was added to dat if single numeric values were provided
   if(!is.null(temp)) {
@@ -130,7 +131,7 @@ calcBgMan <- function(
   
   # For data.struct = 'wide', data and composition names are fixed, added manually in cumBgDataPrep()
   if(data.struct == 'wide') {
-    dat.name <- 'vol'
+    pres.name <- 'vol'
     if(have.comp) {
       comp.name <- 'xCH4'
     }
@@ -152,8 +153,8 @@ calcBgMan <- function(
   if(!absolute) {
     if(is.null(pres.amb)) stop('Pressure measurements are GAUGE but pres.amb argument was not provided.')
         
-    dat[, aa <- paste0(dat.name, '.abs')] <- dat[, dat.name] + pres.amb
-    dat.name <- aa
+    dat[, aa <- paste0(pres.name, '.abs')] <- dat[, pres.name] + pres.amb
+    pres.name <- aa
         
     dat[, aa <- paste0(pres.resid, '.abs')] <- dat[, pres.resid] + pres.amb
     pres.resid <- aa
@@ -164,7 +165,7 @@ calcBgMan <- function(
   # Add residual rh (after pressure measurement and venting)
   if(interval) {
     if(is.null(rh.resid)) {
-      dat$rh.resid <- dat[, pres.resid]/dat[, dat.name]
+      dat$rh.resid <- dat[, pres.resid]/dat[, pres.name]
       dat$rh.resid[dat$rh.resid > 1] <- 1
     } else {
       dat$rh.resid <- rh.resid
@@ -176,7 +177,7 @@ calcBgMan <- function(
   
   # Standardize total gas volumes and calculate biogas and methane production     
   # Standardized headspace volume before venting
-  vHS <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, dat.name], rh = rh, 
+  vHS <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres.name], rh = rh, 
                 pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
                 unit.pres = unit.pres, std.message = FALSE, warn = FALSE) 
     
@@ -325,7 +326,7 @@ calcBgMan <- function(
   }
     
   # Drop NAs if they extend to the latest time for a given bottle (based on problem with wide (originally AMPTSII) data, sometimes shorter for some bottles)
-  if(any(is.na(dat[, dat.name]))) {
+  if(any(is.na(dat[, pres.name]))) {
     
     dat2 <- data.frame()
     
@@ -333,9 +334,9 @@ calcBgMan <- function(
       
       dd <- dat[dat[, id.name] == i, ]
       
-      if(is.na(dd[nrow(dd), dat.name])) {
+      if(is.na(dd[nrow(dd), pres.name])) {
         # All NAs
-        i1 <- which(is.na(dd[, dat.name]))
+        i1 <- which(is.na(dd[, pres.name]))
           
         # Look for consecutive NAs
         i1d <- diff(i1)
