@@ -1,14 +1,14 @@
-\name{cumBgVol}
-\alias{cumBgVol}
+\name{calcBgVol}
+\alias{calcBgVol}
 %- Also NEED an "\alias" for EACH other topic documented here.
 \title{
   Calculate Cumulative Biogas Production from Volumetric Data
 }
 \description{
-  \code{cumBgVol} (for \emph{cum}ulative \emph{b}io\emph{g}as \emph{vol}umetric) calculates cumulative biogas, methane production and production rates from individual volume and composition measurements for any number of reactors.
+  \code{calcBgVol} (for \emph{cum}ulative \emph{b}io\emph{g}as \emph{vol}umetric) calculates cumulative biogas, methane production and production rates from individual volume and composition measurements for any number of reactors.
 }
 \usage{
-cumBgVol(
+calcBgVol(
   # Main arguments
   dat, comp = NULL, temp = NULL,
   pres = NULL, interval = TRUE, 
@@ -211,7 +211,7 @@ cumBgVol(
 
   If \code{check = TRUE}, the input values of mole fraction of methane in biogas are checked, and a warning is returned if the are outside 0, 1.
 
-  See associated vignette (\code{cumBgVol_function.Rnw}) for more information.
+  See associated vignette (\code{calcBgVol_function.Rnw}) for more information.
   
 }
 
@@ -234,12 +234,12 @@ cumBgVol(
   Richards, B.K., Cummings, R.J., White, T.E., Jewell, W.J. 1991. Methods for kinetic analysis of methane fermentation in high solids biomass digesters. \emph{Biomass and Bioenergy} 1: 65-73.
 }
 \author{
-  Sasha D. Hafner and Nanna Løjborg
+  Sasha D. Hafner and Nanna Lojborg
 }
 
 \seealso{
-  \code{\link{cumBgMan}},
-  \code{\link{cumBgGD}},
+  \code{\link{calcBgMan}},
+  \code{\link{calcBgGD}},
   \code{\link{summBg}},
   \code{\link{interp}},
   \code{\link{stdVol}},
@@ -256,7 +256,7 @@ head(vol)
 head(comp)
 
 # Calculate cumulative production and rates from vol and comp
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, id.name = "id", time.name = "days", 
+cum.prod <- calcBg(vol, comp = comp, temp = 20, pres = 1, id.name = "id", time.name = "days", 
 		  comp.name = "xCH4", dat.name = "vol")
 head(cum.prod)
 
@@ -264,12 +264,12 @@ head(cum.prod)
 # Set extrap = TRUE to extrapolate xCH4 to earliest times
 
 # Calculate cumulative production and rates from vol and comp
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, id.name = "id", time.name = "days", 
+cum.prod <- calcBg(vol, comp = comp, temp = 20, pres = 1, id.name = "id", time.name = "days", 
 		  comp.name = "xCH4", dat.name = "vol", extrap = TRUE)
 head(cum.prod)
 
 # In this case, we can use default values for some column names, so this call is identical
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, time.name = "days", extrap = TRUE)
+cum.prod <- calcBg(vol, comp = comp, temp = 20, pres = 1, time.name = "days", extrap = TRUE)
 
 # Plot results
 \dontrun{
@@ -280,7 +280,7 @@ qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)",
 }
 
 # Omit added time zero rows
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, time.name = "days", extrap = TRUE, 
+cum.prod <- calcBg(vol, comp = comp, temp = 20, pres = 1, time.name = "days", extrap = TRUE, 
 		  showt0 = FALSE)
 head(cum.prod)
 
@@ -292,7 +292,7 @@ qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)",
 
 # Previous is different from never adding them in the first place (rates not calculated for first 
 # observations here)
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, time.name = "days", extrap = TRUE, 
+cum.prod <- calcBg(vol, comp = comp, temp = 20, pres = 1, time.name = "days", extrap = TRUE, 
 		  addt0 = FALSE)
 head(cum.prod)
 
@@ -302,10 +302,10 @@ qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)",
       ylab = "Cumulative methane production (mL)", color = id, geom = "line")
 }
 
-# Can use POSIX objects for time (but cumBg cannot add t0 rows here)
+# Can use POSIX objects for time (but calcBg cannot add t0 rows here)
 class(vol$date.time)
 class(comp$date.time)
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, time.name = "date.time", extrap = TRUE)
+cum.prod <- calcBg(vol, comp = comp, temp = 20, pres = 1, time.name = "date.time", extrap = TRUE)
 head(cum.prod)
 
 \dontrun{
@@ -315,11 +315,11 @@ qplot(x = date.time, y = cvCH4, data = cum.prod, xlab = "Time (d)",
 }
 
 # Can leave out composition data, and then CH4 is not included in results
-cum.prod <- cumBg(vol, temp = 20, pres = 1, time.name = "days")
+cum.prod <- calcBg(vol, temp = 20, pres = 1, time.name = "days")
 head(cum.prod)
 
 # Leave out pres or temp, and results are not standardised
-cum.prod <- cumBg(vol, time.name = "days")
+cum.prod <- calcBg(vol, time.name = "days")
 head(cum.prod)
 
 # Example with input data frames with different column names
@@ -329,7 +329,7 @@ data("comp2")
 head(vol2)
 head(comp2)
 
-cum.prod <- cumBg(vol2, comp = comp2, temp = 20, pres = 1, 
+cum.prod <- calcBg(vol2, comp = comp2, temp = 20, pres = 1, 
                   id.name = "bottle", time.name = "days", 
 		  dat.name = "meas.vol", comp.name = "CH4.conc")
 head(cum.prod)
@@ -339,7 +339,7 @@ tail(cum.prod)
 warnings()
 
 # Set extrap = TRUE to avoid
-cum.prod <- cumBg(vol2, comp = comp2, temp = 20, pres = 1, 
+cum.prod <- calcBg(vol2, comp = comp2, temp = 20, pres = 1, 
                   id.name = "bottle", time.name = "days", 
 		  dat.name = "meas.vol", comp.name = "CH4.conc", 
                   extrap = TRUE)
@@ -353,23 +353,13 @@ qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)",
 }
 
 
-# Example with wide structured input data frame
+# Example with wide structured input data frame (AMPTS II)
 data("feedVol")
 
-# By default biogas is assumed to be saturated with water vapor. For AMPTS II data, biogas volume are already standardized to dry conditions. 
-# Therefore, dry argument is required as \texttt{dry = TRUE}.
+# By default biogas is assumed to be saturated with water vapor
 # Composition is set to a single value. 
-# Calculate cumulative production and rates from feedVol
-cum.prod <- cumBgVol(feedVol, comp = 1, temp = 0, pres = 1,
-                           data.struct = 'wide',
-                           id.name = "id", time.name = 'time.d', 
-                           dat.name = '1', comp.name = "xCH4",
-                           dry = TRUE)
-head(cum.prod)
-# Note message about applying single value for biogas composition to all observations. 
-
-# Data is cumulative. Set interval = FALSE, to indicate for cumulative data. 
-cum.prod <- cumBgVol(feedVol, comp = 1, temp = 0, pres = 1,
+# Data are cumulative
+cum.prod <- calcBgVol(feedVol, comp = 1, temp = 0, pres = 1,
                      interval = FALSE,
                      data.struct = 'wide',
                      id.name = "id", time.name = 'time.d', 
@@ -377,18 +367,8 @@ cum.prod <- cumBgVol(feedVol, comp = 1, temp = 0, pres = 1,
                      dry = TRUE)
 head(cum.prod)
 
-# Use default values for columns when possible 
-cum.prod <- cumBgVol(feedVol, comp = 1, temp = 0, pres = 1,
-                     interval = FALSE,
-                     data.struct = 'wide',
-                     time.name = 'time.d', 
-                     dat.name = '1',
-                     dry = TRUE)
-head(cum.prod)
-
 # Can leave out composition data, and then CH4 is not included in results
-# NTS: does not work!
-cum.prod <- cumBgVol(feedVol, temp = 0, pres = 1,
+cum.prod <- calcBgVol(feedVol, temp = 0, pres = 1,
                      interval = FALSE,
                      data.struct = 'wide',
                      time.name = 'time.d', 
@@ -397,7 +377,7 @@ cum.prod <- cumBgVol(feedVol, temp = 0, pres = 1,
 head(cum.prod)
 
 # Leave out pres or temp, and results are not standardised
-cum.prod <- cumBgVol(feedVol, comp = 1,
+cum.prod <- calcBgVol(feedVol, comp = 1,
                      interval = FALSE,
                      data.struct = 'wide',
                      time.name = 'time.d', 
@@ -423,7 +403,7 @@ head(cum.prod)
 data("s3lcombo")
 
 # Calculate cumulative production and rates from s3lcombo
-cum.prod <- cumBgVol(s3lcombo, comp = comp, temp = 25, pres = 1, 
+cum.prod <- calcBgVol(s3lcombo, comp = comp, temp = 25, pres = 1, 
                         id.name = 'id', time.name = 'time.d', 
                         data.struct = 'longcombo', dat.name = 'vol.ml', 
                         comp.name = 'xCH4', extrap = TRUE)

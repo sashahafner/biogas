@@ -21,6 +21,11 @@ cumBgDataPrep <- function(
   extrap = FALSE,
   # Additional argument for volumetric data only 
   empty.name = NULL,          # Column name for binary/logical column for when cum vol was reset to zero
+  # Units
+  temp.std,
+  pres.std,
+  unit.temp,
+  unit.pres,
   # Warnings and messages
   std.message = !quiet,
   check = TRUE,

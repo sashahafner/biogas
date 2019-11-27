@@ -126,7 +126,8 @@ calcBgVol <- function(
                        interval = interval, imethod = imethod, extrap = extrap, 
                        headspace = headspace, vol.hs.name = vol.hs.name, 
                        temp = temp, pres = pres, rh = rh, empty.name = empty.name, 
-                       std.message = std.message, check = check)
+                       temp.std = temp.std, pres.std = pres.std, unit.temp = unit.temp,
+                       unit.pres = unit.pres, std.message = std.message, check = check)
 
   # Temperature and pressure were added to dat if single numeric values were provided
   if(!is.null(temp)) {
