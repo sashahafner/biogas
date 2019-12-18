@@ -23,8 +23,8 @@
   }
 }
 \details{
-  These data are meant to be example data for \code{\link{cumBg}} and \code{\link{cumBgMan}} for respectively, gravimetric and manometric determination of biogas production.
-  BMP test were carried out in 160 mL serum bottles sealed with a butyl rubber septum retained with an aluminum crimp seal at mesophilic conditions (37 ± 1°C). 
+  These data are meant to be example data for \code{\link{cumBg}} and \code{\link{calcBgMan}} for respectively, gravimetric and manometric determination of biogas production.
+  BMP test were carried out in 160 mL serum bottles sealed with a butyl rubber septum retained with an aluminum crimp seal at mesophilic conditions (37 degrees C). 
   Substrate was primary wastewater sludge.
   
   Cumulative methane production was measured from the same set of bottles by both manometric and gravimetric methods. 

@@ -43,7 +43,7 @@ The arguments for the function are:
 ## function (dat, comp = NULL, temp = NULL, pres = NULL, 
 ##           interval = TRUE, data.struct = "longcombo", 
 ##           id.name = "id", time.name = "time", 
-##           dat.name = "vol", comp.name = "xCH4", 
+##           vol.name = "vol", comp.name = "xCH4", 
 ##           headspace = NULL, vol.hs.name = "vol.hs", 
 ##           cmethod = "removed", imethod = "linear", 
 ##           extrap = FALSE, addt0 = TRUE, showt0 = TRUE, 
@@ -62,7 +62,7 @@ Most of the arguments have default values, but to calculate CH$_4$ production we
 
 By default \texttt{interval = TRUE} and \texttt{data.struct} is set as \texttt{``longcombo''}. \texttt{``wide''} and \texttt{``long''} structured data will be restructured to \texttt{``longcombo''} internally by \texttt{cumBgDataPrep()}, when specified by the \texttt{data.struct} argument (refer to Section~\ref{structures}). When data are cumulative, the interval argument should be set to FALSE. When data are mixed interval and cumulative response variables (\texttt{empty.name != TRUE}), the interval argument is ignored.
 
-Similarly, there is an \texttt{id.name} argument for the bottle identification code (ID) column (default is \texttt{``id''}). The default value is \texttt{``id''}. For \texttt{data.struct = ``wide''}, there is no ID column. Instead data for each bottle, have individual columns and column names, which are used as ID codes. Here, the name of the column containing the response variables (\texttt{dat.name}), is set as the name of the first column with response variables. All following columns are assumed to have measurement data. 
+Similarly, there is an \texttt{id.name} argument for the bottle identification code (ID) column (default is \texttt{``id''}). The default value is \texttt{``id''}. For \texttt{data.struct = ``wide''}, there is no ID column. Instead data for each bottle, have individual columns and column names, which are used as ID codes. Here, the name of the column containing the response variables (\texttt{vol.name}), is set as the name of the first column with response variables. All following columns are assumed to have measurement data. 
 
 Furthermore, we need to specify the name of the time column containing time data using the \texttt{time.name} argument (default is \texttt{``time''}).
 If separate data frames are used for \texttt{dat} and \texttt{comp}, the name must match. Time data may be POSIXct objects, but then t0 will not be added to rows by the \texttt{calcBgVol()} function. In addition the \texttt{addt0} argument is used to add row with ``time zero'' (\texttt{time.name = 0}) for each bottle in order to calculate production rates for the first observation (default is TRUE). \texttt{showt0} determines if the ``time zero'' should be returned in the output (default is TRUE if time.name is numeric and contains 0 and otherwise FALSE). The use of t0 output is for plotting. 
@@ -112,7 +112,7 @@ Cumulative biogas and CH$_4$ production and production rates from volumetric dat
 
 To calculate CH$_4$ production from these \texttt{``longcombo''} data, we must provide values for at least \texttt{dat} and \texttt{comp}, which is in a combined data frame (we will use \texttt{s3lcombo}), \texttt{temp} (biogas temperature), and \texttt{pres} (biogas pressure) along with the names of a few columns in our input data frame.
 
-We can use the default values \texttt{``longcombo''}, \texttt{``id''}, and \texttt{``xCH4''} for the \texttt{data.struct}, \texttt{id.name}, and \texttt{comp.name} arguments, respectively. Whereas, the \texttt{dat.name} argument needs to be specified as \texttt{``vol.ml''}.
+We can use the default values \texttt{``longcombo''}, \texttt{``id''}, and \texttt{``xCH4''} for the \texttt{data.struct}, \texttt{id.name}, and \texttt{comp.name} arguments, respectively. Whereas, the \texttt{vol.name} argument needs to be specified as \texttt{``vol.ml''}.
 Similar, default values can be used for \texttt{cmethod = ``removed''}, evaluating CH$_4$ concentration based on normalized CH$_4$ and CO$_2$ values and for \texttt{imethod = ``linear''}, resulting in internal linear interpolation of \texttt{xCH4} by calling the \texttt{interp} function. 
 Furthermore, initial composition (\texttt{xCH4}) values are missing in the \texttt{s3lcombo} data frame. Therefore, we set \texttt{extrap = TRUE} for extrapolation of these initial CH$_4$ values
 
@@ -120,9 +120,9 @@ By default biogas is assumed to be saturated with water vapor (\texttt{dry = FAL
   
 <<>>=
 cum.prod.lc <- calcBgVol(s3lcombo, temp = 25, pres = 1, 
-                     time.name = 'time.d', 
-                     dat.name = 'vol.ml', 
-                     extrap = TRUE)
+                         time.name = 'time.d', vol.name = 'vol.ml', 
+                         comp.name = 'xCH4',
+                         extrap = TRUE)
 @
 
 The output becomes:
@@ -184,7 +184,7 @@ For \texttt{data.struct != ``longcombo''} the data structure needs to be specifi
 Furthermore, we need to specify the name of the time column in \texttt{feedVol} using the \texttt{time.name} argument. 
 
 As mentioned, there are no ID columns for \texttt{data.struct = ``wide''}. Instead column name of the first column with response variables (volume measurements) is used as ID code.  
-In this example observations are numbered 1 to 12 and hence, the \texttt{dat.name} argument is set to 1. All following columns are assumed to also contain response variables. 
+In this example observations are numbered 1 to 12 and hence, the \texttt{vol.name} argument is set to 1. All following columns are assumed to also contain response variables. 
 By default (\texttt{cmethod = ``removed''}) CH$_4$ concentrations are evaluated based on normalized CH$_4$ and CO$_2$ values. 
 Similar, default values can be used for \texttt{imethod = ``linear''}, resulting in internal linear interpolation of xCH4 by calling the \texttt{interp()} function, and \texttt{extrap = FALSE} as all composition data are provided (set to 1 for all observations). 
 
@@ -194,7 +194,7 @@ Additionally, the response variables are cumulative data and hence, we set \text
 <<>>=
 cum.prod.w <- calcBgVol(feedVol, comp = 1, temp = 0, pres = 1,
                        data.struct = "wide",
-                       time.name = "time.d", dat.name = "1",
+                       time.name = "time.d", vol.name = "1",
                        dry = TRUE,
                        interval = FALSE)
 @
@@ -261,7 +261,7 @@ To calculate CH$_4$ production from these \texttt{``long''} structured data, we 
 For \texttt{data.struct != ``longcombo''} the data structure needs to be specified. Here we set \texttt{data.struct = ``long''}.
 Furthermore, we need to specify the name of the time column in \texttt{feedVol} using the \texttt{time.name} argument. 
 
-We can use default values \texttt{``id''}, \texttt{``vol''}, and \texttt{``xCH4''} for the \texttt{id.name}, \texttt{dat.name} and \texttt{comp.name} arguments, respectively.
+We can use default values \texttt{``id''}, \texttt{``vol''}, and \texttt{``xCH4''} for the \texttt{id.name}, \texttt{vol.name} and \texttt{comp.name} arguments, respectively.
 Similar, default values can be used for \texttt{cmethod = ``removed''}, evaluating CH$_4$ concentration based on normalized CH$_4$ and CO$_2$ values, for \texttt{imethod = ``linear''}, resulting in internal linear interpolation of \texttt{xCH4} by calling the \texttt{interp()} function, and for \texttt{dry = TRUE} assuming biogas to be saturated with water vapor.
 Additionally, the response variables are interval data only and hence, we can use the default \texttt{interval = TRUE}.
 
@@ -270,7 +270,7 @@ In addition to interpolation for later observations, an extrapolation argument (
 <<>>=
 cum.prod.l <- calcBgVol(vol, comp = comp, temp = 35, pres = 1,
                        data.struct = "long",
-                       time.name = "days", 
+                       time.name = "days", vol.name = "vol", comp.name = "xCH4", 
                        extrap = TRUE)
 @
 
@@ -332,7 +332,7 @@ The arguments required to process these data using \texttt{calcBgVol()} are the 
 <<>>=
 cum.prod <- calcBgVol(vol, comp = comp, temp = "temp", pres = "pres",
                        data.struct = "long",
-                       time.name = "days", 
+                       time.name = "days", vol.name = "vol", comp.name = "xCH4", 
                        extrap = TRUE)
 @
 
@@ -343,7 +343,7 @@ By default, time zero rows are added from the \texttt{addt0} argument. Time zero
 <<>>=
 cum.prod <- calcBgVol(vol, comp = comp, temp = "temp", pres = "pres",
                        data.struct = "long",
-                       time.name = "days", 
+                       time.name = "days", vol.name = "vol", comp.name = "xCH4", 
                        extrap = TRUE, showt0 = FALSE)
 
 head(cum.prod)
@@ -365,7 +365,7 @@ Furthermore, we can avoid adding the time zero values in the first place by sett
 <<>>=
 cum.prod <- calcBgVol(vol, comp = comp, temp = "temp", pres = "pres",
                        data.struct = "long",
-                       time.name = "days", 
+                       time.name = "days", vol.name = "vol", comp.name = "xCH4", 
                        extrap = TRUE, addt0 = FALSE)
 
 head(cum.prod)
@@ -391,7 +391,7 @@ data("comp")
 comp[10,"xCH4"] <- 1.5
 cum.prod <- calcBgVol(vol, comp = comp, temp = 35, pres = 1,
                        data.struct = "long",
-                       time.name = "days",
+                       time.name = "days", vol.name = "vol", comp.name = "xCH4", 
                        extrap = TRUE)
 @
 
@@ -399,7 +399,7 @@ Note the warning about methane concentration being outside the range 0 - 1 (exce
 <<>>=
 cum.prod <- calcBgVol(vol, comp = comp, temp = 35, pres = 1,
                        data.struct = "long",
-                       time.name = "days",
+                       time.name = "days", vol.name = "vol", comp.name = "xCH4", 
                        extrap = TRUE, check = FALSE)
 @
 
@@ -415,7 +415,7 @@ head(vol)
 <<>>=
 cum.prod <- calcBgVol(vol, comp = comp, temp = "temp", pres = "pres",
                        data.struct = "long",
-                       time.name = "days",
+                       time.name = "days", vol.name = "vol", comp.name = "xCH4", 
                        extrap = TRUE)
 @
 
@@ -423,7 +423,7 @@ Note the warnings regarding temperature and pressure range. These warnings are a
 <<>>=
 cum.prod <- calcBgVol(vol, comp = comp, temp = "temp", pres = "pres",
                        data.struct = "long",
-                       time.name = "days",
+                       time.name = "days", vol.name = "vol", comp.name = "xCH4", 
                        extrap = TRUE,
                        unit.pres = "kPa", unit.temp = "K")
 @

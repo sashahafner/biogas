@@ -9,8 +9,8 @@ calcBgVol <- function(
   # Column names
   id.name = 'id',             # Name of column containing reactor identification code
   time.name = 'time',         # Name of time column 
-  dat.name = 'vol',           # Name of column containing respons variable, as-measured volume (generally not standardized)
-  comp.name = 'xCH4',         # Name of xCH4 column in the data frame
+  vol.name = 'vol',           # Name of column containing respons variable, as-measured volume (generally not standardized)
+  comp.name = NULL,           # Name of xCH4 column in the data frame
   # Additional arguments
   headspace = NULL,           # Required if cmethod = 'total'
   vol.hs.name = 'vol.hs',     # Name of column containing headspace volume data
@@ -42,7 +42,7 @@ calcBgVol <- function(
   checkArgClassValue(data.struct, 'character', expected.values = c('long', 'longcombo', 'wide'))
   checkArgClassValue(id.name, 'character')
   checkArgClassValue(time.name, 'character')
-  checkArgClassValue(dat.name, 'character')
+  checkArgClassValue(vol.name, 'character')
   checkArgClassValue(comp.name, c('character', 'NULL'))
   checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
   checkArgClassValue(vol.hs.name, 'character')
@@ -79,6 +79,7 @@ calcBgVol <- function(
     rh <- 0
   }
   
+  # Continue with more complex argument checks
   # Check for headspace argument if it is needed
   if(is.null(headspace) & cmethod=='total') stop('cmethod is set to \"total\" but headspace argument is not provided.')
   
@@ -100,10 +101,10 @@ calcBgVol <- function(
   }
   
   # For volumetric dat missing values are OK if they are cumulative only (NAs obs can be dropped with no error in cvBg)
-  if(!is.null(dat.name)) {
-    if(any(is.na(dat[, dat.name])) & interval & data.struct != 'wide') {
-      w <- which(is.na(dat[, dat.name]))
-      stop('Missing values in dat.name column! See rows ', paste(w, collapse = ', '), '.')
+  if(!is.null(vol.name)) {
+    if(any(is.na(dat[, vol.name])) & interval & data.struct != 'wide') {
+      w <- which(is.na(dat[, vol.name]))
+      stop('Missing values in vol.name column! See rows ', paste(w, collapse = ', '), '.')
     }
   }
   
@@ -116,10 +117,15 @@ calcBgVol <- function(
   
   # Create standardized binary variable that indicates when vBg has been standardized
   standardized <- FALSE 
+
+  # Check for comp.name if data.struct === 'wide' (for adding column)
+  if(data.struct == 'wide' & is.null(comp.name)) {
+    comp.name <- 'xCH4'
+  }
   
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'longcombo'
-  dat <- cumBgDataPrep(dat = dat, dat.type = 'vol', dat.name = dat.name, 
+  dat <- cumBgDataPrep(dat = dat, dat.type = 'vol', dat.name = vol.name, 
                        comp.name = comp.name, id.name = id.name, 
                        time.name = time.name, data.struct = data.struct, comp = comp, 
                        have.comp = have.comp,
@@ -146,7 +152,7 @@ calcBgVol <- function(
   
   # For data.struct = 'wide', data and composition names are fixed, added manually in cumBgDataPrep()
   if(data.struct == 'wide') {
-    dat.name <- 'vol'
+    vol.name <- 'vol'
     if(have.comp) {
       comp.name <- 'xCH4'
     }
@@ -163,15 +169,15 @@ calcBgVol <- function(
   # Note that temperature and pressure units are not converted at all in cumBgVol (but are in stdVol)
   if(!standardized) {
     if(!is.null(temp) | !is.null(pres)) {
-        dat$vBg <- stdVol(dat[, dat.name], temp = dat[, temp], pres = dat[, pres], rh = rh, 
+        dat$vBg <- stdVol(dat[, vol.name], temp = dat[, temp], pres = dat[, pres], rh = rh, 
                           pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
                           unit.pres = unit.pres, std.message = std.message)
     } else {
-        dat$vBg <- dat[, dat.name]
+        dat$vBg <- dat[, vol.name]
         message('Either temperature or pressure is missing (temp and pres arguments) so volumes are NOT standardized.')
     }
   } else {
-    dat$vBg <- dat[, dat.name]
+    dat$vBg <- dat[, vol.name]
   }
   
   # Calculate interval (or cum if interval = FALSE) methane production
@@ -299,7 +305,7 @@ calcBgVol <- function(
   }
   
   # Drop NAs if they extend to the latest time for a given bottle (based on problem with AMPTSII data, sometimes shorter for some bottles)
-  if(any(is.na(dat[, dat.name]))) {
+  if(any(is.na(dat[, vol.name]))) {
 
     dat2 <- data.frame()
 
@@ -307,9 +313,9 @@ calcBgVol <- function(
 
       dd <- dat[dat[, id.name] == i, ]
 
-      if(is.na(dd[nrow(dd), dat.name])) {
+      if(is.na(dd[nrow(dd), vol.name])) {
         # All NAs
-        i1 <- which(is.na(dd[, dat.name]))
+        i1 <- which(is.na(dd[, vol.name]))
     
         # Look for consecutive NAs
         i1d <- diff(i1)

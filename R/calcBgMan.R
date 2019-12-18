@@ -11,9 +11,9 @@ calcBgMan <- function(
   pres.name = 'pres',          # Name of column containing headspace pressure measurements
   comp.name = NULL,           # Name of xCH4 column in the data frame
   # Additional arguments 
+  pres.resid = NULL,          # Headspace pressure after venting
   temp.init = NULL,           # Initial headspace temperature
   pres.init = NULL,           # Initial headspace pressure
-  pres.resid = NULL,          # Headspace pressure after venting
   rh.resid = NULL,            # Relative humidity of gas in headspace 
   rh.resid.init = 1,          # Initial relative humidity of gas in headspace
   headspace = NULL,           # Name of data frame containing headspace volume(s)
@@ -74,6 +74,9 @@ calcBgMan <- function(
       have.comp <- FALSE
     }
   } else {
+    if(is.null(comp.name)) {
+      stop('comp.name argument needed if data.struct != "longcombo".')
+    }
     if(is.null(comp)) {
       have.comp <- FALSE
     }

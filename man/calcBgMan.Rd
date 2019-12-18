@@ -5,10 +5,10 @@
   Calculate Cumulative Biogas Production from Pressure Data
 }
 \description{
-  \code{cumBgMan} (for \emph{cum}ulative \emph{b}io\emph{g}as \emph{man}ometric) calculates cumulative biogas, methane production and production rates from individual pressure and composition measurements for any number of reactors.
+  \code{calcBgMan} (for \emph{cum}ulative \emph{b}io\emph{g}as \emph{man}ometric) calculates cumulative biogas, methane production and production rates from individual pressure and composition measurements for any number of reactors.
 }
 \usage{
-cumBg(
+calcBgMan(
   # Main arguments
   dat, comp = NULL, temp, interval = TRUE,
   data.struct = 'longcombo',
@@ -19,7 +19,7 @@ cumBg(
   pres.resid = NULL, temp.init = NULL, pres.init = NULL,
   rh.resid = NULL,
   rh.resid.init = 1, headspace = NULL, 
-  vol.hs.name = 'vol.hs', headcomp = 'N2',
+  vol.hs.name = 'vol.hs',
   absolute = TRUE, pres.amb = NULL,
   # Calculation method and other settings
   cmethod = 'removed', imethod = 'linear', extrap = FALSE,
@@ -64,14 +64,14 @@ cumBg(
 
   \item{data.struct}{
     the structure of input data. The default of 'longcombo' means headspace pressure and composition in a single column.
-    The \code{dat} data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}, volume data in a single column with the name specified by \code{dat.name}, and biogas composition in a single column with the name specified by \code{comp.name}
+    The \code{dat} data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}, volume data in a single column with the name specified by \code{pres.name}, and biogas composition in a single column with the name specified by \code{comp.name}
     For the \code{data.struct = 'long'} option, two separate data frames are needed, one with volume and one with composition.
     Each data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}.
-    The \code{dat} data frame must have volume data in a single column with the name specified by \code{dat.name}.
+    The \code{dat} data frame must have volume data in a single column with the name specified by \code{pres.name}.
     The \code{comp} data frame must have biogas composition in a single column with the name specified by \code{comp.name}.
     For the \code{data.struct = 'wide'} option, two separate data frames are needed as in \code{'long'}, but there are no reactor identification code columns.
     Instead, in \code{dat}, volume data are in a separate column for each bottle, and column names are reactor identification codes.
-    Here, \code{dat.name} should be the name of the first column with volume data.
+    Here, \code{pres.name} should be the name of the first column with volume data.
     All following columns are assumed to also have volume data.
     And in \code{comp}, biogas composition data are also in a separate column for each bottle, also with reactor identification codes for column names.
     Here, \code{comp.name} should be the name of the first column with biogas composition data, as for \code{dat}.
@@ -83,7 +83,7 @@ cumBg(
   \item{time.name}{
     name of column containing time data in \code{dat} and \code{comp} data frames. Default is \code{"time"}.
 }
-  \item{dat.name}{
+  \item{pres.name}{
     name of column containing the primary response variable (pressure) in \code{dat} data frame. Default is \code{dat.type} value. See \code{dat.type} argument.
 }
   \item{comp.name}{
@@ -134,7 +134,7 @@ cumBg(
 }
 
  \item{absolute}{
-    is the headspace pressure measured (\code{dat.name} and \code{pres.resid} values/columns) absolute or gauge pressure? 
+    is the headspace pressure measured (\code{pres.name} and \code{pres.resid} values/columns) absolute or gauge pressure? 
     Default is \code{TRUE}. 
   }
 
@@ -236,7 +236,7 @@ cumBg(
 
   If \code{check = TRUE}, the input values of mole fraction of methane in biogas are checked, and a warning is returned if the are outside 0, 1.
 
-  See associated vignette (\code{cumBgMan_function.Rnw}) for more information.
+  See associated vignette (\code{calcBgMan_function.Rnw}) for more information.
   
 }
 
@@ -349,7 +349,7 @@ cbg2 <- calcBgMan(strawPressure, comp = strawComp, temp = 31,
                  extrap = TRUE, unit.pres = "kPa")
 
 
-# For example with wide structured input data frame cumBgVol() help file
+# For example with wide structured input data frame calcBgVol() help file
 
 }
 %% Add one or more standard keywords, see file "KEYWORDS" in the

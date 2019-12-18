@@ -19,7 +19,7 @@ calcBgGD(
   id.name, 
   time.name, 
   vol.name,
-  m.pres.name = NULL,
+  m.pre.name = NULL,
   m.post.name,
   comp.name = 'xCH4',       
   # Settings
@@ -231,10 +231,6 @@ calcBgGD(
     Argument is passed to \code{\link{stdVol}}.
   }
 
-  \item{quiet}{
-    use to suppress messages. Default is \code{FALSE}.
-  }
-
 }
 
 \details{
@@ -284,15 +280,15 @@ data("UQGDSetup")
 head(UQGDBiogas)
 head(UQGDSetup)
 
-cum.prod <- calcBgGD(UQGDBiogas,
-                    temp.vol = 20, pres.vol = 1013.25,
-                    temp.grav = 30, pres.grav = 1500,
-                    id.name = 'id', vol.name = 'vol',
-                    m.pre.name = 'mass.init', m.post.name = 'mass.final',
-                    time.name = 'time.d', unit.pres = 'mbar')
+cbg <- calcBgGD(UQGDBiogas,
+                temp.vol = 20, pres.vol = 1013.25,
+                temp.grav = 30, pres.grav = 1500,
+                id.name = 'id', vol.name = 'vol',
+                m.pre.name = 'mass.init', m.post.name = 'mass.final',
+                time.name = 'time.d', unit.pres = 'mbar')
 
 
-BMP <- summBg(cum.prod, setup, id.name = "id",
+BMP <- summBg(cbg, UQGDSetup, id.name = "id",
               time.name = 'time.d', descrip.name = 'descrip',
               inoc.name = "Inoculum", inoc.m.name = "m.inoc", norm.name = "m.sub.vs",
               when = 'end')

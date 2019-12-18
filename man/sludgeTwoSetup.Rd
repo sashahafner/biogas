@@ -22,14 +22,14 @@
   These data are meant to be example data for \code{\link{summBg}}.
   Substrate was primary wastewater sludge.
   
-  BMP test were carried out in 160 mL serum bottles sealed with a butyl rubber septum retained with an aluminum crimp seal at mesophilic conditions (37 ± 1°C). 
+  BMP test were carried out in 160 mL serum bottles sealed with a butyl rubber septum retained with an aluminum crimp seal at mesophilic conditions (37 degrees C). 
   All bottles contained inoculum and the amount of primary sludge required to achieve an inoculum-to-substrate ratio (ISR) of 2 (VS basis). 
   Bottles containing only inoculum (blanks) were used to correct for the background CH4 potential of the inoculum (endogenous CH4 production). 
   
   Data in \code{sludgeTwoBiogas} and \code{sludgeTwoSetup} are from the same batch bottles.
 }
 \source{
-  Data were originally collected by Sergi Astals at the University of Queensland and are described in the following paper.
+  Data were originally collected by Sergi Astals at the University of Queensland and are described in the paper listed below.
   Hafner, S.D., Astals, S. 2019.Systematic error in manometric measurement of biochemical methane potential: Sources and solutions. \emph{Waste Management} \bold{91}, 147-155.
 }
 \examples{

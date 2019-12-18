@@ -5,7 +5,7 @@
   Calculate Cumulative Biogas Production from Volumetric Data
 }
 \description{
-  \code{calcBgVol} (for \emph{cum}ulative \emph{b}io\emph{g}as \emph{vol}umetric) calculates cumulative biogas, methane production and production rates from individual volume and composition measurements for any number of reactors.
+  \code{calcBgVol} (for \emph{calc}ulation of \emph{b}io\emph{g}as production from \emph{vol}umetric) measurements) calculates cumulative biogas, methane production and production rates from individual volume and composition measurements for any number of bottles.
 }
 \usage{
 calcBgVol(
@@ -14,8 +14,8 @@ calcBgVol(
   pres = NULL, interval = TRUE, 
   data.struct = 'longcombo',
   # Column names
-  id.name = 'id', time.name = 'time', dat.name = 'vol',
-  comp.name = 'xCH4',       # Name of xCH4 column in the data frame
+  id.name = 'id', time.name = 'time', vol.name = 'vol',
+  comp.name = NULL,
   # Additional arguments
   headspace = NULL, vol.hs.name = 'vol.hs',
   # Calculation method and other settings
@@ -37,14 +37,14 @@ calcBgVol(
 %- maybe also "usage" for other objects documented here.
 \arguments{
   \item{dat}{
-    a data frame with reactor identification code; time of measurement (as \code{numeric}, or \code{POSIX}); and measured biogas volume.
+    a data frame with bottle identification code; time of measurement (as \code{numeric}, or \code{POSIX}); and measured biogas volume.
     See Details section for details on units.
     Additional columns can be present--these will be returned in the output data frame.
     See \code{data.struct} argument for details on how data frames are structured.
 }
 
   \item{comp}{
-    (optional) a data frame with the columns reactor identification code; time of measurement, (as \code{numeric}, or \code{POSIX}); and methane concentration within dry biogas as a mole fraction, considering only methane and carbon dioxide (unless \code{cmethod = "total"}) or a single numeric value.
+    (optional) a data frame with the columns bottle identification code; time of measurement, (as \code{numeric}, or \code{POSIX}); and methane concentration within dry biogas as a mole fraction, considering only methane and carbon dioxide (unless \code{cmethod = "total"}) or a single numeric value.
     If omitted, cumulative biogas volume will still be calculated and returned (but no methane data will be returned).
     The names of these columns are specified with \code{id.name}, \code{time.name}, and \code{comp.name}.
     Default is \code{NULL}.
@@ -70,26 +70,26 @@ calcBgVol(
 
   \item{data.struct}{
     the structure of input data. The default of 'longcombo' means separate objects for volume and composition (if available).
-    The \code{dat} data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}, volume data in a single column with the name specified by \code{dat.name}, and biogas composition in a single column with the name specified by \code{comp.name}
+    The \code{dat} data frame must have bottle identification code and time columns with names specified with \code{id.name} and \code{time.name}, volume data in a single column with the name specified by \code{vol.name}, and biogas composition in a single column with the name specified by \code{comp.name}
     For the \code{data.struct = 'long'} option, two separate data frames are needed, one for volume and one for composition (if available).
-    Each data frame must have reactor identification code and time columns with names specified with \code{id.name} and \code{time.name}.
-    The \code{dat} data frame must have volume data in a single column with the name specified by \code{dat.name}.
+    Each data frame must have bottle identification code and time columns with names specified with \code{id.name} and \code{time.name}.
+    The \code{dat} data frame must have volume data in a single column with the name specified by \code{vol.name}.
     The \code{comp} data frame must have biogas composition in a single column with the name specified by \code{comp.name}.
-    For the \code{data.struct = 'wide'} option, two separate data frames are needed as in \code{'long'}, but there are no reactor identification code columns.
-    Instead, in \code{dat}, volume data are in a separate column for each bottle, and column names are reactor identification codes.
-    Here, \code{dat.name} should be the name of the first column with volume data.
+    For the \code{data.struct = 'wide'} option, two separate data frames are needed as in \code{'long'}, but there are no bottle identification code columns.
+    Instead, in \code{dat}, volume data are in a separate column for each bottle, and column names are bottle identification codes.
+    Here, \code{vol.name} should be the name of the first column with volume data.
     All following columns are assumed to also have volume data.
-    And in \code{comp}, biogas composition data are also in a separate column for each bottle, also with reactor identification codes for column names.
+    And in \code{comp}, biogas composition data are also in a separate column for each bottle, also with bottle identification codes for column names.
     Here, \code{comp.name} should be the name of the first column with biogas composition data, as for \code{dat}.
   }
 
   \item{id.name}{
-    name of the reactor identification code column in \code{dat}. Must be the same in all data frames used in the function. Default is \code{"id"}.
+    name of the bottle identification code column in \code{dat}. Must be the same in all data frames used in the function. Default is \code{"id"}.
 }
   \item{time.name}{
     name of column containing time data in \code{dat} and \code{comp} data frames. Default is \code{"time"}.
 }
-  \item{dat.name}{
+  \item{vol.name}{
     name of column containing the primary response variable (as-measured volume) in \code{dat} data frame. Default is \code{vol}.
 }
   \item{comp.name}{
@@ -97,8 +97,8 @@ calcBgVol(
 }
 
   \item{headspace}{
-    (optional) a data frame or length-one numeric vector with reactor headspace volume(s).
-    If a data frame is used, it should at least contain a \code{"id"} (reactor identification code) column (see \code{"id.name"}) and headspace volume column (see \code{vol.hs.name} argument).
+    (optional) a data frame or length-one numeric vector with bottle headspace volume(s).
+    If a data frame is used, it should at least contain a \code{"id"} (bottle identification code) column (see \code{"id.name"}) and headspace volume column (see \code{vol.hs.name} argument).
     Required if \code{cmethod = "total"}.
     Default is \code{NULL}.
 }
@@ -112,7 +112,7 @@ calcBgVol(
  \item{cmethod}{
     method for calculating cumulative methane production.
     Use \code{"removed"} to base production on \code{xCH4} and gas volumes removed (default).
-    Use \code{"total"} to base it on the sum of methane removed and methane remaining in the reactor headspace.
+    Use \code{"total"} to base it on the sum of methane removed and methane remaining in the bottle headspace.
     For \code{"removed"}, \emph{\code{xCH4} should be calculated based on methane and CO2 only (xCH4 + xCO2 = 1.0).}
     For \code{"total"}, \emph{\code{xCH4} should be calculated including all biogas components (CH4, CO2, N2, H2S, etc.) except water.}
     Length one character vector. 
@@ -131,7 +131,7 @@ calcBgVol(
 }
  \item{addt0}{
     is the earliest time in \code{dat} data frame \dQuote{time zero} (start time)? 
-    If not, this argument adds a row with \code{time.name = 0} for each reactor in order to calculate production rates for the first observation.
+    If not, this argument adds a row with \code{time.name = 0} for each bottle in order to calculate production rates for the first observation.
     This addition is only made when \code{time.name} is \code{numeric} (or \code{integer}).
     Length-one logical vector.
     Default is \code{TRUE}.
@@ -220,7 +220,7 @@ calcBgVol(
   \item{vBg}{Standardised volume of biogas production for individual event.}
   \item{xCH4}{Interpolated mole fraction of methane in biogas.}
   \item{vCH4}{Standardised volume of methane production for individual event. Only if \code{comp} is provided.}
-  \item{vhsCH4}{Standardised volume of methane present in reactor headspace. Only if \code{method = "total"} is used.}
+  \item{vhsCH4}{Standardised volume of methane present in bottle headspace. Only if \code{method = "total"} is used.}
   \item{cvBg}{Standardised cumulative volume of biogas production.}
   \item{cvCH4}{Standardised cumulative volume of methane production. Only if \code{comp} is provided.}
   \item{rvBg}{Production rate of biogas.}
@@ -229,8 +229,6 @@ calcBgVol(
 \references{
   Hafner, S.D., Rennuit, C., Triolo, J.M., Richards, B.K. 2015. Validation of a simple gravimetric method for measuring biogas production in laboratory experiments. \emph{Biomass and Bioenergy} \bold{83}, 297-301.
 
-  Hansen, T.L., Schmidt, J.E., Angelidaki, I., Marca, E., Jansen, J. la C., Mosbak, H. and Christensen, T.H. 2004. Method for determination of methane potentials of solid organic waste. \emph{Waste Management} \bold{24}, 393-400
-
   Richards, B.K., Cummings, R.J., White, T.E., Jewell, W.J. 1991. Methods for kinetic analysis of methane fermentation in high solids biomass digesters. \emph{Biomass and Bioenergy} 1: 65-73.
 }
 \author{
@@ -238,6 +236,7 @@ calcBgVol(
 }
 
 \seealso{
+  \code{\link{cumBg}},
   \code{\link{calcBgMan}},
   \code{\link{calcBgGD}},
   \code{\link{summBg}},
@@ -249,179 +248,63 @@ calcBgVol(
 \examples{ 
 # Example with long structured input data frame
 
+data("s3lcombo")
+s3lcombo
+
+# Calculate cumulative production and rates from s3lcombo
+# With default data structure comp argument is not needed
+# Necessary to extrapolate because first observations are missing xCH4
+cbg <- calcBgVol(s3lcombo, 
+                 temp = 25, pres = 1,
+                 id.name = 'id', time.name = 'time.d', 
+                 vol.name = 'vol.ml', comp.name = 'xCH4', 
+                 extrap = TRUE)
+head(cbg)
+
+# Plot results
+\dontrun{
+  # Not run just because it is a bit slow
+  ggplot(cbg, aes(time.d, cvCH4, colour = id)) + 
+         geom_point() + geom_line(aes(group = id)) +
+         labs(x = "Time (d)", y = "Cumulative methane production  (mL)", colour = "Bottle ID")  + 
+         theme_bw() 
+
+  plot(ggplot)
+}
+
+
+# Wide data structure, from AMPTS II in this case
+data("feedVol")
+head(feedVol)
+
+# By default biogas is assumed to be saturated with water vapor
+# Composition is set to a single value. 
+# Data are cumulative
+args(calcBgVol)
+cbg <- calcBgVol(feedVol, comp = 1, temp = 0, pres = 1,
+                 interval = FALSE, data.struct = 'wide',
+                 id.name = "id", time.name = 'time.d', vol.name = '1', 
+                 dry = TRUE)
+
+head(cbg)
+
+
+# Calculate cumulative production and rates from vol and comp
+# Biogas volume and composition can be in separate data frames
 data("vol")
 data("comp")
 
 head(vol)
 head(comp)
 
-# Calculate cumulative production and rates from vol and comp
-cum.prod <- calcBg(vol, comp = comp, temp = 20, pres = 1, id.name = "id", time.name = "days", 
-		  comp.name = "xCH4", dat.name = "vol")
-head(cum.prod)
+# extrap = TRUE is needed to get CH4 results here because first xCH4 values are missing
+cbg <- calcBgVol(vol, comp = comp, temp = 20, pres = 1, 
+                 data.struct = "long",
+                 id.name = "id", time.name = "days", comp.name = "xCH4", 
+                 vol.name = "vol", extrap = TRUE)
 
-# Note warnings and related NAs in results
-# Set extrap = TRUE to extrapolate xCH4 to earliest times
+head(cbg)
 
-# Calculate cumulative production and rates from vol and comp
-cum.prod <- calcBg(vol, comp = comp, temp = 20, pres = 1, id.name = "id", time.name = "days", 
-		  comp.name = "xCH4", dat.name = "vol", extrap = TRUE)
-head(cum.prod)
-
-# In this case, we can use default values for some column names, so this call is identical
-cum.prod <- calcBg(vol, comp = comp, temp = 20, pres = 1, time.name = "days", extrap = TRUE)
-
-# Plot results
-\dontrun{
-# Not run just because it is a bit slow
-library(ggplot2)
-qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)", 
-      ylab = "Cumulative methane production (mL)",color = id, geom = "line")
-}
-
-# Omit added time zero rows
-cum.prod <- calcBg(vol, comp = comp, temp = 20, pres = 1, time.name = "days", extrap = TRUE, 
-		  showt0 = FALSE)
-head(cum.prod)
-
-\dontrun{
-# Not run just because it is a bit slow
-qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)", 
-      ylab = "Cumulative methane production (mL)", color = id, geom = "line")
-}
-
-# Previous is different from never adding them in the first place (rates not calculated for first 
-# observations here)
-cum.prod <- calcBg(vol, comp = comp, temp = 20, pres = 1, time.name = "days", extrap = TRUE, 
-		  addt0 = FALSE)
-head(cum.prod)
-
-\dontrun{
-# Not run just because it is a bit slow
-qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)", 
-      ylab = "Cumulative methane production (mL)", color = id, geom = "line")
-}
-
-# Can use POSIX objects for time (but calcBg cannot add t0 rows here)
-class(vol$date.time)
-class(comp$date.time)
-cum.prod <- calcBg(vol, comp = comp, temp = 20, pres = 1, time.name = "date.time", extrap = TRUE)
-head(cum.prod)
-
-\dontrun{
-# Not run just because it is a bit slow
-qplot(x = date.time, y = cvCH4, data = cum.prod, xlab = "Time (d)", 
-      ylab = "Cumulative methane production (mL)", color = id, geom = "line")
-}
-
-# Can leave out composition data, and then CH4 is not included in results
-cum.prod <- calcBg(vol, temp = 20, pres = 1, time.name = "days")
-head(cum.prod)
-
-# Leave out pres or temp, and results are not standardised
-cum.prod <- calcBg(vol, time.name = "days")
-head(cum.prod)
-
-# Example with input data frames with different column names
-data("vol2")
-data("comp2")
-
-head(vol2)
-head(comp2)
-
-cum.prod <- calcBg(vol2, comp = comp2, temp = 20, pres = 1, 
-                  id.name = "bottle", time.name = "days", 
-		  dat.name = "meas.vol", comp.name = "CH4.conc")
-head(cum.prod)
-tail(cum.prod)
-
-# Note warnings and related NAs in results
-warnings()
-
-# Set extrap = TRUE to avoid
-cum.prod <- calcBg(vol2, comp = comp2, temp = 20, pres = 1, 
-                  id.name = "bottle", time.name = "days", 
-		  dat.name = "meas.vol", comp.name = "CH4.conc", 
-                  extrap = TRUE)
-head(cum.prod)
-
-\dontrun{
-# Not run just because it is a bit slow
-qplot(x = days, y = cvCH4, data = cum.prod, xlab = "Time (d)", 
-      ylab = "Cumulative methane production (mL)", 
-      color = bottle, geom = "line")
-}
-
-
-# Example with wide structured input data frame (AMPTS II)
-data("feedVol")
-
-# By default biogas is assumed to be saturated with water vapor
-# Composition is set to a single value. 
-# Data are cumulative
-cum.prod <- calcBgVol(feedVol, comp = 1, temp = 0, pres = 1,
-                     interval = FALSE,
-                     data.struct = 'wide',
-                     id.name = "id", time.name = 'time.d', 
-                     dat.name = '1', comp.name = "xCH4",
-                     dry = TRUE)
-head(cum.prod)
-
-# Can leave out composition data, and then CH4 is not included in results
-cum.prod <- calcBgVol(feedVol, temp = 0, pres = 1,
-                     interval = FALSE,
-                     data.struct = 'wide',
-                     time.name = 'time.d', 
-                     dat.name = '1',
-                     dry = TRUE)
-head(cum.prod)
-
-# Leave out pres or temp, and results are not standardised
-cum.prod <- calcBgVol(feedVol, comp = 1,
-                     interval = FALSE,
-                     data.struct = 'wide',
-                     time.name = 'time.d', 
-                     dat.name = '1',
-                     dry = TRUE)
-head(cum.prod)
-
-# Plot results
-\dontrun{
-  # Not run just because it is a bit slow
-  library(ggplot2)
-  ggplot <- ggplot(cum.prod, aes(time.d, cvCH4, colour = id)) + 
-    geom_point() +
-    geom_line(aes(group = id)) +
-    labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle id")  + 
-    theme_bw() 
-  
-  plot(ggplot)
-}
-
-
-# Example with longcombo structured data
-data("s3lcombo")
-
-# Calculate cumulative production and rates from s3lcombo
-cum.prod <- calcBgVol(s3lcombo, comp = comp, temp = 25, pres = 1, 
-                        id.name = 'id', time.name = 'time.d', 
-                        data.struct = 'longcombo', dat.name = 'vol.ml', 
-                        comp.name = 'xCH4', extrap = TRUE)
-head(cum.prod)
-
-# Note composition argument is set as comp when data structure is longcombo to avoid errors regarding missing composition data frame 
-
-# Plot results
-\dontrun{
-  # Not run just because it is a bit slow
-  ggplot <- ggplot(cum.prod, aes(time.d, cvCH4, colour = id)) + 
-    geom_point() +
-    geom_line(aes(group = id)) +
-    labs(x = "Time [d]", y = "Cumulative methane production  [mL]", colour = "Bottle ID")  + 
-    theme_bw() 
-
-  plot(ggplot)
-}
 
 }
 %% Add one or more standard keywords, see file "KEYWORDS" in the

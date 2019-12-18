@@ -28,11 +28,11 @@
 }
 \details{
   These data are meant to be example data for \code{\link{summBg}}.
-  Inoculum was digestate from a stable laboratory reactor (400 L) operated at mesophilic temperatures (38 ± 2 °C) and a retention time of ca. 98 days
+  Inoculum was digestate from a stable laboratory reactor (400 L) operated at mesophilic temperatures (38 degrees C) and a retention time of ca. 98 days
   Substrates were cellulose, wheat straw (WS), and animal feed ingredients (FI).
   Additinally, 1 mL each of a vitamin mixture and trace element solution was added to each BMP bottle.
 
-  BMP tests were operated with a total volume of ca. 400 mL at 38 ± 1 °C. 
+  BMP tests were operated with a total volume of ca. 400 mL at 38 degrees C. 
   
   Biogas productions was measured using the online volumtric AMPTS II method.
 

@@ -14,7 +14,7 @@ summBg(vol, setup, id.name = "id", time.name = "time",
        descrip.name = "descrip", inoc.name = NULL, inoc.m.name = NULL,
        norm.name = NULL, norm.se.name = NULL,  vol.name = "cvCH4", 
        imethod = "linear", extrap = FALSE, when = 30, 
-       when.min = Inf, rate.crit = 'net', 
+       when.min = 0, rate.crit = 'net', 
        show.obs = FALSE, show.rates = FALSE, show.more = FALSE,
        sort = TRUE, set.name = 'set', quiet = FALSE)
 }

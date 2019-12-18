@@ -43,7 +43,7 @@ The arguments for the \texttt{calcBgMan()} function are:
 ## function (dat, comp = NULL, temp = NULL, 
 ##           interval = TRUE, data.struct = "longcombo", 
 ##           id.name = "id", time.name = "time", 
-##           dat.name = "pres", comp.name = "xCH4",
+##           pres.name = "pres", comp.name = "xCH4",
 ##           temp.init = NULL, pres.init = NULL, pres.resid = NULL, 
 ##           rh.resid = NULL, rh.resid.init = 1,
 ##           headspace = NULL, vol.hs.name = "vol.hs", 
@@ -65,7 +65,7 @@ Most of the arguments have default values, but to calculate CH$_4$ production we
   
 By default \texttt{interval = TRUE} and \texttt{data.struct} is set as \texttt{``longcombo''}. \texttt{``wide''} and \texttt{``long''} structured data will be restructured to \texttt{``longcombo''} internally by \texttt{cumBgDataPrep()}, when specified by the \texttt{data.struct} argument (refer to Section~\ref{structures}). When data are cumulative, the interval argument should be set to FALSE. 
 
-Similarly, there is an \texttt{id.name} argument for the bottle identification code (ID) column (default is \texttt{``id''}). For \texttt{data.struct = ``wide''}, there is no ID column. Instead data for each bottle, have individual columns and column names, which are used as ID codes. Here, the name of the column containing the response variables (\texttt{dat.name}), is set as the name of the first column with response variables. All following columns are assumed to have measurement data.
+Similarly, there is an \texttt{id.name} argument for the bottle identification code (ID) column (default is \texttt{``id''}). For \texttt{data.struct = ``wide''}, there is no ID column. Instead data for each bottle, have individual columns and column names, which are used as ID codes. Here, the name of the column containing the response variables (\texttt{pres.name}), is set as the name of the first column with response variables. All following columns are assumed to have measurement data.
 
 Furthermore, we need to specify the name of the time column containing time data using the \texttt{time.name} argument (default is \texttt{``time''}).
 If separate data frames are used for \texttt{dat} and \texttt{comp}, the name must match. Time data may be POSIXct objects, but then t0 will not be added to rows by the \texttt{calcBgMan()} function. In addition, the \texttt{addt0} argument is used to add row with ``time zero'' (\texttt{time.name = 0}) for each bottle in order to calculate production rates for the first observation (default is TRUE). \texttt{showt0} determines if the ``time zero'' should be returned in the output (default is TRUE if time.name is numeric and contains 0 and otherwise FALSE). The use of t0 output is for plotting. 
@@ -139,10 +139,10 @@ Cumulative biogas and CH$_4$ production and production rates from pressure data 
 
 To calculate CH$_4$ production from these \texttt{``longcombo''} data, we must provide values for at least \texttt{dat} and \texttt{comp}, which is in a combined data frame (we will use \texttt{sludgeTwoBiogas}), and \texttt{temp} (biogas temperature) along with the names of a few columns in our input data frame.
 
-We can use default values \texttt{``longcombo''}, \texttt{``id''}, and \texttt{``pres''} for the \texttt{data.struct}, \texttt{id.name}, and \texttt{dat.name} arguments, respectively. Whereas, the \texttt{time.name} and \texttt{comp.name} arguments need to be specified as \texttt{``time.d''} and \texttt{``xCH4n''}, respectively.
+We can use default values \texttt{``longcombo''}, \texttt{``id''}, and \texttt{``pres''} for the \texttt{data.struct}, \texttt{id.name}, and \texttt{pres.name} arguments, respectively. Whereas, the \texttt{time.name} and \texttt{comp.name} arguments need to be specified as \texttt{``time.d''} and \texttt{``xCH4n''}, respectively.
 Similar, default values can be used for \texttt{cmethod = ``removed''}, evaluating CH$_4$ concentration based on normalized CH$_4$ and CO$_2$ values, for \texttt{imethod = ``linear''}, resulting in internal linear interpolation of \texttt{``xCH4n''} by calling the \texttt{interp()} function, and for \texttt{extrap = FALSE}. 
 
-Initial headspace temperature and pressure and post venting headspace pressure are set as constants using the \texttt{temp.init}, \texttt{pres.init}, and \texttt{pres.resid} arguments, respectively. Initial and post venting headspace pressure can be absolute or gauge depending on the value of the \texttt{absolute} argument. We will set \texttt{absolute = FALSE} to account for pressure measurements provided in gauge. In order to calculate absolute pressure from gauge pressure measurements when \texttt{absolute = FALSE}, a single absolute ambient pressure value is required. Here we will set \texttt{pres.amp} to 1013 mbar. Note the unit of the pressure data in \texttt{sludgeTwoBiogas}. Default unit is atm, but can be changed using the \texttt{unit.pres} argument. In this example we set the \texttt{unit.pres = ``mbar''} to match unit of \texttt{dat.name} and \texttt{pres.resid} column. Absolute ambient pressure is provided in the same unit as defined in the \texttt{unit.pres} argument. 
+Initial headspace temperature and pressure and post venting headspace pressure are set as constants using the \texttt{temp.init}, \texttt{pres.init}, and \texttt{pres.resid} arguments, respectively. Initial and post venting headspace pressure can be absolute or gauge depending on the value of the \texttt{absolute} argument. We will set \texttt{absolute = FALSE} to account for pressure measurements provided in gauge. In order to calculate absolute pressure from gauge pressure measurements when \texttt{absolute = FALSE}, a single absolute ambient pressure value is required. Here we will set \texttt{pres.amp} to 1013 mbar. Note the unit of the pressure data in \texttt{sludgeTwoBiogas}. Default unit is atm, but can be changed using the \texttt{unit.pres} argument. In this example we set the \texttt{unit.pres = ``mbar''} to match unit of \texttt{pres.name} and \texttt{pres.resid} column. Absolute ambient pressure is provided in the same unit as defined in the \texttt{unit.pres} argument. 
 
 Finally, headspace volumes are provided from \texttt{sludgeTwoSetup}. The data frame containing headspace volumes is defined using the \texttt{headspace} argument, whereas the default value \texttt{"vol.hs"} can be used for the column containing headspace volume data.
 
@@ -245,28 +245,29 @@ To calculate CH$_4$ production from these \texttt{``long''} structured data, we 
 For \texttt{data.struct != ``longcombo''} the data structure needs to be specified. Here we set \texttt{data.struct = ``long''}.
 Furthermore, we need to specify the name of the id column in \texttt{strawPressure} as \texttt{bottle} using the \texttt{id.name} argument.
 
-We can use default values \texttt{``time''}, \texttt{``pres''}, and \texttt{``xCH4''} for the \texttt{time.name}, \texttt{dat.name} and \texttt{comp.name} arguments, respectively. The id and time columns create a link between the two data frames. Observations from different times can be solved by the external \texttt{interp()} function by interpolation. 
+We can use default values \texttt{``time''}, \texttt{``pres''}, and \texttt{``xCH4''} for the \texttt{time.name}, \texttt{pres.name} and \texttt{comp.name} arguments, respectively. The id and time columns create a link between the two data frames. Observations from different times can be solved by the external \texttt{interp()} function by interpolation. 
 Similar, default values can be used for \texttt{cmethod = "removed"}, evaluating CH$_4$ concentration based on normalized CH$_4$ and CO$_2$ values and for \texttt{imethod = ``linear''}, resulting in internal linear interpolation of \texttt{``xCH4''} by calling the \texttt{interp()} function.
 Additionally, the response variables are interval data only and hence, we can use the default \texttt{interval = TRUE}.
 
 In addition to interpolation for later observations, an extrapolation argument (\texttt{extrap}) can be provided if required. We do not have initial biogas composition (compare the heads of \texttt{strawPressure} and \texttt{strawComp}) so extrapolation is required to calculate initial volumes and rates. Therefore, we need to set \texttt{extrap = TRUE}.
 
-Initial headspace temperature and pressure are set as constant values using the \texttt{temp.init} and \texttt{pres.init} arguments, respectively. Headspace pressure after venting is provided from the \texttt{strawPressure} data frame and can be defined by assigning the column name to the \texttt{pres.resid} argument. Similar to the \texttt{``longcombo''} data example, we will set \texttt{absolute = FALSE} to account for pressure measurements provided in gauge. In order to calculate absolute pressure from gauge pressure measurements when \texttt{absolute = FALSE}, a single absolute ambient pressure value is required. To correct gauge pressure data to absolute pressure, we will set \texttt{pres.amp} to 101.3 kPa. Again, note the unit of the pressure data in \texttt{strawPressure}. Pressure unit is set as atm by default, but this can be changed using the \texttt{unit.pres} argument. In this example we will set the \texttt{unit.pres = "kPa"} to match unit of \texttt{dat.name} and \texttt{pres.resid} column. 
+Initial headspace temperature and pressure are set as constant values using the \texttt{temp.init} and \texttt{pres.init} arguments, respectively. Headspace pressure after venting is provided from the \texttt{strawPressure} data frame and can be defined by assigning the column name to the \texttt{pres.resid} argument. Similar to the \texttt{``longcombo''} data example, we will set \texttt{absolute = FALSE} to account for pressure measurements provided in gauge. In order to calculate absolute pressure from gauge pressure measurements when \texttt{absolute = FALSE}, a single absolute ambient pressure value is required. To correct gauge pressure data to absolute pressure, we will set \texttt{pres.amp} to 101.3 kPa. Again, note the unit of the pressure data in \texttt{strawPressure}. Pressure unit is set as atm by default, but this can be changed using the \texttt{unit.pres} argument. In this example we will set the \texttt{unit.pres = "kPa"} to match unit of \texttt{pres.name} and \texttt{pres.resid} column. 
 
-Finally, headspace volumes are provided from \texttt{strawSetup}. The data frame containing these volumes is defined using the \texttt{headspace} argument, whereas the column is set as \texttt{vol.hs.name = ``headspace''}.
+Finally, headspace volumes are provided from \texttt{strawSetup}. The data frame containing these volumes is defined using the \texttt{headspace} argument, whereas the column is set as \texttt{vol.hs.name = "headspace"}.
 
 The output becomes:
 
 <<>>=
 cum.prod.l <- calcBgMan(strawPressure, comp = strawComp, temp = 31,
-                   data.struct = "long",
-                   id.name = "bottle",
-                   temp.init = 21.55, pres.resid = "pres.resid", 
-                   pres.init = 0.0,
-                   headspace = strawSetup, vol.hs.name = "headspace",
-                   pres.amb = 101.3, absolute = FALSE,
-                   extrap = TRUE, 
-                   unit.pres = "kPa")
+                        data.struct = "long",
+                        time.name = "time", id.name = "bottle", comp.name = "xCH4",
+                        temp.init = 21.55, pres.resid = "pres.resid", 
+                        pres.init = 0.0,
+                        headspace = strawSetup, vol.hs.name = "headspace",
+                        pres.amb = 101.3, absolute = FALSE,
+                        extrap = TRUE, 
+                        unit.pres = "kPa")
+
 
 head(cum.prod.l)
 @

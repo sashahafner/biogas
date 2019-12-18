@@ -9,8 +9,8 @@
 }
 \usage{
 mass2vol(mass, xCH4, temp, pres, 
-  temp.std = getOption('temp.std', 0.0), 
-  pres.std = getOption('pres.std', 1.0), 
+  temp.std = getOption('temp.std', as.numeric(NA)), 
+  pres.std = getOption('pres.std', as.numeric(NA)), 
   unit.temp = getOption('unit.temp', 'C'), 
   unit.pres = getOption('unit.pres', 'atm'), 
   value = "CH4", headspace = NULL, headcomp = 'N2', 
