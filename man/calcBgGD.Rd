@@ -204,7 +204,6 @@ calcBgGD(
     Values are changed if outside 0, 1 (divided by 100).
   }
  
- 
   \item{temp.std}{
     standard temperature for presentation of biogas and methane results.
     Length one numeric vector.
@@ -256,11 +255,11 @@ Units are based on units in input data.
 
 
 \references{
-  Justesen, C.G., Astals, S., Mortensen, J.R., Thorsen, R., Koch, K., Weinrich, S., Triolo, J.M., Hafner, S.D. 2019. Development of validation of a low-cost gas density method for measuring biochemical potential (BMP) \emph{Water (MDPI)} under review.
+  Justesen, C.G., Astals, S., Mortensen, J.R., Thorsen, R., Koch, K., Weinrich, S., Triolo, J.M., Hafner, S.D. 2019. Development and validation of a low-cost gas density method for measuring biochemical potential (BMP) \emph{Water (MDPI)} \bold{11(12)}: 2431.
 }
 
 \author{
-  Sasha D. Hafner, Camilla Justesen 
+  Sasha D. Hafner, Camilla Justesen, Jacob Mortensen
 }
 
 \seealso{

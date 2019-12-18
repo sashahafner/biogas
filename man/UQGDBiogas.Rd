@@ -2,10 +2,10 @@
 \alias{UQGDBiogas}
 \docType{data}
 \title{
-  Mass Change of Batch Reactors
+  Biogas Volume and Mass Loss from BMP bottles
 }
 \description{
-  Mass measurements for 9 batch anaerobic bottles.
+  Gas density biochemical methane potential (GD-BMP) measurements for 9 batch anaerobic bottles.
 }
 \usage{data("UQGDBiogas")}
 \format{
@@ -25,10 +25,14 @@
   Data in \code{UQGDSetup} are from the same bottles.
 }
 \source{
-  Measurements by Sergi Astals.
+  Measurements were made by Sergi Astals and are described in the following paper.
+
+  Justesen, C.G., Astals, S., Mortensen, J.R., Thorsen, R., Koch, K., Weinrich, S., Triolo, J.M., Hafner, S.D. 2019. Development and validation of a low-cost gas density method for measuring biochemical potential (BMP) \emph{Water (MDPI)} \bold{11(12)}: 2431.
 }
+
 \examples{
 data(UQGDBiogas)
 }
+
 \keyword{datasets}
 \concept{biogas}

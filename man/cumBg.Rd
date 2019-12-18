@@ -303,7 +303,6 @@ cumBg(
 
   If \code{check = TRUE}, the input values of mole fraction of methane in biogas are checked, and a warning is returned if the are outside 0, 1.
 
-  
 }
 
 \value{
@@ -329,6 +328,9 @@ cumBg(
 }
 
 \seealso{
+  \code{\link{calcBgMan}},
+  \code{\link{calcBgVol}},
+  \code{\link{calcBgGD}},
   \code{\link{summBg}},
   \code{\link{interp}},
   \code{\link{stdVol}},

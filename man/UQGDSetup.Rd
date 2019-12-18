@@ -2,10 +2,10 @@
 \alias{UQGDSetup}
 \docType{data}
 \title{
-  Mass Change of Batch Reactors
+  BMP Bottle Setup Information
 }
 \description{
-  Mass measurements for 9 batch anaerobic bottles.
+  Details on bottle contents and more from GD-BMP experiment.
 }
 \usage{data("UQGDSetup")}
 \format{
@@ -27,7 +27,9 @@
   Data in \code{UQGDBiogas} are from the same bottles.
 }
 \source{
-  Measurements by Sergi Astals.
+  Measurements were made by Sergi Astals and are described in the following paper.
+
+  Justesen, C.G., Astals, S., Mortensen, J.R., Thorsen, R., Koch, K., Weinrich, S., Triolo, J.M., Hafner, S.D. 2019. Development and validation of a low-cost gas density method for measuring biochemical potential (BMP) \emph{Water (MDPI)} \bold{11(12)}: 2431.
 }
 \examples{
 data(UQGDSetup)

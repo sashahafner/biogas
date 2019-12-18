@@ -5,7 +5,7 @@
   Setup Details for Batch Reactors
 }
 \description{
-  Information on bottle id, substrates and, inoculum initial masses for 12 anaerobic bottles with animal feed ingredients for substrate.. 
+  Information on bottle id, substrates and, inoculum initial masses for 12 anaerobic bottles with animal feed ingredients for substrate.
 }
 \usage{data("feedSetup")}
 \format{
