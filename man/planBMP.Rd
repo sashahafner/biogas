@@ -101,12 +101,16 @@ Holliger, C., Alves, M., Andrade, D., Angelidaki, I., Astals, S., Baier, U., Bou
     For more details, see Holliger et al. (2016).
 }
 \author{
-  Sasha D. Hafner
+  Sasha D. Hafner, based on suggestion by Konrad Koch
 }
 
 \seealso{
+  \code{\link{calcBgVol}},
+  \code{\link{calcBgMan}},
+  \code{\link{calcBgGD}},
   \code{\link{cumBg}},
   \code{\link{summBg}},
+  \code{\link{predBg}}
 }
 \examples{
 
