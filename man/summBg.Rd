@@ -27,7 +27,7 @@ summBg(vol, setup, id.name = "id", time.name = "time",
     Optional: as of version 1.11.5, \code{vol} can be a list of suitable data frames.
     This is convenient for comparing different approaches for calculating methane production, for example.
 }
-  \item{setup}{ %maybe could be shorned by just giving the column names (descriptions) of the columns are afterwards
+  \item{setup}{ 
     a data frame containing information to summarise, substract inoculum effect or normalise the data. Should contain at least the column \code{id.name} (bottle identification code), and the additional columns depending on the operations desired. See \sQuote{Details} for more information.
 }
   
@@ -203,6 +203,13 @@ summBg(vol = cum.prod, setup = setup, time.name = "days",
 
 summBg(vol = cum.prod, setup = setup, time.name = "days", 
        inoc.name = "inoc", inoc.m.name = "minoc", when = "1p3d", 
+       norm.name = "mvs.sub")
+
+# Or combine multiple values of when in a list
+
+summBg(vol = cum.prod, setup = setup, time.name = "days", 
+       inoc.name = "inoc", inoc.m.name = "minoc", 
+       when = list(30, "1p3d", "end"), 
        norm.name = "mvs.sub")
 
 # If you want to apply the 1% criterion but also want a single fixed time for all bottles,
