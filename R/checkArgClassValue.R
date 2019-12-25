@@ -15,7 +15,7 @@ checkArgClassValue <- function(
 
   # call. set to FALSE so user does not see reference to unknown checkArgClassValue() function.
   ###if(!is.null(expected.class) && !any(class(object) %in% expected.class))  {
-  if(!is.null(expected.class) && !class(object) %in% expected.class)  {
+  if(!is.null(expected.class) && !any(class(object) %in% expected.class))  {
     if(!warn.only) {
       stop('Expect class \"', paste(expected.class, collapse = ', '), '\" for argument ', deparse(substitute(object)), ' but got \"', paste(class(object), collapse = ', '), '\".', call. = FALSE)
     } else {
