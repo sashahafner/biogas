@@ -286,6 +286,8 @@ cumBg(
 \details{
   Using volume, mass, pressure, or molar quantity data from \code{dat} and gas composition from \code{comp}, this function will calculate standardised biogas and methane production (if \code{comp} is provided) for each observation,  interpolating \code{comp.name} (from \code{comp} argument) to each \code{time.name} in \code{dat} if needed, and summing these for cumulative values.
   Use of volumetric measurements is the default case. 
+  However, this function is essentially deprecated for both volumetric and manometric methods, and the new \code{\link{calcBgMan}} and \code{\link{calcBgVol}} functions are recommended instead.
+
   Alternatively, if reactor mass is given in \code{dat}, a gravimetric approach (Hafner et al. 2015) can be applied by setting \code{dat.type} to \code{"mass"}.
   In this case, to determine total cumulative biogas production for batch reactors, an initial mass should be included for each reactor.
   If pressure is measured in \code{dat}, a manometric method can be applied by setting \code{dat.type} to \code{"pres"}.  

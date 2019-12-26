@@ -1,11 +1,11 @@
 biogas 1.23.0
-2019 April 10
+2019 November
 ---------------------------------------------------------------------
 NEW FEATURES
 
 *calcBgMan(), calcBgVol()
 New simpler functions for BMP data processing. These are replacements
-for cumBg()
+for volumetric and manometric calculations with cumBg()
 
 *calcBgGD()
 Completely new function for gas density BMP (GD-BMP) calculations.
