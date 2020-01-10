@@ -24,11 +24,6 @@ summBg.R
 Can handle vol.name with length > 1, i.e., multiple response variables in the
 same call.
 
-More flexible handling of multiple when elements, e.g., 
-when = list(20, "1p3d").
-
-New when.min argument for use in combination with relative durations.
-
 1 March 2019 SDH
 Version 1.11.5
 

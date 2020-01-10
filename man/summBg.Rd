@@ -14,7 +14,6 @@ summBg(vol, setup, id.name = "id", time.name = "time",
        descrip.name = "descrip", inoc.name = NULL, inoc.m.name = NULL,
        norm.name = NULL, norm.se.name = NULL,  vol.name = "cvCH4", 
        imethod = "linear", extrap = FALSE, when = 30, 
-       when.min = Inf, rate.crit = 'net', 
        show.obs = FALSE, show.rates = FALSE, show.more = FALSE,
        sort = TRUE, set.name = 'set', quiet = FALSE)
 }
@@ -77,12 +76,6 @@ summBg(vol, setup, id.name = "id", time.name = "time",
     In this case, the earliest time where production rate drops below 1\% of cumulative production per day for at least 3 days will be used.
     Where this time differs for multiple bottles with the same \code{descrip.name}, the latest one will be used.
     Numeric or character vector or list (use a list for, e.g., \code{list("1p3d", "end", 30)}).
-}
-  \item{when.min}{
-    minimum duration (value of \code{when}) to be used with a relative duration criterion, e.g., if you want \code{"1p3d"} but no less than 15 days set \code{when.min = 15}. Ignored if \code{when} is numeric. Default is \code{Inf} (no limit).
-}
-  \item{rate.crit}{
-    type of rate criterion to be applied for relative \code{when}, e.g., \code{when = "1p3d"} and \code{rate.crit = "net"} is based on net gas production (after subtracting incoulum contribution). Options are \code{"net"} or \code{"gross"}.
 }
   \item{show.obs}{
     set to \code{TRUE} to return all observations, otherwise means and standard deviations are returned. Default is \code{FALSE}. 
