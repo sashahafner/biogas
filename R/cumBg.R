@@ -62,7 +62,7 @@ cumBg <- function(
   checkArgClassValue(comp.name, c('character', 'NULL'))
   checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
   checkArgClassValue(vol.hs.name, 'character')
-  checkArgClassValue(headcomp, 'character')
+  checkArgClassValue(headcomp, c('character', 'NULL'))
   checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
   checkArgClassValue(temp.std, c('integer', 'numeric'))
   checkArgClassValue(pres.std, c('integer', 'numeric'))
@@ -705,7 +705,7 @@ cumBg <- function(
     if(!is.null(headspace)[1]) {
       # Apply initial headspace correction only for times 1 and 2 (i.e., one mass loss measurement per reactor)
       which1and2 <- sort(c(which(starts$start), which(starts$start) + 1) )
-      mass[which1and2, c('vBg', 'vCH4')] <- mass2vol(mass = mass$massloss[which1and2], xCH4 = mass[which1and2, comp.name], temp = mass[which1and2, temp], pres = mass[which1and2, pres], temp.std = temp.std, pres.std = pres.std, unit.temp = unit.temp, unit.pres = unit.pres, value = 'all', headspace = mass[which1and2, vol.hs.name], headcomp = 'N2', temp.init = temp.init, std.message = FALSE)[, c('vBg', 'vCH4')]
+      mass[which1and2, c('vBg', 'vCH4')] <- mass2vol(mass = mass$massloss[which1and2], xCH4 = mass[which1and2, comp.name], temp = mass[which1and2, temp], pres = mass[which1and2, pres], temp.std = temp.std, pres.std = pres.std, unit.temp = unit.temp, unit.pres = unit.pres, value = 'all', headspace = mass[which1and2, vol.hs.name], headcomp = headcomp, temp.init = temp.init, std.message = FALSE)[, c('vBg', 'vCH4')]
     }
     # Set time zero volumes to zero--necessary because xCH4 is always missing
     mass[mass$massloss==0, c('vBg', 'vCH4')] <- 0

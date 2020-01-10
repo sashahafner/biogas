@@ -61,16 +61,16 @@ mass2vol <- function(
   # Initial headspace correction~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # If headspace data provided
   if(!is.null(headspace)) {
-    if(headcomp == 'N2') {
+    if(!is.null(headcomp)) {
       if(is.null(temp.init)) stop('Trying to apply correction for initial headspace composition, but no value was provided for temp.init.')
       message('In gravimetric method, correcting for initial headspace composition, using an initial temperature of ', temp.init, ' ', unit.temp, '.')
-      # Reduce mass loss for N2 loss
+      # Reduce mass loss for flushing gas
       # Fixed temperature and pressure at start and fixed residual pressure (1 atm)
       # 0.0012504 is the density of N2 in g/ml at 1C and 1 atm (101325 Pa) from NIST
-      mass <- mass - stdVol(headspace, temp = temp.init.k, pres = 101325, rh = 0, temp.std = 273.15, pres.std = 101325, unit.pres = 'Pa', unit.temp = 'K', std.message = FALSE)*0.0012504
+      mass <- mass - stdVol(headspace, temp = temp.init.k, pres = 101325, rh = 0, temp.std = 273.15, pres.std = 101325, unit.pres = 'Pa', unit.temp = 'K', std.message = FALSE)*gasDens(headcomp)
       vBg <- mass/(db + mH2O) + stdVol(headspace, temp = temp.k, pres = 101325, rh = 1, temp.std = 273.15, pres.std = 101325, unit.pres = 'Pa', unit.temp = 'K', std.message = FALSE)
     } else {
-      warning('headcomp argument was given as ', headcomp, ', but \"N2\" is the only option available, so no correction was applied for initial headspace composition.')
+      warning('Headspace volume was given but headcomp was not, so no correction was applied for initial headspace composition.')
     }
   }
 
