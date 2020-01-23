@@ -2,6 +2,8 @@
 mass2vol <- function(
   mass,
   xCH4,
+  xCO2 = xCH4 - xN2,
+  xN2 = 0,
   temp,
   pres,
   temp.std = getOption('temp.std', as.numeric(NA)),
@@ -34,6 +36,8 @@ mass2vol <- function(
   checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
   checkArgClassValue(std.message, 'logical')
 
+  if (any(xCH4 + xCO2 + xN2 > 1)) warning('Sum of mole fractions > 1, is this correct?')
+
   # Unit conversions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Convert pressure to Pa and temp to K
   pres.pa <- unitConvert(x = pres, unit = unit.pres, to = 'Pa')
@@ -45,10 +49,9 @@ mass2vol <- function(
   pres.std.pa <- unitConvert(x = pres.std, unit = unit.pres, to = 'Pa')
 
   # Density calcuation~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  mmb <- xCH4*molMass('CH4') + (1 - xCH4)*molMass('CO2')
-  mvBg <- xCH4*vol.mol['CH4'] + (1 - xCH4)*vol.mol['CO2']
-  mvBg <- as.vector(mvBg)
-  db <- mmb/mvBg
+  gdens <- gasDens(paste0(xCH4, 'CH4:', 1 - xCH4 - xN2, 'CO2:', xN2, 'N2'), value = 'all')
+  mvBg <- gdens[['mol.vol']]
+  db <- gdens[['dens']]
 
   # Calculate water vapor pressure in Pa (based on NIST)
   pH2O <- rh*watVap(temp.k = temp.k)
@@ -77,10 +80,9 @@ mass2vol <- function(
   # Standardize (based on molar volumes used above, so in the default case stdVol does nothing.)
   vBg <- stdVol(vBg, temp = unitConvert(x = 273.15, unit = 'K', to = unit.temp), pres = unitConvert(x = 101325, unit = 'Pa', to = unit.pres), rh = 0, temp.std = temp.std, pres.std = pres.std, unit.pres = unit.pres, unit.temp = unit.temp, std.message = std.message)
   #vBg <- stdVol(vBg, temp = 273.15, pres = 101325, rh = 0, temp.std = temp.std.k, pres.std = pres.std.pa, unit.pres = 'Pa', unit.temp = 'K', std.message = std.message)
-  vCH4 <- xCH4*vBg*vol.mol['CH4']/mvBg
-  vCH4 <- as.vector(vCH4)
-  vCO2 <- (1 - xCH4)*vBg*vol.mol['CO2']/mvBg
-  vCO2 <- as.vector(vCO2)
+  vCH4 <- as.vector(xCH4*vBg)
+  vCO2 <- as.vector(xCO2*vBg)
+  vN2 <- as.vector(xN2*vBg)
 
   # Return output
   if(tolower(value) == "ch4") {
@@ -90,6 +92,6 @@ mass2vol <- function(
   } else if(tolower(value) == "co2") {
     return(vCO2) 
   } else if(tolower(value) == "all") {
-    return(cbind(vBg = vBg, vCH4 = vCH4, vCO2 = vCO2))
+    return(cbind(vBg = vBg, vCH4 = vCH4, vCO2 = vCO2, vN2 = vN2))
   }
 }

@@ -4,7 +4,8 @@
 # Options: N2, CO2, CH4, 1N2:
 
 gasDens <- function(
-  comp = 'N2'
+  comp = 'N2',
+  value = 'dens'
 ) {
 
   # Get ratio of gases
@@ -21,7 +22,8 @@ gasDens <- function(
   mass <- sum(rat * molMass(names(rat))) 
   dens <- mass/vol
   
-  return(dens)
+  if (value == 'dens') return(dens)
+  if (value == 'all') return(c(dens = dens, mol.vol = vol/sum(rat), mol.mass = mass/sum(rat)))
 
 }
 
