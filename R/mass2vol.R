@@ -2,7 +2,7 @@
 mass2vol <- function(
   mass,
   xCH4,
-  xCO2 = xCH4 - xN2,
+  xCO2 = 1 - xCH4 - xN2,
   xN2 = 0,
   temp,
   pres,
@@ -38,6 +38,17 @@ mass2vol <- function(
 
   if (any(xCH4 + xCO2 + xN2 > 1)) warning('Sum of mole fractions > 1, is this correct?')
 
+  if (length(xN2) == 1 && length(xCH4) > 1) xN2 <- rep(xN2, length(xCH4))
+  if (length(xCO2) == 1 && length(xCH4) > 1) xCO2 <- rep(xCO2, length(xCH4))
+
+  ## For the rare case with something like C0.00001, to avoid C1e-5 which will result in an error
+  ## Refuses to work properly
+  #oldopt <- options(scipen = 10)
+  #on.exit(options(scipen = oldopt))
+  xCH4 <- round(xCH4, 5)
+  xCO2 <- round(xCO2, 5)
+  xN2 <- round(xN2, 5)
+
   # Unit conversions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Convert pressure to Pa and temp to K
   pres.pa <- unitConvert(x = pres, unit = unit.pres, to = 'Pa')
@@ -49,9 +60,12 @@ mass2vol <- function(
   pres.std.pa <- unitConvert(x = pres.std, unit = unit.pres, to = 'Pa')
 
   # Density calcuation~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  gdens <- gasDens(paste0(xCH4, 'CH4:', 1 - xCH4 - xN2, 'CO2:', xN2, 'N2'), value = 'all')
-  mvBg <- gdens[['mol.vol']]
-  db <- gdens[['dens']]
+  db <- mvBg <- NULL
+  for (i in 1:length(mass)) {
+    gdens <- gasDens(paste0(100 * xCH4[i], 'CH4:', 100 * xCO2[i], 'CO2:', 100 * xN2[i], 'N2'), value = 'all')
+    mvBg[i] <- gdens[['mol.vol']]
+    db[i] <- gdens[['dens']]
+  }
 
   # Calculate water vapor pressure in Pa (based on NIST)
   pH2O <- rh*watVap(temp.k = temp.k)
