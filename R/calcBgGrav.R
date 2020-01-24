@@ -231,8 +231,8 @@ calcBgGrav <- function(
                                          pres.std = pres.std, unit.temp = unit.temp, unit.pres = unit.pres, 
                                          value = 'all', std.message = std.message)[, c('vBg', 'vCH4')]
 
-    mass$vhsCH4 <- dat[, xCH4.name] *
-                     stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres.amb], rh = 1, 
+    mass$vhsCH4 <- mass[, xCH4.name] *
+                     stdVol(mass[, vol.hs.name], temp = mass[, temp], pres = mass[, pres.amb], rh = 1, 
                             pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
                             unit.pres = unit.pres, std.message = std.message)
   }
