@@ -142,6 +142,10 @@ calcBgGrav <- function(
          method cannot be applied. Did you mean cmethod = \"removed\"?')
   }
 
+  if (cmethod == 'total' && is.null(pres.amb)) {
+    stop('For cmethod = \"total\" pres.amb must be given (column name or numeric value).') 
+  }
+
   # NTS: Need check with xCO2 or xN2 longcombo is only option
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'longcombo'

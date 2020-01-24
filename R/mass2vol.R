@@ -62,7 +62,7 @@ mass2vol <- function(
   # Density calcuation~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   db <- mvBg <- NULL
   for (i in 1:length(mass)) {
-    gdens <- gasDens(paste0(100 * xCH4[i], 'CH4:', 100 * xCO2[i], 'CO2:', 100 * xN2[i], 'N2'), value = 'all')
+    gdens <- gasDens(xCH4 = xCH4[i], xCO2 = xCO2[i], xN2 = xN2[i], value = 'all')
     mvBg[i] <- gdens[['mol.vol']]
     db[i] <- gdens[['dens']]
   }
