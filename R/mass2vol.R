@@ -23,6 +23,8 @@ mass2vol <- function(
   # Check arguments~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   checkArgClassValue(mass, c('integer', 'numeric'), expected.range = c(0, Inf))
   checkArgClassValue(xCH4, c('integer', 'numeric'), expected.range = c(0, 1))
+  checkArgClassValue(xCO2, c('integer', 'numeric'), expected.range = c(0, 1))
+  checkArgClassValue(xN2, c('integer', 'numeric'), expected.range = c(0, 1))
   checkArgClassValue(temp, c('integer', 'numeric'))
   checkArgClassValue(pres, c('integer', 'numeric'))
   checkArgClassValue(temp.std, c('integer', 'numeric'))
@@ -36,7 +38,9 @@ mass2vol <- function(
   checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
   checkArgClassValue(std.message, 'logical')
 
-  if (any(xCH4 + xCO2 + xN2 > 1)) warning('Sum of mole fractions > 1, is this correct?')
+  if (any((xCH4 + xCO2 + xN2)[!is.na(xCH4 + xCO2 + xN2)] > (1 + 1E-10))) {
+    warning('Sum of mole fractions > 1, is this correct?')
+  }
 
   if (length(xN2) == 1 && length(xCH4) > 1) xN2 <- rep(xN2, length(xCH4))
   if (length(xCO2) == 1 && length(xCH4) > 1) xCO2 <- rep(xCO2, length(xCH4))
