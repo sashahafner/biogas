@@ -307,7 +307,7 @@ summBg <- function(
     names(summ1) <- c(id.name, time.name, vol.name)
 
     # Sort, in order to find latest values
-    vol <- vol[order(vol[, id.name], vol[, vol.name]), ]
+    vol <- vol[order(vol[, id.name], vol[, time.name]), ]
 
     for(i in ids) {
       dc <- vol[vol[, id.name]==i, ]
