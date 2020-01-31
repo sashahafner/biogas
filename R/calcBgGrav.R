@@ -52,7 +52,7 @@ calcBgGrav <- function(
   checkArgClassValue(vol.hs.name, 'character')
   checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
   checkArgClassValue(pres.init, c('integer', 'numeric', 'NULL'))
-  checkArgClassValue(pres.resid, c('integer', 'numeric', 'NULL'))
+  checkArgClassValue(pres.resid, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(headcomp, c('character', 'NULL'))
   checkArgClassValue(cmethod, 'character', expected.values = c('removed', 'total'))
   # Skip imethod, checked in interp
