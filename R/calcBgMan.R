@@ -134,7 +134,7 @@ calcBgMan <- function(
   
   # For data.struct = 'wide', data and composition names are fixed, added manually in cumBgDataPrep()
   if(data.struct == 'wide') {
-    pres.name <- 'pres'
+    pres.name <- 'vol'
     if(have.comp) {
       comp.name <- 'xCH4'
     }
