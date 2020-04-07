@@ -254,6 +254,7 @@ calcBgVol <- function(
       }
     } 
   } else {
+
     for(i in unique(dat[, id.name])) {
       dat[dat[, id.name]==i, 'vBg'] <- diff(c(0, dat[dat[, id.name]==i, 'cvBg' ]))
       if(have.comp) {
