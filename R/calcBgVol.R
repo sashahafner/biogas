@@ -273,6 +273,7 @@ calcBgVol <- function(
         dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
       }
     }
+  }
   
   # Method 1 & 2
   # Calculate rates for all cases 
