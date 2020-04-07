@@ -246,34 +246,35 @@ calcBgVol <- function(
   
   # Calculate cumulative production or interval production (depending on interval argument)
   # Method 1
-  if(interval & cmethod != 'total') {
-    for(i in unique(dat[, id.name])) {
-      dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
-      if(have.comp) {
-        dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
-      }
-    } 
-  } else {
-    for(i in unique(dat[, id.name])) {
-      dat[dat[, id.name]==i, 'vBg'] <- diff(c(0, dat[dat[, id.name]==i, 'cvBg' ]))
-      if(have.comp) {
-        dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+  if(cmethod != 'total') {
+    if(interval) {
+      for(i in unique(dat[, id.name])) {
+        dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
+        if(have.comp) {
+          dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
+        }
+      } 
+    } else {
+      for(i in unique(dat[, id.name])) {
+        dat[dat[, id.name]==i, 'vBg'] <- diff(c(0, dat[dat[, id.name]==i, 'cvBg' ]))
+        if(have.comp) {
+          dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
+        }
       }
     }
   }
   
   # Method 2
   # For method 2, cmethod = 'total', add headspace CH4 to cvCH4
-  if(have.comp) {
-    if(cmethod == 'total') {
+  if(cmethod == 'total') {
+    if(have.comp) {
       dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
     }
     # For method 2, when cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
-    # vBg is not affected by cmethod = 'total'
-    if(cmethod == 'total') {
-      for(i in unique(dat[, id.name])) {
-        dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
-      }
+    # vBg is not affected by cmethod = 'total' (calculation is same as in method 1 above)
+    for(i in unique(dat[, id.name])) {
+      dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
+      dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
     }
   }
   
