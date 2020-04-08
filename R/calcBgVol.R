@@ -160,6 +160,7 @@ calcBgVol <- function(
   
   # Mixed data is standardized in cumBgDataPrep() and changed to interval
   if(!is.null(empty.name)) {
+    vol.name <- paste0(vol.name, '.std')
     standardized <- TRUE
     interval <- TRUE
   }
