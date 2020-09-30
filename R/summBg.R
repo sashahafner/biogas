@@ -239,6 +239,11 @@ summBg <- function(
 
   }
 
+  # Set arguments for validation criteria check
+  if(check.val) {
+    #when = 'end'
+  }
+
   # Add other checks here
 
   # Trim setup based on ids and check again for inoc.name and norm.name~~~~~~~~~~~~~~~~~~~
@@ -432,6 +437,7 @@ summBg <- function(
   }
 
   # If selected, find times where rate drops below 1%/d of cumulative
+  # NTS WIP Try ALWAYS checking rates?
   if(length(when) == 1 && pdwhen) { 
 
     # Get cutoff 
@@ -460,7 +466,7 @@ summBg <- function(
       }
 
       # Add rates to summ1 only for exporting with show.rates = TRUE
-      summ1[summ1[, id.name] == i, 'rrvCH4'] <- signif(100*rr, 4)
+      summ1[summ1[, id.name] == i, 'rrvCH4'] <- signif(100*rr, 5)
     }
 
     # Return observations here (early to avoid problem in next 2 blocks--see error messages)
@@ -490,7 +496,8 @@ summBg <- function(
         i2 <- 1
       }
 
-      # Take first following time at least dur (usually 3 d) after obs preceeding first obs below 1% (this is correct!--think about production for first obs starting just after preceeding obs, so 3 d count should start then
+      # Take first following time at least dur (usually 3 d) after obs preceeding first obs below 1% 
+      # (this is correct!--think about production for first obs starting just after preceeding obs, so 3 d count should start then
       # But, limitation of this approach is that a single observation < 1% can end trial (as long as it is at least 3 d after previous)
       # Users should avoid case when returned 1p time = final time in trial
       dur <- as.numeric(gsub('^.+p(.+)d', '\\1', when))
@@ -505,6 +512,7 @@ summBg <- function(
         ##s1times <- rbind(s1times, ss)
         # Set to latest time, but keep track of this
         ss <- dd[nrow(dd), ]
+        # Track bottles that haven't met rate criterion
         pdnotyet <- c(pdnotyet, i)
       }
       s1times <- rbind(s1times, ss)
@@ -524,10 +532,11 @@ summBg <- function(
     #  tt <- max(25, max(s1times[, time.name]))
     #}
 
+    # Even out times among reps of same description
     for(i in unique(s1times[, descrip.name])) {
 
       #if(rate.crit == 'net') {
-        tt <- max(s1times[s1times[, descrip.name] == i, time.name], when.min)
+      tt <- max(s1times[s1times[, descrip.name] == i, time.name], when.min)
       #} 
 
       for(j in unique(summ1[summ1[, descrip.name] == i, id.name])) {
@@ -539,9 +548,9 @@ summBg <- function(
         }
 
         # Select times >= max time for this decrip.name level
-        ss <- summ1[summ1[, id.name] == j & summ1[, time.name] >= tt, ] # NTS is this missing [1] to select only the first time that >= tt?
-        if(length(ss) == 0) stop('when = "xpyd" problem. Re-run function with show.rates = TRUE')
-        ss <- ss[1, ]
+        ss <- summ1[summ1[, id.name] == j & summ1[, time.name] >= tt, ] 
+        if(length(ss) == 0) stop('when = "xpyd" problem. Call function again with show.rates = TRUE')
+        ss <- ss[1, ] # NTS: why not move up to prev command?
         summ1temp <- rbind(summ1temp, ss)
       }
 
