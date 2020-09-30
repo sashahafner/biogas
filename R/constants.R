@@ -9,6 +9,8 @@ std.forms <- c(
 	       carbohydrate = 'C6H10O5', 
 	       lipid = 'C57H104O6', 
 	       lignin = 'C10H13O3', 
+               # Fats
+               tripalmitin = 'C51H98O6',
 	       # Cell biomass 
 	       biomass = 'C5H7O2N', 
 	       # Organic acids
@@ -16,9 +18,12 @@ std.forms <- c(
 	       lactic = 'C3H6O3', 
 	       # Alcohols
 	       ethanol = 'CH3CH2OH', 
-	       cellulose = 'C6H10O5', 
 	       # Carbohydrates
+	       cellulose = 'C6H10O5', 
 	       glucose = 'C6H12O6',
+	       fructose = 'C6H12O6',
+	       sucrose = 'C12H22O11',
+	       lactose = 'C12H22O11',
 	       # Ash
 	       ash = 'NaCl'
 	       )
