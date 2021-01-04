@@ -4,6 +4,13 @@ biogas package
 ## DETAILED LOG ########################
 ########################################
 
+04 January 2021 SDH
+Version 1.26.0
+
+planBMP.R
+Add overspecified error.
+Corrects behavior.
+
 07 April 2020 SDH
 Version 1.23.4
 

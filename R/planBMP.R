@@ -5,12 +5,21 @@ planBMP <- function(
   isr = NA,
   m.inoc = NA,
   m.sub = NA,
-  m.tot = NA,
+  m.tot = m.inoc + m.sub,
   m.vs.sub = vs.sub*m.sub,
   digits = 3,
   warn = TRUE,
   nice = TRUE
   ) {
+
+  # Check arguments
+  if((!is.na(m.inoc[1]) & !is.na(m.sub[1]) & !is.na(isr[1])) |
+     (!is.na(m.tot[1]) & !is.na(m.sub[1]) & !is.na(isr[1])) |
+     (!is.na(m.tot[1]) & !is.na(m.vs.sub[1]) & !is.na(isr[1])) |
+     (!is.na(m.tot[1]) & !is.na(m.inoc[1]) & !is.na(isr[1]))
+     ) {
+    stop('System is overspecified! You cannot provide inoculum & substrate masses along with ISR.')
+  }
 
   # Given VS concentrations, inoc mass, and ISR
   if(all(!is.na(vs.inoc + vs.sub + m.inoc + isr))) {
