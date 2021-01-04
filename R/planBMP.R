@@ -18,7 +18,7 @@ planBMP <- function(
      (!is.na(m.tot[1]) & !is.na(m.vs.sub[1]) & !is.na(isr[1])) |
      (!is.na(m.tot[1]) & !is.na(m.inoc[1]) & !is.na(isr[1]))
      ) {
-    stop('System is overspecified! You cannot provide inoculum & substrate masses along with ISR.')
+    stop('System is overdetermined! You cannot provide inoculum & substrate masses along with ISR.')
   }
 
   # Given VS concentrations, inoc mass, and ISR
