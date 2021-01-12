@@ -6,7 +6,7 @@ planBMP <- function(
   m.inoc = NA,
   m.sub = NA,
   m.tot = m.inoc + m.sub,
-  m.vs.sub = vs.sub*m.sub,
+  m.vs.sub = vs.sub*m.sub/1000,
   digits = 3,
   warn = TRUE,
   nice = TRUE
@@ -24,7 +24,6 @@ planBMP <- function(
   # Convert concentrations to g/g to make calculations simpler
   vs.inoc <- vs.inoc / 1000 
   vs.sub <- vs.sub / 1000
-  vs.mix <- vs.mix / 1000
 
   # Given VS concentrations, inoc mass, and ISR
   if(all(!is.na(vs.inoc + vs.sub + m.inoc + isr))) {
