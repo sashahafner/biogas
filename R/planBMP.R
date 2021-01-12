@@ -98,7 +98,7 @@ planBMP <- function(
              'Sub. VS mass', 'Inoc. VS mass', 'Mix. VS mass')
     
     unts <- c('g/g', 'g/g', 'g/g',
-             'g/g', 'g', 'g', 'g', 
+             'g:g', 'g', 'g', 'g', 
              'g', 'g', 'g')
 
 
