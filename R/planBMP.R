@@ -21,6 +21,11 @@ planBMP <- function(
     stop('System is overdetermined! You cannot provide inoculum & substrate masses along with ISR.')
   }
 
+  # Convert concentrations to g/g to make calculations simpler
+  vs.inoc <- vs.inoc / 1000 
+  vs.sub <- vs.sub / 1000
+  vs.mix <- vs.mix / 1000
+
   # Given VS concentrations, inoc mass, and ISR
   if(all(!is.na(vs.inoc + vs.sub + m.inoc + isr))) {
 
@@ -67,14 +72,19 @@ planBMP <- function(
   vs.mix <- m.vs.tot/m.tot
   
   if(warn) {
-    if(any(vs.inoc > 1, vs.sub > 1)) warning('One or more VS concentration is > 1 g/g (1000 g/kg).')
+    if(any(vs.inoc > 1, vs.sub > 1)) warning('One or more VS concentration is > 1000 g/kg (100%).')
     if(any(isr < 2)) warning('Inoculum-to-substrate ratio (isr argument) is < 2.')
     if(any(isr > 4)) warning('Inoculum-to-substrate ratio (isr argument) is > 4.')
-    if(any(vs.mix < 0.02) | any(vs.mix > 0.06)) warning('Mixture VS concentration is not within 0.02 - 0.06 g/g (20 - 60 g/kg).')
+    if(any(vs.mix < 0.02) | any(vs.mix > 0.06)) warning('Mixture VS concentration is not within 20 - 60 g/kg (2-6%).')
     if(any(m.vs.sub < 2)) warning('Substrate VS mass is < 2 g.')
   }
 
   # Make a matrix of results (needed in case call is vectorized)
+  # Convert VS concentrations back to g/kg for results
+  vs.inoc <- 1000 * vs.inoc
+  vs.sub <- 1000 * vs.sub
+  vs.mix <- 1000 * vs.mix
+
   res <- cbind(vs.inoc = vs.inoc, vs.sub = vs.sub, vs.mix = vs.mix,
 	   isr = isr, 
 	   m.inoc = m.inoc, m.sub = m.sub, m.tot = m.tot,
@@ -97,7 +107,7 @@ planBMP <- function(
              'Inoc. mass', 'Substrate mass', 'Mixture mass', 
              'Sub. VS mass', 'Inoc. VS mass', 'Mix. VS mass')
     
-    unts <- c('g/g', 'g/g', 'g/g',
+    unts <- c('g/kg', 'g/kg', 'g/kg',
              'g:g', 'g', 'g', 'g', 
              'g', 'g', 'g')
 

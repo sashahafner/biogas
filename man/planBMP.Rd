@@ -16,13 +16,13 @@ planBMP(vs.inoc, vs.sub, isr = NA, m.inoc = NA, m.sub = NA,
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{vs.inoc}{
-      volatile solids (VS) concentration of inoculum (g/g = g VS per g inoculum).
+      volatile solids (VS) concentration of inoculum (g/kg = g VS per kg inoculum).
       Required.
       Numeric vector.
 }
 
   \item{vs.sub}{
-      volatile solids (VS) concentration of substrate (g/g = g VS per g substrate).
+      volatile solids (VS) concentration of substrate (g/kg = g VS per kg substrate).
       Required.
       Numeric vector.
 }
@@ -86,7 +86,7 @@ planBMP(vs.inoc, vs.sub, isr = NA, m.inoc = NA, m.sub = NA,
 \value{
   A named numeric vector, or (if any of the first 7 input arguments have a length > 1, i.e., a vectorized call), a data frame.
   Names and interpretation are identical to the first 7 input arguments, and also include:
- \item{vs.mix}{VS concentration in mixture (g/g)}
+ \item{vs.mix}{VS concentration in mixture (g/kg)}
  \item{m.vs.tot}{total VS mass in mixture (g)}
   For non-vectorized calls, the results is returned invisibly and a easy-to-read summary is printed (see \code{nice} argument).
 }
@@ -117,21 +117,21 @@ Holliger, C., Alves, M., Andrade, D., Angelidaki, I., Astals, S., Baier, U., Bou
   # Bottles are 500 mL, substrate is wastewater sludge.
   # Assume we want no more than 250 mL reacting volume (~250 g)
   # First try setting ISR and total mass.
-  # VS concentrations: 0.02 g/g in inoculum, 0.07 g/g for substrate, ISR = 2.
-  planBMP(vs.inoc = 0.02, vs.sub = 0.07, isr = 2, m.tot = 250)
+  # VS concentrations: 20 g/kg in inoculum, 70 g/kg for substrate, ISR = 2.
+  planBMP(vs.inoc = 20, vs.sub = 70, isr = 2, m.tot = 250)
   # Get 31 g substrate, 220 g inoculum.
   
   # After setup, we can check final values.
-  planBMP(vs.inoc = 0.018, vs.sub = 0.072, m.sub = 32, m.inoc = 218)
+  planBMP(vs.inoc = 18, vs.sub = 72, m.sub = 32, m.inoc = 218)
   # We didn't quite meet our target in this case--next time use more inoculum to be sure
   
   # We can alternatively specify substrate VS mass
-  planBMP(vs.inoc = 0.02, vs.sub = 0.07, isr = 2, m.vs.sub = 2)
+  planBMP(vs.inoc = 20, vs.sub = 70, isr = 2, m.vs.sub = 2)
   
   # Some options
-  planBMP(vs.inoc = 0.02, vs.sub = 0.07, isr = 2, m.vs.sub = 2, nice = FALSE)
+  planBMP(vs.inoc = 20, vs.sub = 70, isr = 2, m.vs.sub = 2, nice = FALSE)
   # Perhaps we want to use three different ISRs
-  planBMP(vs.inoc = 0.02, vs.sub = 0.07, isr = 2:4, m.vs.sub = 2, nice = FALSE)
+  planBMP(vs.inoc = 20, vs.sub = 70, isr = 2:4, m.vs.sub = 2, nice = FALSE)
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
