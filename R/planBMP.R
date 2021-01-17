@@ -53,6 +53,24 @@ planBMP <- function(
       m.vs.sub <- vs.sub*m.sub
       m.tot <- m.inoc + m.sub
 
+  } else if(all(!is.na(vs.inoc + vs.sub + m.sub + m.tot))) {
+
+      m.inoc <- m.tot - m.sub
+      isr <- vs.inoc*m.inoc/(vs.sub*m.sub)
+      m.vs.sub <- vs.sub*m.sub
+
+  } else if(all(!is.na(vs.inoc + vs.sub + m.vs.sub + m.tot))) {
+
+      m.sub <- m.vs.sub/vs.sub
+      m.inoc <- m.tot - m.sub
+      isr <- vs.inoc*m.inoc/(vs.sub*m.sub)
+
+  } else if(all(!is.na(vs.inoc + vs.sub + m.inoc + m.tot))) {
+
+      m.sub <- m.tot - m.inoc
+      isr <- vs.inoc*m.inoc/(vs.sub*m.sub)
+      m.vs.sub <- vs.sub*m.sub
+
   } else {
 
       stop('Not enough input arguments. You must provide:
@@ -60,7 +78,10 @@ planBMP <- function(
            vs.inoc, vs.sub, isr, and m.sub OR
            vs.inoc, vs.sub, isr, and m.inoc OR
            vs.inoc, vs.sub, isr, and m.vs.sub OR
-           vs.inoc, vs.sub, m.inoc, and m.sub'
+           vs.inoc, vs.sub, m.inoc, and m.sub OR
+           vs.inoc, vs.sub, m.inoc, and m.tot OR
+           vs.inoc, vs.sub, m.sub, and m.tot OR
+           vs.inoc, vs.sub, m.vs.sub, and m.tot'
            )
 
   }
@@ -95,6 +116,11 @@ planBMP <- function(
       res <- res[1, ]
   } else {
       res <- as.data.frame(res)
+  }
+
+  # Check for negative results
+  if (any(res < 0)) {
+    stop('Specified conditions are impossible--check inputs!')
   }
 
   res <- signif(res, digits)
