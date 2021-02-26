@@ -71,6 +71,13 @@ planBMP <- function(
       isr <- vs.inoc*m.inoc/(vs.sub*m.sub)
       m.vs.sub <- vs.sub*m.sub
 
+  } else if(all(!is.na(vs.inoc + vs.sub + m.vs.sub + m.inoc))) {
+
+      m.sub <- m.vs.sub/vs.sub
+      m.tot <- m.inoc + m.sub
+      isr <- vs.inoc*m.inoc/(vs.sub*m.sub)
+      m.vs.sub <- vs.sub*m.sub
+
   } else {
 
       stop('Not enough input arguments. You must provide:
@@ -81,7 +88,8 @@ planBMP <- function(
            vs.inoc, vs.sub, m.inoc, and m.sub OR
            vs.inoc, vs.sub, m.inoc, and m.tot OR
            vs.inoc, vs.sub, m.sub, and m.tot OR
-           vs.inoc, vs.sub, m.vs.sub, and m.tot'
+           vs.inoc, vs.sub, m.vs.sub, and m.tot OR
+           vs.inoc, vs.sub, m.vs.sub, and m.inoc'
            )
 
   }
