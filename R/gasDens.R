@@ -6,13 +6,16 @@ gasDens <- function(
   xCH4 = 0,
   xCO2 = 0,
   xN2 = 0,
+  xO2 = 0,
+  xAr = 0,
+  xH2O = 0,
   value = 'dens'
 ) {
 
   if (!is.null(comp)) {
     rat <- getGasRats(comp)
   } else {
-    rat <- c(CH4 = xCH4, CO2 = xCO2, N2 = xN2)
+    rat <- c(CH4 = xCH4, CO2 = xCO2, N2 = xN2, O2 = xO2, Ar = xAr, H2O = xH2O)
   }
 
   vol <- molVolMix(rat)
