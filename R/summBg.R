@@ -306,7 +306,7 @@ summBg <- function(
 
     }
 
-  } else if(length(when) == 1 && tolower(when) == 'end') { # User just wants to use latest values of volume
+  } else if(length(when) == 1 && tolower(when) %in% c('end', 'latest')) { # User just wants to use latest values of volume
 
     summ1 <- data.frame(id = ids, time = NA, vol = NA)
     names(summ1) <- c(id.name, time.name, vol.name)
@@ -320,7 +320,9 @@ summBg <- function(
       summ1[summ1[, id.name]==i, c(time.name, vol.name)] <- dc[nrow(dc), c(time.name, vol.name)]
     }
 
-  #} else if(length(when) == 1 && when %in% c('meas', '1p', '0.5p')) { # Return values for all measurement times, which may differ among reactors
+    # If user selects 'latest', function will return latest times combined whether or not times match
+    summ1[, time.name] <- Inf
+
   } else if(length(when) == 1 && (when == 'meas' | pdwhen)) { 
 
     # Only substrate ids for net, all (include inoculum) for gross
