@@ -22,11 +22,6 @@ summBg <- function(
   quiet = FALSE)
 {
 
-  # Argument revisions
-  if (tolower(when) == 'latest') {
-    extrap <- TRUE
-  }
-
   # For "vectorized" calls, lapply-like behavior
   if(class(vol)[1] == 'list') {
 
@@ -184,7 +179,13 @@ summBg <- function(
   checkArgClassValue(rate.crit, 'character', c('net', 'gross', 'total'))
   checkArgClassValue(show.obs, 'logical')
   checkArgClassValue(sort, 'logical')
+
+  # Argument revisions
+  if (tolower(when) == 'latest') {
+    extrap <- TRUE
+  }
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
   # Check for pd when argument
   # First for backward compatability
