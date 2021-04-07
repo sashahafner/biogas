@@ -22,6 +22,11 @@ summBg <- function(
   quiet = FALSE)
 {
 
+  # Argument revisions
+  if (tolower(when) == 'latest') {
+    extrap <- TRUE
+  }
+
   # For "vectorized" calls, lapply-like behavior
   if(class(vol)[1] == 'list') {
 
@@ -321,7 +326,9 @@ summBg <- function(
     }
 
     # If user selects 'latest', function will return latest times combined whether or not times match
-    summ1[, time.name] <- Inf
+    if (tolower(when) == 'latest') {
+      summ1[, time.name] <- Inf
+    }
 
   } else if(length(when) == 1 && (when == 'meas' | pdwhen)) { 
 
