@@ -239,10 +239,10 @@ summBg <- function(
 
   }
 
-  # Set arguments for validation criteria check
-  if(check.val) {
-    #when = 'end'
-  }
+  ### Set arguments for validation criteria check
+  ##if(check.val) {
+  ##  #when = 'end'
+  ##}
 
   # Add other checks here
 
