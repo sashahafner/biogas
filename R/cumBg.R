@@ -95,7 +95,7 @@ cumBg <- function(
   # comp needs id (time) xCH4, time optional
   if(!is.null(comp) && class(comp)[1] == 'data.frame' && data.struct[1] == 'long') {
     if(any(missing.col <- !c(id.name, comp.name) %in% names(comp))){
-      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', c(id.name, comp.name)[missing.col], '.')
+      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', paste(c(id.name, comp.name)[missing.col], collapse=', '), '.')
     }
   }
 
@@ -104,12 +104,12 @@ cumBg <- function(
     if(any(!c(id.name, time.name, dat.name) %in% names(dat))){
       missing.col <- !c(id.name, time.name, dat.name) %in% names(dat)
       stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(id.name, time.name, dat.name)[missing.col], collapse = ', '), '.')
-    } 
+    }
   } else if(data.struct[1] == 'wide') {
     if(any(!c(time.name, dat.name) %in% names(dat))){
       missing.col <- !c(time.name, dat.name) %in% names(dat)
       stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(time.name, dat.name)[missing.col], collapse = ', '), '.')
-    } 
+    }
   }
 
   # Check for headspace argument if it is needed
@@ -429,7 +429,7 @@ cumBg <- function(
                             std.message = std.message)
         } else {
           dat$vBg <- dat[, dat.name]
-          message('Either temperature or presure is missing (temp and pres arguments) so volumes are NOT standardized.')
+          message('Either temperature or pressure is missing (temp and pres arguments) so volumes are NOT standardized.')
         }
       } else {
           dat$vBg <- dat[, dat.name]
