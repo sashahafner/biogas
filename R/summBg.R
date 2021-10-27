@@ -207,18 +207,18 @@ summBg <- function(
   # Check for missing columns in vol
   if(class(when) %in% c('numeric', 'integer')) {
     if(any(missing.col <- !c(id.name, time.name, vol.name) %in% names(vol))){
-      stop('Specified columns in vol data frame (', deparse(substitute(vol)), ') not found: ', c(id.name, time.name, vol.name)[missing.col], '.')
-    } 
+      stop('Specified columns in vol data frame (', deparse(substitute(vol)), ') not found: ', paste(c(id.name, time.name, vol.name)[missing.col], collapse=', '), '.')
+    }
   } else { # when is 'end' or 'meas'
     if(any(missing.col <- !c(id.name, vol.name) %in% names(vol))){
-      stop('Specified columns in vol data frame (', deparse(substitute(vol)), ') not found: ', c(id.name, vol.name)[missing.col], '.')
-    } 
+      stop('Specified columns in vol data frame (', deparse(substitute(vol)), ') not found: ', paste(c(id.name, vol.name)[missing.col], collapse=', '), '.')
+    }
   }
 
   # Check for missing columns in setup
   if(any(missing.col <- !c(id.name, descrip.name) %in% names(setup))){
-    stop('Specified columns in setup data frame (', deparse(substitute(setup)), ') not found: ', c(id.name, descrip.name)[missing.col], '.')
-  } 
+    stop('Specified columns in setup data frame (', deparse(substitute(setup)), ') not found: ', paste(c(id.name, descrip.name)[missing.col], collapse=', '), '.')
+  }
 
   # Check that inoc.name and norm.name can be found in setup data frame
   if(!is.null(inoc.name) && !inoc.name %in% setup[, descrip.name]) {
@@ -236,7 +236,7 @@ summBg <- function(
 
   # Problem if inoc.name is given but inoc.m.name is not
   if(!is.null(inoc.name) & is.null(inoc.m.name)) {
-    stop('inoc.m.name must be provided in order to subtract inoculumn contribution.')
+    stop('inoc.m.name must be provided in order to subtract inoculum contribution.')
   }
 
   # Check for case when 'when' argument > all times
