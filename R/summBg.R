@@ -195,8 +195,10 @@ summBg <- function(
   pdnotyet <- NULL
 
   # Warning on show.rates
-  if(!pdwhen & show.rates & !missing(when)) {
-      warning('You set \"show.rates = TRUE\", so \"when\" argument will be ignored.')
+  if (!pdwhen & show.rates) {
+      if (!missing(when)) {
+        warning('You set \"show.rates = TRUE\", so \"when\" argument will be ignored.')
+      }
       pdwhen <- TRUE
       when <- '1p1d'
   }
@@ -446,6 +448,14 @@ summBg <- function(
 
   }
 
+  # Messages about inoculum 
+  if(!is.null(inoc.name) && inoc.name %in% setup[, descrip.name]) { # Inoculum contribution subtracted
+    #message('Inoculum contribution subtracted based on ', deparse(substitute(setup.orig)), '$', inoc.m.name, '.') 
+    if(!quiet) message('Inoculum contribution subtracted based on setup$', inoc.m.name, '.') 
+  } else {
+      if(!quiet) message('Inoculum contribution not subtracted.') 
+  }
+
   # If selected, find times where rate drops below 1%/d of cumulative
   # NTS WIP Try ALWAYS checking rates?
   if(length(when) == 1 && pdwhen) { 
@@ -481,6 +491,13 @@ summBg <- function(
 
     # Return observations here (early to avoid problem in next 2 blocks--see error messages)
     if(show.rates) {
+      message('Returning output with calculated relative production rates.')
+      if (!missing(norm.name)) {
+        warning('Volume values were *not* normalized!\n  To get normalized values, run with show.rates = FALSE (default).')
+      }
+      if (!show.obs) {
+        warning('Means are not calculated!')
+      }
       summ1 <- summ1[order(summ1[, id.name], summ1[, time.name]), ]
       return(summ1)
     }
@@ -646,16 +663,8 @@ summBg <- function(
 
   # More messages~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  # Messages about inoculum 
-  if(!is.null(inoc.name) && inoc.name %in% setup[, descrip.name]) { # Inoculum contribution subtracted
-    #message('Inoculum contribution subtracted based on ', deparse(substitute(setup.orig)), '$', inoc.m.name, '.') 
-    if(!quiet) message('Inoculum contribution subtracted based on setup$', inoc.m.name, '.') 
-  } else {
-      if(!quiet) message('Inoculum contribution not subtracted.') 
-  }
-
   # Message about normalization
-  if(!is.null(norm.name)) { 
+  if(!missing(norm.name)) { 
     #message('Response normalized by ', deparse(substitute(setup)), '$', norm.name, '.')
     if(!quiet) message('Response normalized by setup$', norm.name, '.')
   } else {
