@@ -195,7 +195,7 @@ summBg <- function(
   pdnotyet <- NULL
 
   # Warning on show.rates
-  if(!pdwhen & show.rates) {
+  if(!pdwhen & show.rates & !missing(when)) {
       warning('You set \"show.rates = TRUE\", so \"when\" argument will be ignored.')
       pdwhen <- TRUE
       when <- '1p1d'
