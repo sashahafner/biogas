@@ -475,9 +475,10 @@ summBg <- function(
     # Calculate relative rates
     ii <- unique(summ1[, id.name]) # Because is ids.all for rate.crit %in% c('gross', 'total') otherwise ids (substrate only)
 
+    # Make sure summ1 is sorted by time in order to calculate rates
+    summ1 <- summ1[order(summ1[, id.name], summ1[, time.name]), ]
     for(i in ii) {
       dd <- summ1[summ1[, id.name] == i, ]
-      dd <- dd[order(dd[, time.name]), ]
 
       if(rate.crit == 'net') {
         rr <- c(NA, diff(dd[, vol.name])/diff(dd[, time.name]))/dd[, vol.name]
