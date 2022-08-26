@@ -40,20 +40,50 @@ firFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
 %}
 
 \examples{ 
-# Example with long structured input data frame
+# Wide data structure
+library(biogas)
+data('feedVol')
+data('feedSetup')
 
-data("s3lcombo")
-s3lcombo
+# Cumulative biogas and CH4 production
+cbg <- calcBgVol(feedVol, comp = 1, temp = 0, pres = 1,
+                 interval = FALSE, data.struct = 'wide',
+                 id.name = 'id', time.name = 'time.d', vol.name = '1', 
+                 dry = TRUE)
 
-# Calculate cumulative production and rates from s3lcombo
-# With default data structure comp argument is not needed
-# Necessary to extrapolate because first observations are missing xCH4
-cbg <- calcBgVol(s3lcombo, 
-                 temp = 25, pres = 1,
-                 id.name = 'id', time.name = 'time.d', 
-                 vol.name = 'vol.ml', comp.name = 'xCH4', 
-                 extrap = TRUE)
-head(cbg)
+# Get SMP
+SMP <- summBg(vol = cbg, setup = feedSetup, time.name = 'time.d', 
+               inoc.name = 'BK', inoc.m.name = 'm.inoc', when = 'meas',
+               norm.name = 'm.sub.vs', show.obs = TRUE)
+
+# Select bottle 9
+s9 <- subset(SMP, id == 9)
+
+# Fit model
+mod1 <- fitFOM(s9, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4')
+
+# View summary
+mod1$summ
+
+# Add model predictions
+s9$cvCH4.pred <- mod1$pred
+
+plot(cvCH4 ~ time.d, data = s9, type = 'o')
+lines(cvCH4.pred ~ time.d, data = s9, col = 'red')
+
+# Try 2 pools
+mod2 <- fitFOM(s9, n.pool = 2, time.name = 'time.d', resp.name = 'cvCH4')
+mod2$summ
+s9$cvCH4.pred2 <- mod2$pred
+
+lines(cvCH4.pred2 ~ time.d, data = s9, col = 'blue')
+
+# Drop lag phase
+mod3 <- fitFOM(s9, n.pool = 2, time.name = 'time.d', resp.name = 'cvCH4', lag.phase = TRUE)
+mod3$summ
+s9$cvCH4.pred3 <- mod3$pred
+
+lines(cvCH4.pred3 ~ time.d, data = s9, col = 'green')
 
 }
 
