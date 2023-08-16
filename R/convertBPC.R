@@ -1,8 +1,9 @@
 # Convert BPC AMPTS II files to something that works well for OBA
 
-infile <- 'report_2023-06-18_1525.csv'
-indir <- 'inputs'
-convertBPC(indir = 'inputs')
+# Examples
+# infile <- 'report_2023-06-18_1525.csv'
+# indir <- 'inputs'
+# convertBPC(indir = 'inputs')
 
 convertBPC <- function(infile = NULL, indir = NULL, outname = gsub('\\.csv|.+\\/|.+\\\\', '', infile)) {
 
