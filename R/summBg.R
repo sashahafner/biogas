@@ -31,7 +31,7 @@ summBg <- function(
       stop('Argument set.name matches another column name')
     }
 
-    if(class(setup)[1] == 'data.frame') {
+    if(any(class(setup) == 'data.frame')) {
 
       res <- data.frame()
 

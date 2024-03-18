@@ -93,7 +93,7 @@ cumBg <- function(
 
   # Check column names in argument data frames
   # comp needs id (time) xCH4, time optional
-  if(!is.null(comp) && class(comp)[1] == 'data.frame' && data.struct[1] == 'long') {
+  if(!is.null(comp) && any(class(comp) == 'data.frame') && data.struct[1] == 'long') {
     if(any(missing.col <- !c(id.name, comp.name) %in% names(comp))){
       stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', paste(c(id.name, comp.name)[missing.col], collapse=', '), '.')
     }
@@ -232,7 +232,7 @@ cumBg <- function(
     names(dat)[names(dat) == 'idxyz'] <- id.name
 
     # Now for comp
-    if(!is.numeric(comp) && class(comp)[1] == 'data.frame') {
+    if(!is.numeric(comp) && any(class(comp) == 'data.frame')) {
       which.first.col <- which(names(comp) == comp.name)
       comp.name <- 'xCH4'
 
@@ -283,7 +283,7 @@ cumBg <- function(
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     dat[, comp.name] <- NA
 
-    if(!is.null(comp)[1] && class(comp)[1] == 'data.frame'){
+    if(!is.null(comp)[1] && any(class(comp) == 'data.frame')){
 
       # Drop NAs from comp--this applies to wide, long, and longcombo data.struct
       comp <- comp[!is.na(comp[, comp.name]), ]

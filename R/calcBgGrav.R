@@ -71,7 +71,7 @@ calcBgGrav <- function(
 
   # Check column names in argument data frames
   # comp needs id (time) xCH4, time optional
-  if(!is.null(comp) && class(comp)[1] == 'data.frame' && data.struct[1] == 'long') {
+  if(!is.null(comp) && any(class(comp) == 'data.frame') && data.struct[1] == 'long') {
     if(any(missing.col <- !c(id.name, xCH4.name) %in% names(comp))){
       stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', c(id.name, xCH4.name)[missing.col], '.')
     }
