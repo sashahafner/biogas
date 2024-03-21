@@ -232,6 +232,11 @@ calcBgGD <- function(
     warning('Some NA values present in calculated xCH4. May cause problems in calculations. You can set comp.sub argument to \"lim\" instead but check results!')
   }
 
+  # Check for bottles with no xCH4 values
+  if (any((w0 <- tapply(dat$xCH4, dat[, id.name], FUN = function(x) sum(!is.na(x)))) == 0)) {
+    stop('\nNo xCH4 values available for bottle(s):\n ', names(w0)[w0 == 0], '\nCheck input data.')
+  }
+
   # Proceed with either vol or grav method
   # NTS: This should ultimately be done in a separate function, also called by cumBg() or cumBgVol()
   # Volumetric
@@ -325,8 +330,12 @@ calcBgGD <- function(
 
     # Calculate biogas production
     if(any(dat[, 'mass.tot'] < 0)) {
-      dat[whichones <- which(dat$mass.tot < 0), 'mass.tot'] <- NA
-      stop('Mass *gain* calculated for one or more observations. See ', paste('id.name column:', dat[whichones, id.name], ' and time.name column:', dat[whichones - 1, time.name], 'to', dat[whichones, time.name], sep = ' ', collapse = ', '), ' in dat data frame. ')
+      whichones <- which(dat$mass.tot < 0)
+      #dat[whichones <- which(dat$mass.tot < 0), 'mass.tot'] <- NA
+      stop('Mass *gain* found for one or more observations.',
+              '\nMaximum of ', signif(min(dat$mass.tot), 2), ' from bottle ID ', dat[which.min(dat$mass.tot), id.name],
+              '\nSee ', 
+              paste('id.name column:', dat[whichones, id.name], ' and time.name column:', signif(dat[whichones - 1, time.name], 3), 'to', signif(dat[whichones, time.name], 3), sep = ' ', collapse = ', '), ' in dat data frame. ')
     }
 
     # Calculate CH4 production from vBg calculated above

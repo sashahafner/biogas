@@ -62,7 +62,7 @@ cumBg <- function(
   checkArgClassValue(comp.name, c('character', 'NULL'))
   checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
   checkArgClassValue(vol.hs.name, 'character')
-  checkArgClassValue(headcomp, 'character')
+  checkArgClassValue(headcomp, c('character', 'NULL'))
   checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
   checkArgClassValue(temp.std, c('integer', 'numeric'))
   checkArgClassValue(pres.std, c('integer', 'numeric'))
@@ -93,9 +93,9 @@ cumBg <- function(
 
   # Check column names in argument data frames
   # comp needs id (time) xCH4, time optional
-  if(!is.null(comp) && class(comp)[1] == 'data.frame' && data.struct[1] == 'long') {
+  if(!is.null(comp) && any(class(comp) == 'data.frame') && data.struct[1] == 'long') {
     if(any(missing.col <- !c(id.name, comp.name) %in% names(comp))){
-      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', c(id.name, comp.name)[missing.col], '.')
+      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', paste(c(id.name, comp.name)[missing.col], collapse=', '), '.')
     }
   }
 
@@ -104,12 +104,12 @@ cumBg <- function(
     if(any(!c(id.name, time.name, dat.name) %in% names(dat))){
       missing.col <- !c(id.name, time.name, dat.name) %in% names(dat)
       stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(id.name, time.name, dat.name)[missing.col], collapse = ', '), '.')
-    } 
+    }
   } else if(data.struct[1] == 'wide') {
     if(any(!c(time.name, dat.name) %in% names(dat))){
       missing.col <- !c(time.name, dat.name) %in% names(dat)
       stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(time.name, dat.name)[missing.col], collapse = ', '), '.')
-    } 
+    }
   }
 
   # Check for headspace argument if it is needed
@@ -232,7 +232,7 @@ cumBg <- function(
     names(dat)[names(dat) == 'idxyz'] <- id.name
 
     # Now for comp
-    if(!is.numeric(comp) && class(comp)[1] == 'data.frame') {
+    if(!is.numeric(comp) && any(class(comp) == 'data.frame')) {
       which.first.col <- which(names(comp) == comp.name)
       comp.name <- 'xCH4'
 
@@ -283,7 +283,7 @@ cumBg <- function(
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     dat[, comp.name] <- NA
 
-    if(!is.null(comp)[1] && class(comp)[1] == 'data.frame'){
+    if(!is.null(comp)[1] && any(class(comp) == 'data.frame')){
 
       # Drop NAs from comp--this applies to wide, long, and longcombo data.struct
       comp <- comp[!is.na(comp[, comp.name]), ]
@@ -429,7 +429,7 @@ cumBg <- function(
                             std.message = std.message)
         } else {
           dat$vBg <- dat[, dat.name]
-          message('Either temperature or presure is missing (temp and pres arguments) so volumes are NOT standardized.')
+          message('Either temperature or pressure is missing (temp and pres arguments) so volumes are NOT standardized.')
         }
       } else {
           dat$vBg <- dat[, dat.name]
@@ -705,7 +705,7 @@ cumBg <- function(
     if(!is.null(headspace)[1]) {
       # Apply initial headspace correction only for times 1 and 2 (i.e., one mass loss measurement per reactor)
       which1and2 <- sort(c(which(starts$start), which(starts$start) + 1) )
-      mass[which1and2, c('vBg', 'vCH4')] <- mass2vol(mass = mass$massloss[which1and2], xCH4 = mass[which1and2, comp.name], temp = mass[which1and2, temp], pres = mass[which1and2, pres], temp.std = temp.std, pres.std = pres.std, unit.temp = unit.temp, unit.pres = unit.pres, value = 'all', headspace = mass[which1and2, vol.hs.name], headcomp = 'N2', temp.init = temp.init, std.message = FALSE)[, c('vBg', 'vCH4')]
+      mass[which1and2, c('vBg', 'vCH4')] <- mass2vol(mass = mass$massloss[which1and2], xCH4 = mass[which1and2, comp.name], temp = mass[which1and2, temp], pres = mass[which1and2, pres], temp.std = temp.std, pres.std = pres.std, unit.temp = unit.temp, unit.pres = unit.pres, value = 'all', headspace = mass[which1and2, vol.hs.name], headcomp = headcomp, temp.init = temp.init, std.message = FALSE)[, c('vBg', 'vCH4')]
     }
     # Set time zero volumes to zero--necessary because xCH4 is always missing
     mass[mass$massloss==0, c('vBg', 'vCH4')] <- 0

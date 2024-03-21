@@ -9,6 +9,8 @@ std.forms <- c(
 	       carbohydrate = 'C6H10O5', 
 	       lipid = 'C57H104O6', 
 	       lignin = 'C10H13O3', 
+               # Fats
+               tripalmitin = 'C51H98O6',
 	       # Cell biomass 
 	       biomass = 'C5H7O2N', 
 	       # Organic acids
@@ -16,9 +18,12 @@ std.forms <- c(
 	       lactic = 'C3H6O3', 
 	       # Alcohols
 	       ethanol = 'CH3CH2OH', 
-	       cellulose = 'C6H10O5', 
 	       # Carbohydrates
+	       cellulose = 'C6H10O5', 
 	       glucose = 'C6H12O6',
+	       fructose = 'C6H12O6',
+	       sucrose = 'C12H22O11',
+	       lactose = 'C12H22O11',
 	       # Ash
 	       ash = 'NaCl'
 	       )
@@ -114,9 +119,13 @@ atom.weights <- c(
 
 # Molar gas volumes (mL/mol, at 273.15 K and 101.325 kPa (1 atm))
 # From NIST (search webbook, then select fluid properties, then isobaric, etc.)
+# Value for H2O for 373.15, then adjusted to 273.15
 vol.mol <- c(
   CH4 = 22360.588, 
   CO2 = 22263.009, 
   N2 = 22403.863, 
-  H2 = 22427.978
+  H2 = 22427.978,
+  O2 = 22391.928,
+  H2O = 22066.784,
+  Ar = 22392.928
   )

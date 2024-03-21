@@ -31,7 +31,7 @@ summBg <- function(
       stop('Argument set.name matches another column name')
     }
 
-    if(class(setup)[1] == 'data.frame') {
+    if(any(class(setup) == 'data.frame')) {
 
       res <- data.frame()
 
@@ -179,7 +179,13 @@ summBg <- function(
   checkArgClassValue(rate.crit, 'character', c('net', 'gross', 'total'))
   checkArgClassValue(show.obs, 'logical')
   checkArgClassValue(sort, 'logical')
+
+  # Argument revisions
+  if (tolower(when) == 'latest') {
+    extrap <- TRUE
+  }
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
   # Check for pd when argument
   # First for backward compatability
@@ -189,8 +195,10 @@ summBg <- function(
   pdnotyet <- NULL
 
   # Warning on show.rates
-  if(!pdwhen & show.rates) {
-      warning('You set \"show.rates = TRUE\", so \"when\" argument will be ignored.')
+  if (!pdwhen & show.rates) {
+      if (!missing(when)) {
+        warning('You set \"show.rates = TRUE\", so \"when\" argument will be ignored.')
+      }
       pdwhen <- TRUE
       when <- '1p1d'
   }
@@ -201,18 +209,18 @@ summBg <- function(
   # Check for missing columns in vol
   if(class(when) %in% c('numeric', 'integer')) {
     if(any(missing.col <- !c(id.name, time.name, vol.name) %in% names(vol))){
-      stop('Specified columns in vol data frame (', deparse(substitute(vol)), ') not found: ', c(id.name, time.name, vol.name)[missing.col], '.')
-    } 
+      stop('Specified columns in vol data frame (', deparse(substitute(vol)), ') not found: ', paste(c(id.name, time.name, vol.name)[missing.col], collapse=', '), '.')
+    }
   } else { # when is 'end' or 'meas'
     if(any(missing.col <- !c(id.name, vol.name) %in% names(vol))){
-      stop('Specified columns in vol data frame (', deparse(substitute(vol)), ') not found: ', c(id.name, vol.name)[missing.col], '.')
-    } 
+      stop('Specified columns in vol data frame (', deparse(substitute(vol)), ') not found: ', paste(c(id.name, vol.name)[missing.col], collapse=', '), '.')
+    }
   }
 
   # Check for missing columns in setup
   if(any(missing.col <- !c(id.name, descrip.name) %in% names(setup))){
-    stop('Specified columns in setup data frame (', deparse(substitute(setup)), ') not found: ', c(id.name, descrip.name)[missing.col], '.')
-  } 
+    stop('Specified columns in setup data frame (', deparse(substitute(setup)), ') not found: ', paste(c(id.name, descrip.name)[missing.col], collapse=', '), '.')
+  }
 
   # Check that inoc.name and norm.name can be found in setup data frame
   if(!is.null(inoc.name) && !inoc.name %in% setup[, descrip.name]) {
@@ -230,7 +238,7 @@ summBg <- function(
 
   # Problem if inoc.name is given but inoc.m.name is not
   if(!is.null(inoc.name) & is.null(inoc.m.name)) {
-    stop('inoc.m.name must be provided in order to subtract inoculumn contribution.')
+    stop('inoc.m.name must be provided in order to subtract inoculum contribution.')
   }
 
   # Check for case when 'when' argument > all times
@@ -238,6 +246,11 @@ summBg <- function(
     stop('when argument (', when, ') is > all times in data.')
 
   }
+
+  ### Set arguments for validation criteria check
+  ##if(check.val) {
+  ##  #when = 'end'
+  ##}
 
   # Add other checks here
 
@@ -301,13 +314,13 @@ summBg <- function(
 
     }
 
-  } else if(length(when) == 1 && tolower(when) == 'end') { # User just wants to use latest values of volume
+  } else if(length(when) == 1 && tolower(when) %in% c('end', 'latest')) { # User just wants to use latest values of volume
 
     summ1 <- data.frame(id = ids, time = NA, vol = NA)
     names(summ1) <- c(id.name, time.name, vol.name)
 
     # Sort, in order to find latest values
-    vol <- vol[order(vol[, id.name], vol[, vol.name]), ]
+    vol <- vol[order(vol[, id.name], vol[, time.name]), ]
 
     for(i in ids) {
       dc <- vol[vol[, id.name]==i, ]
@@ -315,7 +328,11 @@ summBg <- function(
       summ1[summ1[, id.name]==i, c(time.name, vol.name)] <- dc[nrow(dc), c(time.name, vol.name)]
     }
 
-  #} else if(length(when) == 1 && when %in% c('meas', '1p', '0.5p')) { # Return values for all measurement times, which may differ among reactors
+    # If user selects 'latest', function will return latest times combined whether or not times match
+    if (tolower(when) == 'latest') {
+      summ1[, time.name] <- Inf
+    }
+
   } else if(length(when) == 1 && (when == 'meas' | pdwhen)) { 
 
     # Only substrate ids for net, all (include inoculum) for gross
@@ -431,7 +448,16 @@ summBg <- function(
 
   }
 
+  # Messages about inoculum 
+  if(!is.null(inoc.name) && inoc.name %in% setup[, descrip.name]) { # Inoculum contribution subtracted
+    #message('Inoculum contribution subtracted based on ', deparse(substitute(setup.orig)), '$', inoc.m.name, '.') 
+    if(!quiet) message('Inoculum contribution subtracted based on setup$', inoc.m.name, '.') 
+  } else {
+      if(!quiet) message('Inoculum contribution not subtracted.') 
+  }
+
   # If selected, find times where rate drops below 1%/d of cumulative
+  # NTS WIP Try ALWAYS checking rates?
   if(length(when) == 1 && pdwhen) { 
 
     # Get cutoff 
@@ -449,9 +475,10 @@ summBg <- function(
     # Calculate relative rates
     ii <- unique(summ1[, id.name]) # Because is ids.all for rate.crit %in% c('gross', 'total') otherwise ids (substrate only)
 
+    # Make sure summ1 is sorted by time in order to calculate rates
+    summ1 <- summ1[order(summ1[, id.name], summ1[, time.name]), ]
     for(i in ii) {
       dd <- summ1[summ1[, id.name] == i, ]
-      dd <- dd[order(dd[, time.name]), ]
 
       if(rate.crit == 'net') {
         rr <- c(NA, diff(dd[, vol.name])/diff(dd[, time.name]))/dd[, vol.name]
@@ -460,11 +487,18 @@ summBg <- function(
       }
 
       # Add rates to summ1 only for exporting with show.rates = TRUE
-      summ1[summ1[, id.name] == i, 'rrvCH4'] <- signif(100*rr, 4)
+      summ1[summ1[, id.name] == i, 'rrvCH4'] <- signif(100*rr, 5)
     }
 
     # Return observations here (early to avoid problem in next 2 blocks--see error messages)
     if(show.rates) {
+      message('Returning output with calculated relative production rates.')
+      if (!missing(norm.name)) {
+        warning('Volume values were *not* normalized!\n  To get normalized values, run with show.rates = FALSE (default).')
+      }
+      if (!show.obs) {
+        warning('Means are not calculated!')
+      }
       summ1 <- summ1[order(summ1[, id.name], summ1[, time.name]), ]
       return(summ1)
     }
@@ -490,7 +524,8 @@ summBg <- function(
         i2 <- 1
       }
 
-      # Take first following time at least dur (usually 3 d) after obs preceeding first obs below 1% (this is correct!--think about production for first obs starting just after preceeding obs, so 3 d count should start then
+      # Take first following time at least dur (usually 3 d) after obs preceeding first obs below 1% 
+      # (this is correct!--think about production for first obs starting just after preceeding obs, so 3 d count should start then
       # But, limitation of this approach is that a single observation < 1% can end trial (as long as it is at least 3 d after previous)
       # Users should avoid case when returned 1p time = final time in trial
       dur <- as.numeric(gsub('^.+p(.+)d', '\\1', when))
@@ -505,6 +540,7 @@ summBg <- function(
         ##s1times <- rbind(s1times, ss)
         # Set to latest time, but keep track of this
         ss <- dd[nrow(dd), ]
+        # Track bottles that haven't met rate criterion
         pdnotyet <- c(pdnotyet, i)
       }
       s1times <- rbind(s1times, ss)
@@ -524,10 +560,11 @@ summBg <- function(
     #  tt <- max(25, max(s1times[, time.name]))
     #}
 
+    # Even out times among reps of same description
     for(i in unique(s1times[, descrip.name])) {
 
       #if(rate.crit == 'net') {
-        tt <- max(s1times[s1times[, descrip.name] == i, time.name], when.min)
+      tt <- max(s1times[s1times[, descrip.name] == i, time.name], when.min)
       #} 
 
       for(j in unique(summ1[summ1[, descrip.name] == i, id.name])) {
@@ -539,9 +576,9 @@ summBg <- function(
         }
 
         # Select times >= max time for this decrip.name level
-        ss <- summ1[summ1[, id.name] == j & summ1[, time.name] >= tt, ] # NTS is this missing [1] to select only the first time that >= tt?
-        if(length(ss) == 0) stop('when = "xpyd" problem. Re-run function with show.rates = TRUE')
-        ss <- ss[1, ]
+        ss <- summ1[summ1[, id.name] == j & summ1[, time.name] >= tt, ] 
+        if(length(ss) == 0) stop('when = "xpyd" problem. Call function again with show.rates = TRUE')
+        ss <- ss[1, ] # NTS: why not move up to prev command?
         summ1temp <- rbind(summ1temp, ss)
       }
 
@@ -627,16 +664,8 @@ summBg <- function(
 
   # More messages~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  # Messages about inoculum 
-  if(!is.null(inoc.name) && inoc.name %in% setup[, descrip.name]) { # Inoculum contribution subtracted
-    #message('Inoculum contribution subtracted based on ', deparse(substitute(setup.orig)), '$', inoc.m.name, '.') 
-    if(!quiet) message('Inoculum contribution subtracted based on setup$', inoc.m.name, '.') 
-  } else {
-      if(!quiet) message('Inoculum contribution not subtracted.') 
-  }
-
   # Message about normalization
-  if(!is.null(norm.name)) { 
+  if(!missing(norm.name)) { 
     #message('Response normalized by ', deparse(substitute(setup)), '$', norm.name, '.')
     if(!quiet) message('Response normalized by setup$', norm.name, '.')
   } else {

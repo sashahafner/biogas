@@ -5,12 +5,25 @@ planBMP <- function(
   isr = NA,
   m.inoc = NA,
   m.sub = NA,
-  m.tot = NA,
-  m.vs.sub = vs.sub*m.sub,
+  m.tot = m.inoc + m.sub,
+  m.vs.sub = vs.sub*m.sub/1000,
   digits = 3,
   warn = TRUE,
   nice = TRUE
   ) {
+
+  # Check arguments
+  if((!is.na(m.inoc[1]) & !is.na(m.sub[1]) & !is.na(isr[1])) |
+     (!is.na(m.tot[1]) & !is.na(m.sub[1]) & !is.na(isr[1])) |
+     (!is.na(m.tot[1]) & !is.na(m.vs.sub[1]) & !is.na(isr[1])) |
+     (!is.na(m.tot[1]) & !is.na(m.inoc[1]) & !is.na(isr[1]))
+     ) {
+    stop('System is overdetermined! You cannot provide inoculum & substrate masses along with ISR.')
+  }
+
+  # Convert concentrations to g/g to make calculations simpler
+  vs.inoc <- vs.inoc / 1000 
+  vs.sub <- vs.sub / 1000
 
   # Given VS concentrations, inoc mass, and ISR
   if(all(!is.na(vs.inoc + vs.sub + m.inoc + isr))) {
@@ -40,6 +53,31 @@ planBMP <- function(
       m.vs.sub <- vs.sub*m.sub
       m.tot <- m.inoc + m.sub
 
+  } else if(all(!is.na(vs.inoc + vs.sub + m.sub + m.tot))) {
+
+      m.inoc <- m.tot - m.sub
+      isr <- vs.inoc*m.inoc/(vs.sub*m.sub)
+      m.vs.sub <- vs.sub*m.sub
+
+  } else if(all(!is.na(vs.inoc + vs.sub + m.vs.sub + m.tot))) {
+
+      m.sub <- m.vs.sub/vs.sub
+      m.inoc <- m.tot - m.sub
+      isr <- vs.inoc*m.inoc/(vs.sub*m.sub)
+
+  } else if(all(!is.na(vs.inoc + vs.sub + m.inoc + m.tot))) {
+
+      m.sub <- m.tot - m.inoc
+      isr <- vs.inoc*m.inoc/(vs.sub*m.sub)
+      m.vs.sub <- vs.sub*m.sub
+
+  } else if(all(!is.na(vs.inoc + vs.sub + m.vs.sub + m.inoc))) {
+
+      m.sub <- m.vs.sub/vs.sub
+      m.tot <- m.inoc + m.sub
+      isr <- vs.inoc*m.inoc/(vs.sub*m.sub)
+      m.vs.sub <- vs.sub*m.sub
+
   } else {
 
       stop('Not enough input arguments. You must provide:
@@ -47,7 +85,11 @@ planBMP <- function(
            vs.inoc, vs.sub, isr, and m.sub OR
            vs.inoc, vs.sub, isr, and m.inoc OR
            vs.inoc, vs.sub, isr, and m.vs.sub OR
-           vs.inoc, vs.sub, m.inoc, and m.sub'
+           vs.inoc, vs.sub, m.inoc, and m.sub OR
+           vs.inoc, vs.sub, m.inoc, and m.tot OR
+           vs.inoc, vs.sub, m.sub, and m.tot OR
+           vs.inoc, vs.sub, m.vs.sub, and m.tot OR
+           vs.inoc, vs.sub, m.vs.sub, and m.inoc'
            )
 
   }
@@ -58,14 +100,19 @@ planBMP <- function(
   vs.mix <- m.vs.tot/m.tot
   
   if(warn) {
-    if(any(vs.inoc > 1, vs.sub > 1)) warning('One or more VS concentration is > 1 g/g (1000 g/kg).')
+    if(any(vs.inoc > 1, vs.sub > 1)) warning('One or more VS concentration is > 1000 g/kg (100%).')
     if(any(isr < 2)) warning('Inoculum-to-substrate ratio (isr argument) is < 2.')
     if(any(isr > 4)) warning('Inoculum-to-substrate ratio (isr argument) is > 4.')
-    if(any(vs.mix < 0.02) | any(vs.mix > 0.06)) warning('Mixture VS concentration is not within 0.02 - 0.06 g/g (20 - 60 g/kg).')
+    if(any(vs.mix < 0.02) | any(vs.mix > 0.06)) warning('Mixture VS concentration is not within 20 - 60 g/kg (2-6%).')
     if(any(m.vs.sub < 2)) warning('Substrate VS mass is < 2 g.')
   }
 
   # Make a matrix of results (needed in case call is vectorized)
+  # Convert VS concentrations back to g/kg for results
+  vs.inoc <- 1000 * vs.inoc
+  vs.sub <- 1000 * vs.sub
+  vs.mix <- 1000 * vs.mix
+
   res <- cbind(vs.inoc = vs.inoc, vs.sub = vs.sub, vs.mix = vs.mix,
 	   isr = isr, 
 	   m.inoc = m.inoc, m.sub = m.sub, m.tot = m.tot,
@@ -79,6 +126,11 @@ planBMP <- function(
       res <- as.data.frame(res)
   }
 
+  # Check for negative results
+  if (any(res < 0)) {
+    stop('Specified conditions are impossible--check inputs!')
+  }
+
   res <- signif(res, digits)
 
   # Reformat only if form is numeric vector
@@ -88,8 +140,8 @@ planBMP <- function(
              'Inoc. mass', 'Substrate mass', 'Mixture mass', 
              'Sub. VS mass', 'Inoc. VS mass', 'Mix. VS mass')
     
-    unts <- c('g/g', 'g/g', 'g/g',
-             'g/g', 'g', 'g', 'g', 
+    unts <- c('g/kg', 'g/kg', 'g/kg',
+             'g:g', 'g', 'g', 'g', 
              'g', 'g', 'g')
 
 

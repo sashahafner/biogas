@@ -54,9 +54,9 @@ cumBgDataPrep <- function(
   
   # Check column names in argument data frames
   # comp needs id (time) xCH4, time optional
-  if(!is.null(comp) && class(comp)[1] == 'data.frame' && data.struct == 'long') {
+  if(!is.null(comp) && any(class(comp) == 'data.frame') && data.struct == 'long') {
     if(any(missing.col <- !c(id.name, comp.name) %in% names(comp))){
-      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', c(id.name, comp.name)[missing.col], '.')
+      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', paste(c(id.name, comp.name)[missing.col], collapse=', '), '.')
     }
   }
   
@@ -64,11 +64,11 @@ cumBgDataPrep <- function(
   if(data.struct %in% c('long', 'longcombo')) {
     if(any(missing.col <- !c(id.name, time.name, dat.name) %in% names(dat))){
       stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(id.name, time.name, dat.name)[missing.col], collapse = ', '), '.')
-    } 
+    }
   } else if(data.struct == 'wide') {
     if(any(missing.col <- !c(time.name, dat.name) %in% names(dat))){
       stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(time.name, dat.name)[missing.col], collapse = ', '), '.')
-    } 
+    }
   }
   
   # Rearrange wide data 
@@ -157,7 +157,7 @@ cumBgDataPrep <- function(
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     dat[, comp.name] <- NA
     
-    if(class(comp)[1] == 'data.frame'){
+    if(any(class(comp) == 'data.frame')){
       
       # Drop NAs from comp - this applies to wide, long, and longcombo data.struct
       comp <- comp[!is.na(comp[, comp.name]), ]
