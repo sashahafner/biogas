@@ -233,7 +233,7 @@ calcBgGD <- function(
   }
 
   # Check for bottles with no xCH4 values
-  if (any((w0 <- tapply(dat$xCH4, dat[, id.name], FUN = function(x) sum(!is.na(x)))) == 0)) {
+  if (any((w0 <- tapply(dat[, comp.name], dat[, id.name], FUN = function(x) sum(!is.na(x)))) == 0)) {
     stop('\nNo xCH4 values available for bottle(s):\n ', names(w0)[w0 == 0], '\nCheck input data.')
   }
 
@@ -332,10 +332,11 @@ calcBgGD <- function(
     if(any(dat[, 'mass.tot'] < 0)) {
       whichones <- which(dat$mass.tot < 0)
       #dat[whichones <- which(dat$mass.tot < 0), 'mass.tot'] <- NA
-      stop('Mass *gain* found for one or more observations.',
+      warning('Mass *gain* found for one or more observations.',
               '\nMaximum of ', signif(min(dat$mass.tot), 2), ' from bottle ID ', dat[which.min(dat$mass.tot), id.name],
               '\nSee ', 
-              paste('id.name column:', dat[whichones, id.name], ' and time.name column:', signif(dat[whichones - 1, time.name], 3), 'to', signif(dat[whichones, time.name], 3), sep = ' ', collapse = ', '), ' in dat data frame. ')
+              paste('id.name column:', dat[whichones, id.name], ' and time.name column:', signif(dat[whichones - 1, time.name], 3), 'to', signif(dat[whichones, time.name], 3), sep = ' ', collapse = ', '), ' in dat data frame.\n Setting these values to 0, which will bias total biogas production.\n ')
+      dat[whichones, 'mass.tot'] <- 0
     }
 
     # Calculate CH4 production from vBg calculated above

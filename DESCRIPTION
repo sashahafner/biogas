@@ -1,8 +1,8 @@
 Package: biogas
 Type: Package
 Title: Process Biogas Data and Predict Biogas Production
-Version: 1.41
-Date: 2024-03-18
+Version: 1.42
+Date: 2024-05-02
 Authors@R: c(person("Sasha D.", "Hafner", role = c("aut", "cre"), email = "sasha.hafner@eng.au.dk"), person("Charlotte", "Rennuit", role = "aut"), person("Camilla", "Justesen", role = "aut"), person("Nanna", "Lojborg", role = "aut"), person("Jacob", "Mortensen", role = "aut"), person("Jonas", "Ohlsson", role = "aut"), person("Sergi", "Astals", role = "ctb"), person("Konrad", "Koch", role = "ctb"), person("Soeren", "Weinrich", role = "ctb"), person("Jin Mi", "Triolo", role = "ctb"), person("Ali", "Heidarzadeh Vazifehkhoran", role = "ctb"))
 Author: Sasha D. Hafner [aut, cre], Charlotte Rennuit [aut], Camilla Justesen [aut], Nanna Lojborg [aut], Jacob Mortensen [aut], Jonas Ohlsson [aut], Sergi Astals [ctb], Konrad Koch [ctb], Soeren Weinrich [ctb], Jin Mi Triolo [ctb], Ali Heidarzadeh Vazifehkhoran [ctb]
 Maintainer: Sasha D. Hafner <sasha.hafner@eng.au.dk>
