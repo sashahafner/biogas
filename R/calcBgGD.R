@@ -335,8 +335,7 @@ calcBgGD <- function(
       warning('Mass *gain* found for one or more observations.',
               '\nMaximum of ', signif(min(dat$mass.tot), 2), ' from bottle ID ', dat[which.min(dat$mass.tot), id.name],
               '\nSee ', 
-              paste('id.name column:', dat[whichones, id.name], ' and time.name column:', signif(dat[whichones - 1, time.name], 3), 'to', signif(dat[whichones, time.name], 3), sep = ' ', collapse = ', '), ' in dat data frame.\n Setting these values to 0, which will bias total biogas production.\n ')
-      dat[whichones, 'mass.tot'] <- 0
+              paste('id.name column:', dat[whichones, id.name], ' and time.name column:', signif(dat[whichones - 1, time.name], 3), 'to', signif(dat[whichones, time.name], 3), sep = ' ', collapse = ', '), ' in dat data frame.\n Proceeding with gravimetric calculation anyway, but results should be checked.\n ')
     }
 
     # Calculate CH4 production from vBg calculated above
