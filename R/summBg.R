@@ -492,12 +492,12 @@ summBg <- function(
 
     # Return observations here (early to avoid problem in next 2 blocks--see error messages)
     if(show.rates) {
-      message('Returning output with calculated relative production rates.')
+      if(!quiet) message('Returning output with calculated relative production rates.')
       if (!missing(norm.name)) {
-        warning('Volume values were *not* normalized!\n  To get normalized values, run with show.rates = FALSE (default).')
+        if(!quiet) warning('Volume values were *not* normalized!\n  To get normalized values, run with show.rates = FALSE (default).')
       }
       if (!show.obs) {
-        warning('Means are not calculated!')
+        if(!quiet) warning('Means are not calculated!')
       }
       summ1 <- summ1[order(summ1[, id.name], summ1[, time.name]), ]
       return(summ1)
