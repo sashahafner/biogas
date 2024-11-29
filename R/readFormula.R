@@ -9,14 +9,8 @@ function(
   cdigits = 6,
   value = 'numeric'       # Type of output, 'numeric' for named vector, 'shortform' for shortened formula
   ) {
-  #fc <- as.list(rep(0, length(elements)))
-
-  # For the rare case with something like C0.00001, to avoid C1e-5 which will result in an error
-  oldscipen <- options(scipen = 999)
-  on.exit(options(scipen = oldscipen))
 
   form.orig <- form
-  #form <- toupper(form)
 
   # Remove spaces
   form <- gsub(' ', '', form)
@@ -70,7 +64,10 @@ function(
   }
 
   # Simplify form based on fc (for output only)
-  form <- paste0(names(fc), signif(fc/min(fc), cdigits), collapse = '')
+  # format() is for the rare case with something like C0.00001, to avoid C1e-5 which will result in an error
+  form <- paste0(names(fc), format(signif(fc/min(fc), cdigits), scientific = FALSE), collapse = '')
+  # Drop spaces that come in with format(...scientific = FALSE) (scipen fix)
+  form <- gsub(' ', '', form)
   # And drop coefficients of 1
   form <- gsub('([a-zA-Z])1([a-zA-Z])', '\\1\\2', form)
   form <- gsub('([a-zA-Z])1$', '\\1\\2', form)
