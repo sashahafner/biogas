@@ -96,7 +96,7 @@ fitFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
 }
 
 \references{
-  Hafner, S.D., Koch, K., Carrere, H., Astals, S., Weinrich, S., Rennuit, C. 2018. Software for biogas research: Tools for measurement and prediction of methane production. _SoftwareX_ *7* 205–210. \doi{10.1016/j.softx.2018.06.005}
+  Hafner, S.D., Koch, K., Carrere, H., Astals, S., Weinrich, S., Rennuit, C. 2018. Software for biogas research: Tools for measurement and prediction of methane production. _SoftwareX_ *7* 205-210. \doi{10.1016/j.softx.2018.06.005}
 }
 
 \author{
