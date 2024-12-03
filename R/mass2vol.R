@@ -42,8 +42,10 @@ mass2vol <- function(
     warning('Sum of mole fractions > 1, is this correct?')
   }
 
-  if (length(xN2) == 1 && length(xCH4) > 1) xN2 <- rep(xN2, length(xCH4))
-  if (length(xCO2) == 1 && length(xCH4) > 1) xCO2 <- rep(xCO2, length(xCH4))
+  if (length(mass) == 1 && length(xCH4) > 1) mass <- rep(mass, length(xCH4))
+  if (length(xCH4) == 1 && length(mass) > 1) xCH4 <- rep(xCH4, length(mass))
+  if (length(xN2) == 1 && length(mass) > 1) xN2 <- rep(xN2, length(mass))
+  if (length(xCO2) == 1 && length(mass) > 1) xCO2 <- rep(xCO2, length(mass))
 
   xCH4 <- round(xCH4, 5)
   xCO2 <- round(xCO2, 5)

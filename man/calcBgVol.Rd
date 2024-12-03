@@ -69,7 +69,7 @@ calcBgVol(
   }
 
   \item{data.struct}{
-    the structure of input data. The default of 'longcombo' means separate objects for volume and composition (if available).
+    the structure of input data. The default of 'longcombo' means volume and composition (if available) are both in \code{dat}.
     The \code{dat} data frame must have bottle identification code and time columns with names specified with \code{id.name} and \code{time.name}, volume data in a single column with the name specified by \code{vol.name}, and biogas composition in a single column with the name specified by \code{comp.name}
     For the \code{data.struct = 'long'} option, two separate data frames are needed, one for volume and one for composition (if available).
     Each data frame must have bottle identification code and time columns with names specified with \code{id.name} and \code{time.name}.

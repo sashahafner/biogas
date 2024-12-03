@@ -22,7 +22,13 @@ mass2vol(mass, xCH4, xCO2 = 1 - xCH4 - xN2, xN2 = 0, temp, pres,
     reactor mass loss in g. A numeric vector.
 }
   \item{xCH4}{
-    biogas mole fraction of methane. Must be normalised so xCH4 + xCO2 = 1.0. A numeric vector.
+    biogas mole fraction of methane, considering CH4, CO2, and N2 content. A numeric vector.
+}
+  \item{xCO2}{
+    biogas mole fraction of carbon dioxide, considering CH4, CO2, and N2 content. A numeric vector.
+}
+  \item{xN2}{
+    biogas mole fraction of dinitrogen, considering CH4, CO2, and N2 content. A numeric vector.
 }
   \item{temp}{
     the temperature of biogas as it exited the reactor. A length-one numeric vector.

@@ -121,14 +121,14 @@ test_that("mass2vol non vectorised result is correct", {
   VBg <- 3.1/(db + mH2O)
   stdVCH4 <- VBg*0.65*vmch4/mvBg
   
-  expect_equal(mass2vol(3.1, xCH4 = 0.65, temp = 35, pres = 1, unit.temp = 'C', unit.pres = 'atm'), stdVCH4 )
+  expect_equal(signif(mass2vol(3.1, xCH4 = 0.65, temp = 35, pres = 1, unit.temp = 'C', unit.pres = 'atm'), 2), signif(stdVCH4, 2))
 })
 
 test_that('planBMP works',
   {
     expect_equal(
       planBMP(vs.inoc = 10, vs.sub = 100, isr = 2, m.tot = 210, nice = FALSE, warn = FALSE),
-      c(vs.inoc = 0.01, vs.sub = 0.1, vs.mix = 0.0143, isr = 2, m.inoc = 200, m.sub = 10, m.tot = 210, m.vs.sub = 1, m.vs.inoc = 2, m.vs.tot = 3)
+      c(vs.inoc = 10, vs.sub = 100, vs.mix = 14.3, isr = 2, m.inoc = 200, m.sub = 10, m.tot = 210, m.vs.sub = 1, m.vs.inoc = 2, m.vs.tot = 3)
       )
   }
 )

@@ -16,7 +16,7 @@ library(biogas)
 @
 
 \title{Getting started with the biogas package}
-\author{Charlotte Rennuit and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
+\author{Charlotte Rennuit and Sasha D. Hafner (\texttt{sasha.hafner@bce.au.dk})}
 
 \begin{document}
 

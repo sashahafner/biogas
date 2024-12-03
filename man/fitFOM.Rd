@@ -10,7 +10,8 @@
 \usage{
 fitFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
        fit.to = 'yield', method = 'Nelder-Mead', abs.err = FALSE, trans = TRUE,
-       init = if (n.pool == 1) c(B = 'yield', k = 0.5) else c(B = 'yield', f = 0.5, k1 = 0.01, k2 = 0.5), 
+       init = if (n.pool == 1) c(B = 'yield', k = 0.5) 
+                else c(B = 'yield', f = 0.5, k1 = 0.01, k2 = 0.5), 
        fixed = NULL, fit.last = FALSE, lower = NULL, upper = NULL, lag.phase = FALSE)
 }
 
@@ -57,6 +58,7 @@ fitFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
   \item{init}{
     Vector of initial parameter estimates.
     See defaults for elements.
+    For \code{B} parameter, set to \code{'yield'} to take the initial estimate from the \code{resp.name} column.
     Length-two or -four named numeric vector.
   }
   \item{fixed}{
@@ -68,7 +70,7 @@ fitFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
     Not recommended.
     Length-one logical vector.
   }
-  \item{lowr}{
+  \item{lower}{
     Optional lower parameter value limits.
     Only available with some \code{method}s.
     Named numeric vector.
@@ -96,7 +98,7 @@ fitFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
 }
 
 \references{
-  Hafner, S.D., Koch, K., Carrere, H., Astals, S., Weinrich, S., Rennuit, C. 2018. Software for biogas research: Tools for measurement and prediction of methane production. _SoftwareX_ *7* 205-210. \doi{10.1016/j.softx.2018.06.005}
+  Hafner, S.D., Koch, K., Carrere, H., Astals, S., Weinrich, S., Rennuit, C. 2018. Software for biogas research: Tools for measurement and prediction of methane production. \emph{SoftwareX} \bold{7} 205-210. \doi{10.1016/j.softx.2018.06.005}
 }
 
 \author{

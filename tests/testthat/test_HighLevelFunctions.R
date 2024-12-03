@@ -77,7 +77,7 @@ test_that("cumulative sum, rates and methane volume are corrrectly calculated us
                     temperature = 35, pressure = 1,
                     massloss = c(0,rep(5,5)), cmassloss = c(0, 5, 10, 15, 20, 25))
   res <- data.frame( res, mass2vol(res$massloss, xCH4 = 0.6, temp = 35 , pres = 1, value= 'all'))
-  res <- res[,-match('vCO2',names(res))]
+  res <- res[,-match(c('vCO2', 'vN2'), names(res))]
   res$cvBg <- rep(0,6)
   res$cvBg <- cumsum(res$vBg)
 

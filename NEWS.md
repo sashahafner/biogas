@@ -160,7 +160,7 @@ function throws an error. To help identify those bottles that haven't met the
 criterion, set when = "1p" and show.obs = TRUE to see relative rates for all bottles 
 (rrvCH4 column).
 
-# BUG FIXES
+## BUG FIXES
 
 *cumBg()
 Fixed bug in dat.struct = "wide" option that caused problems when the number of 
@@ -182,7 +182,7 @@ and suggestions related to cumBg().
 
 # biogas 1.6.0
 2016 December 16
-# NEW FEATURES
+## NEW FEATURES
 
 *cumBg()
 New dry argument (dry = FALSE by default) so that standardised gas volumes can be 
@@ -199,7 +199,7 @@ inoculum-only bottle, with a warning.
 Slight updates to "Getting started" vignette on data structures (more details in 
 cumBg() help file).
 
-# BUG FIXES
+## BUG FIXES
 
 *cumBg()
 When gauge = FALSE, pres.init should now be gauge pressure (pres.amb must be absolute
@@ -217,7 +217,7 @@ significantly among replicates was fixed.
 
 *Other minor fixes
 
-# REMOVED FUNCTIONALITY
+## REMOVED FUNCTIONALITY
 *summBg()
 Removed default value for inoc.m.name argument to avoid mistakes.
 
@@ -249,7 +249,7 @@ function can find the time when the production rate drops below 1% of cumulative
 production per day. This value can be different for each substrate and can be applied 
 with or without inoculum subtraction. To use, set when = "1p".
 
-# BUG FIXES
+## BUG FIXES
 
 *cumBg()
 Corrected calculation of initial standardized gas volume for manometric method 
