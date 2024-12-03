@@ -1,21 +1,15 @@
-biogas 1.23.0
+# biogas 1.23.0
 2019 November
----------------------------------------------------------------------
-NEW FEATURES
-
+## NEW FEATURES
 *calcBgMan(), calcBgVol()
 New simpler functions for BMP data processing. These are replacements
 for volumetric and manometric calculations with cumBg()
-
 *calcBgGD()
 Completely new function for gas density BMP (GD-BMP) calculations.
 
-
-
-biogas 1.14.1
+# biogas 1.14.1
 2019 April 10
----------------------------------------------------------------------
-NEW FEATURES
+## NEW FEATURES
 
 *cumBg()
 Mixed cumulative/interval volumetric calculations with argument 
@@ -45,7 +39,7 @@ The vol.name argument can now be used for multiple response
 variables (e.g., both cumulative methane and biogas) in one call.
 
 
-BUG FIXES
+## BUG FIXES
 
 *cumBg()
 Corrected problem with error message when comp was requested for 
@@ -54,31 +48,27 @@ data.struct = "longcombo" even though it was not needed.
 Other minor bug fixes in cumBg().
 
 
-biogas 1.10.3
+# biogas 1.10.3
 2018 May 16 
----------------------------------------------------------------------
-MINOR CHANGES
+## MINOR CHANGES
 biogas package help file and startup message have been removed.
 
-
-biogas 1.10.0
+# biogas 1.10.0
 2018 March 2
----------------------------------------------------------------------
-BUG FIXES
+## BUG FIXES
 
 *summBg()
 Corrected another problem with if() check with length > 1.
 
 
-biogas 1.10.0
+# biogas 1.10.0
 2018 February 5
----------------------------------------------------------------------
-BUG FIXES
+## BUG FIXES
 
 *summBg()
 Corrected problem with if() check with length > 1.
 
-NEW FEATURES
+## NEW FEATURES
 
 *summBg()
 Changes to error propagation so it is now based on standard error instead of 
@@ -89,16 +79,15 @@ unequal for inoculum bottles, substrate bottles, or VS determination.
 New function for planning BMP experiments.
 
 
-biogas 1.9.0
+# biogas 1.9.0
 2018 January 3
----------------------------------------------------------------------
-BUG FIXES
+## BUG FIXES
 
 *predBg()
 Corrected error for value = "reactionc" where substrate (reactant) was omitted 
 in some cases.
 
-NEW FEATURES
+## NEW FEATURES
 
 *predBg()
 New ash component for mcomp argument.
@@ -116,7 +105,7 @@ automatic selection of BMP evaluation time based on relative rate. Now any rate
 and any duration can be used, e.g., when = "1p3d" for 1% per day for 3 d. Added
 quiet argument (default FALSE) to supress warnings.
 
-OTHER CHANGES
+## OTHER CHANGES
 
 *predBg()
 Slight change in protein composition for mcomp to match ADM1.
@@ -125,24 +114,22 @@ Slight change in protein composition for mcomp to match ADM1.
 Slight change to error propagation.
 
 
-biogas 1.8.1
+# biogas 1.8.1
 2017 August 11
----------------------------------------------------------------------
-BUG FIXES
+## BUG FIXES
 
 *Removed reference to two LaTeX packages that were causing problems in
 a vignette.
 
-biogas 1.8.0
+# biogas 1.8.0
 2017 August 9
----------------------------------------------------------------------
-NEW FEATURES
+## NEW FEATURES
 
 *summBg()
 New "0.5p" option for the when argument can be used to select those times where 
 methane rate drops below 0.5% of cumulative production per day.
 
-BUG FIXES
+## BUG FIXES
 
 *calcCOD()
 Fixed an error that applied to vectorized calculations.
@@ -151,10 +138,9 @@ Fixed an error that applied to vectorized calculations.
 Minor fixes.
 
 
-biogas 1.7.0
+# biogas 1.7.0
 2017 February 24
----------------------------------------------------------------------
-NEW FEATURES
+## NEW FEATURES
 
 *Loading message
 When biogas is loaded a short message is displayed. Our hope to is to make more users 
@@ -174,7 +160,7 @@ function throws an error. To help identify those bottles that haven't met the
 criterion, set when = "1p" and show.obs = TRUE to see relative rates for all bottles 
 (rrvCH4 column).
 
-BUG FIXES
+# BUG FIXES
 
 *cumBg()
 Fixed bug in dat.struct = "wide" option that caused problems when the number of 
@@ -183,7 +169,7 @@ columns exceeded the number of rows.
 *summBg()
 Fixed some problems with "1p" option.
 
-ACKNOWLEDGEMENTS
+## ACKNOWLEDGEMENTS
 
 Ilona Sárvári Horváth (University of Borås, Sweden) provided details on the 
 "absolute GC" method as well as example data for testing.
@@ -194,10 +180,9 @@ Laboratoire de Biotechnologie de l'Environnement, France) provided data for test
 and suggestions related to cumBg().
 
 
-biogas 1.6.0
+# biogas 1.6.0
 2016 December 16
----------------------------------------------------------------------
-NEW FEATURES
+# NEW FEATURES
 
 *cumBg()
 New dry argument (dry = FALSE by default) so that standardised gas volumes can be 
@@ -214,7 +199,7 @@ inoculum-only bottle, with a warning.
 Slight updates to "Getting started" vignette on data structures (more details in 
 cumBg() help file).
 
-BUG FIXES
+# BUG FIXES
 
 *cumBg()
 When gauge = FALSE, pres.init should now be gauge pressure (pres.amb must be absolute
@@ -232,16 +217,14 @@ significantly among replicates was fixed.
 
 *Other minor fixes
 
-REMOVED FUNCTIONALITY
+# REMOVED FUNCTIONALITY
 *summBg()
 Removed default value for inoc.m.name argument to avoid mistakes.
 
 
-
-biogas 1.5.0 
+# biogas 1.5.0 
 2016 November 17
----------------------------------------------------------------------
-NEW FEATURES
+## NEW FEATURES
 
 *cumBg()
 Accepts two new data structures in addition to the original "long" structure: 
@@ -266,7 +249,7 @@ function can find the time when the production rate drops below 1% of cumulative
 production per day. This value can be different for each substrate and can be applied 
 with or without inoculum subtraction. To use, set when = "1p".
 
-BUG FIXES
+# BUG FIXES
 
 *cumBg()
 Corrected calculation of initial standardized gas volume for manometric method 
@@ -275,18 +258,16 @@ Corrected calculation of initial standardized gas volume for manometric method
 *Other minor fixes
 
 
-
-biogas 1.4.0 
+# biogas 1.4.0 
 2016 May 24
----------------------------------------------------------------------
-NEW FEATURES
+## NEW FEATURES
 
 *cumBg()
 New manometric method now available (use dat.type = "pres").
 
 New option to use either cumulative or interval (default) data. See 'interval' argument.
 
-BUG FIXES
+## BUG FIXES
 *summBg()
 Now returns error if 'when' argument is greater than available times for all reactors.
 
@@ -296,17 +277,17 @@ added to cumulative production.
 
 *Other minor fixes
 
-
-biogas 1.3.0 
+# biogas 1.3.0 
 2016 April 14
----------------------------------------------------------------------
-NEW FEATURES
+## NEW FEATURES
 
 *molMass()
 New elements added to database. All elements with at least one stable isotope are now included. 
 Examples:
+```
 molMass('CdSiO3')
 molMass('FeSO4(H2O)7')
+```
 
 *molMass() and predBg()
 Additional flexibility in chemical formula specification. Both of the following are acceptable.
@@ -324,12 +305,9 @@ of reactor ID in setup data frame.
 New options for 'value' argument to just return chemical reactions: use "reactionn" 
 for a numeric reaction and "reactionc" for a character version.
 
-
-
-biogas 1.2.0 
+# biogas 1.2.0 
 2015 November 13
----------------------------------------------------------------------
-NEW FEATURES
+## NEW FEATURES
 
 *vol2mol()
 New function for converting measured volume of CH4, CO2, and some other pure
@@ -350,7 +328,7 @@ Previously the default value of 1.0 g was used even if 'mcomp' did not sum to
 *New vignette "Predicting methane and biogas production with the biogas
 package" (referred to as the "predBg vignette" above).
 
-BUG FIXES
+## BUG FIXES
 
 *predBg()
 'mcomp' is now mass-based (as originally intended). Earlier versions were
@@ -358,7 +336,7 @@ mole-based. See help file and predBg vignette for more information.
 
 *Other minor bug fixes.
 
-NEW PUBLICATION
+## NEW PUBLICATION
 
 *The gravimetric method used in mass2vol() is described in detail in a new
 publication in Biomass and Bioenergy: Hafner, S.D., Rennuit, C., Triolo, J.M.,
@@ -366,15 +344,14 @@ Richards, B.K. 2015. Validation of a simple gravimetric method for measuring
 biogas production in laboratory experiments. Biomass and Bioenergy 83, 297-301.
 Send us an email if you would like a pdf.
 
-biogas 1.1.0
+# biogas 1.1.0
 2015 July 29
----------------------------------------------------------------------
-MAILING LIST
+## MAILING LIST
 
 There is now a biogas package mailing list. To subscribe, send a message with
 the subject "biogas: SUBSCRIBE" to saha@kbm.sdu.dk. 
 
-NEW FEATURES
+## NEW FEATURES
 
 *New vignette "Getting started with the biogas package"
 
@@ -404,7 +381,7 @@ headcomp, and temp.init arguments.
 Time can be totally ignored if there is a single observation for each reactor
 and 'when' is set to NULL.
 
-REMOVED FUNCTIONALITY
+## REMOVED FUNCTIONALITY
 
 *Measurement pressure and temperature
 Pressure and temperature (pres and temp arguments) both must now be specified
@@ -415,16 +392,16 @@ error or return non-standardized results (with a message).
 
 *Column names in data frame arguments for cumBg() and summBg()
 Names of ID, time, volume, composition, and other columns in input data frame
-must now be specified using the ____.name arguments. The functions will no
+must now be specified using the `*.name` arguments. The functions will no
 longer match based on position. This change is meant to avoid errors caused by
-incorrect positional matching when the user tried to use _____.name.
+incorrect positional matching when the user tried to use `*.name`.
 
-BUG FIXES
+## BUG FIXES
 
 *predBg()
 Fixed incorrect calculation of mass when mol argument was used for input.
 
-OTHER CHANGES
+## OTHER CHANGES
 
 *molMass()
 The function now returns all digits--no rouding is done. 
@@ -433,12 +410,9 @@ The function now returns all digits--no rouding is done.
 Calculation of methane volume in the volumetric method (default) now corrects
 for the (very small, < 0.4%) difference in molar volume between CH4 and biogas
 (this was already the case for the gravimetric method).
----------------------------------------------------------------------
 
-
-biogas 1.0.1
+# biogas 1.0.1
 2015 May 28 
----------------------------------------------------------------------
 
 summBg 
 *Output data frame now includes value of 'when' argument that was
