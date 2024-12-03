@@ -171,7 +171,7 @@ calcBgGrav(
       Default is \code{FALSE}.
   }
   
-  item{addt0}{
+  \item{addt0}{
       is the earliest time in \code{dat} data frame \dQuote{time zero} (start time)? 
       If not, this argument adds a row with \code{time.name = 0} for each bottle in order to calculate production rates for the first observation.
       This addition is only made when \code{time.name} is \code{numeric} (or \code{integer}).
