@@ -43,7 +43,7 @@ fitFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
     A better option seems to be \code{'LM'}, which uses the \code{nls.lm} function from the minpack.lm package; this is not the default option only because it requires another package.
     Length-one character vector.
   }
-  \item{abs.error}{
+  \item{abs.err}{
     Should fitting be based on mean absolute error (\code{TRUE}) or sum of squares (\code{FALSE}, default).
     Length-one logical vector.
   }
@@ -68,12 +68,12 @@ fitFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
     Not recommended.
     Length-one logical vector.
   }
-  \item{lwr}{
+  \item{lowr}{
     Optional lower parameter value limits.
     Only available with some \code{method}s.
     Named numeric vector.
   }
-  \item{upr}{
+  \item{upper}{
     Optional upper parameter value limits.
     Only available with some \code{method}s.
     Named numeric vector.

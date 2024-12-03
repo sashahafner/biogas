@@ -8,7 +8,7 @@
   \code{mass2vol} calculates biogas volume based on measured reactor mass loss.
 }
 \usage{
-mass2vol(mass, xCH4, temp, pres, 
+mass2vol(mass, xCH4, xCO2 = 1 - xCH4 - xN2, xN2 = 0, temp, pres, 
   temp.std = getOption('temp.std', as.numeric(NA)), 
   pres.std = getOption('pres.std', as.numeric(NA)), 
   unit.temp = getOption('unit.temp', 'C'), 

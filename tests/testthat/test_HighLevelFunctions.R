@@ -1,6 +1,4 @@
 # test values form the high level functions
-# Charlotte
-# Modified: 02 Nov 2016 SDH
 
 context("Tests high level functions")
 
