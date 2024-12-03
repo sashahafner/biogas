@@ -33,14 +33,14 @@ fitFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
     Length-one character vector.
   }
   \item{fit.to}{
-    Should fitting be to cumulative yield (\code{'yield'}, default) or the average production rate (\code{'rate*}, calculated as its difference over time)?
+    Should fitting be to cumulative yield (\code{'yield'}, default) or the average production rate (\code{'rate'}, calculated as its difference over time)?
     Length-one character vector.
   }
   \item{method}{
     Method used to fit the model, i.e., to estimate best-fit parameter values.
     Default of \code{'Nelder-Mead'} uses that method via the \code{\link{optim}} function.
     The other \code{method}s available for \code{link{optim}} are alternatives.
-    If \code{'LM'} is used, the \code{nls.lm} function from the minpack.lm package is used.
+    A better option seems to be \code{'LM'}, which uses the \code{nls.lm} function from the minpack.lm package; this is not the default option only because it requires another package.
     Length-one character vector.
   }
   \item{abs.error}{
@@ -95,8 +95,9 @@ fitFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
   Most useful elements are \code{coefs} and \code{coef.tab} (best-fit parameter values), \code{summ} (a summary that includes model efficiency, error, and convergence information), and \code{pred} (model predicted or fitted values).
 }
 
-%\references{
-%}
+\references{
+  Hafner, S.D., Koch, K., Carrere, H., Astals, S., Weinrich, S., Rennuit, C. 2018. Software for biogas research: Tools for measurement and prediction of methane production. _SoftwareX_ *7* 205–210. \doi{10.1016/j.softx.2018.06.005}
+}
 
 \author{
   Sasha D. Hafner
@@ -148,8 +149,10 @@ mod2$summ
 
 # First pool effectively ignored in the fit
 # Try different method (this one required minpack.lm package)
+\dontrun{
 mod2 <- fitFOM(s9, n.pool = 2, time.name = 'time.d', resp.name = 'cvCH4', method = 'LM')
 mod2$summ
+}
 
 # Unfortunately, here is a big effect of method on the result!
 
