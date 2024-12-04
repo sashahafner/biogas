@@ -1,8 +1,8 @@
 Package: biogas
 Type: Package
 Title: Process Biogas Data and Predict Biogas Production
-Version: 1.55
-Date: 2024-12-03
+Version: 1.57
+Date: 2024-12-04
 Authors@R: c(person("Sasha D.", "Hafner", role = c("aut", "cre"), email = "sasha.hafner@bce.au.dk", comment = c(ORCID = "0000-0003-0955-0327")), 
              person("Charlotte", "Rennuit", role = "aut"), 
 	     person("Camilla", "Justesen", role = "aut"), 
@@ -17,5 +17,5 @@ Authors@R: c(person("Sasha D.", "Hafner", role = c("aut", "cre"), email = "sasha
 Maintainer: Sasha D. Hafner <sasha.hafner@bce.au.dk>
 VignetteBuilder: knitr
 Suggests: minpack.lm, knitr, ggplot2, tinytest
-Description: High- and low-level functions for processing biogas data and predicting biogas production. Molar mass and calculated oxygen demand (COD') can be determined from a chemical formula. Measured gas volume can be corrected for water vapor and to (possibly user-defined) standard temperature and pressure. Gas quantity can be converted between volume, mass, and moles. Gas composition, cumulative production, or other variables can be interpolated to a specified time. Cumulative biogas and methane production (and rates) can be calculated from raw data obtained using volumetric, manometric, gravimetric, or gas density methods for any number of bottles. With cumulative methane production data and data on bottle contents, biochemical methane potential (BMP) or specific methane production (SMP) can be calculated and summarized, including subtraction of the inoculum contribution and normalization by substrate mass. Cumulative production and production rates can be summarized in several different ways (e.g., omitting normalization) using the same function. Biogas quantity and composition can be predicted from substrate composition and additional, optional data. Inoculum and substrate mass can be determined for planning BMP experiments. Finally, first-order models can be fit to measurements in order to extract estimate of ultimate yield and kinetic constants.
+Description: High- and low-level functions for processing biogas data and predicting biogas production. Molar mass and calculated oxygen demand (COD') can be determined from a chemical formula. Measured gas volume can be corrected for water vapor and to (possibly user-defined) standard temperature and pressure. Gas quantity can be converted between volume, mass, and moles. Gas composition, cumulative production, or other variables can be interpolated to a specified time. Cumulative biogas and methane production (and rates) can be calculated from raw data obtained using volumetric, manometric, gravimetric, or gas density methods for any number of bottles. With cumulative methane production data and data on bottle contents, biochemical methane potential (BMP) or specific methane production (SMP) can be calculated and summarized, including subtraction of the inoculum contribution and normalization by substrate mass. Cumulative production and production rates can be summarized in several different ways (e.g., omitting normalization) using the same function. Biogas quantity and composition can be predicted from substrate composition and additional, optional data. Inoculum and substrate mass can be determined for planning BMP experiments. Finally, first-order models can be fit to measurements in order to extract estimates of ultimate yield and kinetic constants.
 License: GPL-2

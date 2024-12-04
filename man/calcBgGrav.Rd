@@ -276,10 +276,10 @@ Units are based on units in input data.
 
 # Combined data frame with mass and composition for \code{data.struct = 'longcombo'} (default).
 
-data('UQGravMass')
+data('UQGravBiogas')
 data('UQGravSetup')
 
-cbg <- calcBgGrav(UQGravMass, temp = 35, pres = 1.5,
+cbg <- calcBgGrav(UQGravBiogas, temp = 35, pres = 1.5,
                    id.name = 'id', time.name = 'day', 
 		   mass.name = 'mass.final',
                    xCH4.name = 'xCH4')
