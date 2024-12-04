@@ -1,5 +1,5 @@
 # biogas 1.60.0
-3 December 2024
+2024 December 4
 ## NEW FEATURES
 * `calcBgGrav()` New function for processing gravimetric BMP data. 
 Meant as a replacement for gravimetric processing with `cumBg()`
