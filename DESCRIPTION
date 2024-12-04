@@ -1,7 +1,7 @@
 Package: biogas
 Type: Package
 Title: Process Biogas Data and Predict Biogas Production
-Version: 1.57
+Version: 1.60
 Date: 2024-12-04
 Authors@R: c(person("Sasha D.", "Hafner", role = c("aut", "cre"), email = "sasha.hafner@bce.au.dk", comment = c(ORCID = "0000-0003-0955-0327")), 
              person("Charlotte", "Rennuit", role = "aut"), 

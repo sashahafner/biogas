@@ -69,11 +69,12 @@ calcBgGrav <- function(
   # Hard-wire rh for now at least
   rh <- 1
 
-  # Check column names in argument data frames
+  # Check of column names in argument data frames 
+  # Also occurs in cumBgDataPrep() but some column names are only available here
   # comp needs id (time) xCH4, time optional
   if(!is.null(comp) && any(class(comp) == 'data.frame') && data.struct[1] == 'long') {
     if(any(missing.col <- !c(id.name, xCH4.name) %in% names(comp))){
-      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', c(id.name, xCH4.name)[missing.col], '.')
+      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', paste(c(id.name, xCH4.name)[missing.col], collapse = ', '), '.')
     }
   }
 
