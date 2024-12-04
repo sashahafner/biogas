@@ -32,7 +32,7 @@ We have assumed that readers are familiar with biogas data collection and R.
 
 \section{Overview of functions}
 The package includes several ``low-level'' functions (Table \ref{tab:lowfunctionsummary}) and ``high-level'' functions (Table \ref{tab:highfunctionsummary}).
-To go from data collected in the laboratory to biogas and methane (CH$_4$) production or biochemical methane potential (BMP), two high-level functions are needed: \texttt{cumBg()} (now replaced by \calcBg*()} functions) and \texttt{summBg()}.
+To go from data collected in the laboratory to biogas and methane (CH$_4$) production or biochemical methane potential (BMP), two high-level functions are needed: \texttt{cumBg()} (now replaced by \texttt{calcBg*()} functions) and \texttt{summBg()}.
 Comparing results to theory is facilitated by the remaining high-level function: \texttt{predBg()}.
 The low-level functions support the calculations carried out by the high-level functions, and may also be useful for some simple operations (e.g., converting reported biogas volumes to different standard conditions).
 This document describes the use of the high-level functions.
