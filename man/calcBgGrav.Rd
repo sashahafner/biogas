@@ -274,6 +274,19 @@ Units are based on units in input data.
 
 \examples{ 
 
+# Combined data frame with mass and composition for \code{data.struct = 'longcombo'} (default).
+
+data('UQGravMass')
+data('UQGravSetup')
+
+cbg <- calcBgGrav(UQGravMass, temp = 35, pres = 1.5,
+                   id.name = 'id', time.name = 'day', 
+		   mass.name = 'mass.final',
+                   xCH4.name = 'xCH4')
+
+head(cbg)
+
+# With separate mass and composition data frames
 data('strawMass')
 data('strawComp')
 data('strawSetup')

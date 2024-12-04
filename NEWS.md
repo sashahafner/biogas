@@ -1,3 +1,11 @@
+# biogas 1.54.0
+3 December 2024
+## NEW FEATURES
+*`calcBgGrav()` New function for processing gravimetric BMP data. Replaces functionality
+of `cumBg()`.
+#`fitFOM()` New function for fitting first-order models.
+
+
 # biogas 1.23.0
 2019 November
 ## NEW FEATURES
