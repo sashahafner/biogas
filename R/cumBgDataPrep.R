@@ -176,7 +176,7 @@ cumBgDataPrep <- function(
             mssg.interp <- TRUE
             dat[dat[, id.name]==i, comp.name] <- interp(dc[, time.name], dc[, comp.name], time.out = dat[dat[, id.name]==i, time.name], method = imethod, extrap = extrap)
             # Set first value to zero if there is no biogas production (fixes problem with cmethod = total when there is a t0 observation included)
-            dat[dat[, id.name]==i & dat[, dat.name]==0, comp.name][1] <- 0
+            dat[dat[, id.name]==i & dat[, dat.name]==0 & is.na(dat[, comp.name]), comp.name][1] <- 0
           } else if (dat.type=='mass') {
             # Then ignore first point, since it isn't used anyway--this is just to avoid warning with interp if extrap = FALSE
             mssg.interp <- TRUE
