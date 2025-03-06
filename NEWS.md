@@ -1,3 +1,12 @@
+# biogas 1.63.0
+2025 March 6
+## BUG FIXES
+* `calcBgVol()` bug for wide data with separate `vol` and `comp` data frames fixed. 
+Earlier versions merged on column order instead of column names.
+
+* `calcBgVol()` bug for biogas volume given as zero.
+Earlier versions replaced entered composition with zero.
+
 # biogas 1.60.0
 2024 December 4
 ## NEW FEATURES

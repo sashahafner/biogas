@@ -111,6 +111,9 @@ cumBgDataPrep <- function(
         which.first.col <- which(names(comp) == comp.name)
         comp.name <- 'xCH4'
         
+        # Reactor names taken from column names--these could differ between comp and vol
+        ids <- names(comp)[which.first.col:ncol(comp)]
+        
         # Number of bottles
         if((ncol(comp) - which.first.col + 1) != nr) stop('Apparent number of bottles in dat and comp do not match. Problem with wide data.struct.')
         
