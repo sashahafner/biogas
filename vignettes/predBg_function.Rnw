@@ -32,7 +32,7 @@ library(biogas)
 
 
 \title{Predicting methane and biogas production with the biogas package}
-\author{Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk}) and Charlotte Rennuit}
+\author{Sasha D. Hafner (\texttt{sasha.hafner@bce.au.dk}) and Charlotte Rennuit}
 
 \begin{document}
 \maketitle

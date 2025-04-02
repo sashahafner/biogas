@@ -15,7 +15,7 @@ molMass <- function(form) {
     fc <- readFormula(f)
 
     # Check for unidentified element
-    if(any(!names(fc) %in% names(atom.weights))) stop('One or more elements in \"form\" is not in the database. You can add it to the \"atom.weights\" vector if you want to modify the function code. Otherwise send a request to sasha.hafner@eng.au.dk.')
+    if(any(!names(fc) %in% names(atom.weights))) stop('One or more elements in \"form\" is not in the database. You can add it to the \"atom.weights\" vector if you want to modify the function code. Otherwise send a request to sasha.hafner@bce.au.dk.')
 
     # Calculate molar mass, using names of fc for indexing
     mmass <- c(mmass, sum(atom.weights[names(fc)]*fc))

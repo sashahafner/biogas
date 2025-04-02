@@ -16,7 +16,7 @@ library(biogas)
 @
 
 \title{Getting started with the biogas package}
-\author{Charlotte Rennuit and Sasha D. Hafner (\texttt{sasha.hafner@eng.au.dk})}
+\author{Charlotte Rennuit and Sasha D. Hafner (\texttt{sasha.hafner@bce.au.dk})}
 
 \begin{document}
 
@@ -31,15 +31,15 @@ This document provides a brief introduction to the biogas package for new users.
 We have assumed that readers are familiar with biogas data collection and R.
 
 \section{Overview of functions}
-The package includes seven ``low-level'' functions (Table \ref{tab:lowfunctionsummary}) and three ``high-level'' functions (Table \ref{tab:highfunctionsummary}).
-To go from data collected in the laboratory to biogas and methane (CH$_4$) production or biochemical methane potential (BMP), two high-level functions are needed: \texttt{cumBg()} and \texttt{summBg()}.
+The package includes several ``low-level'' functions (Table \ref{tab:lowfunctionsummary}) and ``high-level'' functions (Table \ref{tab:highfunctionsummary}).
+To go from data collected in the laboratory to biogas and methane (CH$_4$) production or biochemical methane potential (BMP), two high-level functions are needed: \texttt{cumBg()} (now replaced by \texttt{calcBg*()} functions) and \texttt{summBg()}.
 Comparing results to theory is facilitated by the remaining high-level function: \texttt{predBg()}.
 The low-level functions support the calculations carried out by the high-level functions, and may also be useful for some simple operations (e.g., converting reported biogas volumes to different standard conditions).
 This document describes the use of the high-level functions.
-% High level functions are design for a quick and efficient calculation with few function calls. The calculations carried out by the high-level functions are supported by calls to low-level functions. Direct call to low-level functions may be useful for some simple operations (e.g., converting reported biogas volumes to different standard conditions).
-% 
-% To go from data collected in the laboratory to biogas and methane (CH$_4$) production or biochemical methane potential (BMP), two high-level functions are needed: \texttt{cumBg()} and \texttt{summBg()}.
-% Comparing results to theory is facilitated by the remaining high-level function: \texttt{predBg()}.
+
+This vignette does not cover the latest developments in the package, but still provides a good overview.
+The newer \texttt{calcBg*()} functions are described in individual vignettes for the volumetric (\texttt{calcBgVol}) and manometric (\texttt{calcBgMan}) alternatives.
+The gravimetric version (\texttt{calcBgGrav}) is only described in its help file so far.
 % This document describes the use of the high-level functions.
 
 \begin{table}[h!]

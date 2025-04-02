@@ -10,8 +10,8 @@
 }
 \usage{
 planBMP(vs.inoc, vs.sub, isr = NA, m.inoc = NA, m.sub = NA, 
-        m.tot = NA, m.vs.sub = vs.sub * m.sub, digits = 3, warn = TRUE,
-        nice = TRUE)
+        m.tot = m.inoc + m.sub, m.vs.sub = vs.sub*m.sub/1000,
+        digits = 3, warn = TRUE, nice = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -88,7 +88,7 @@ planBMP(vs.inoc, vs.sub, isr = NA, m.inoc = NA, m.sub = NA,
   Names and interpretation are identical to the first 7 input arguments, and also include:
  \item{vs.mix}{VS concentration in mixture (g/kg)}
  \item{m.vs.tot}{total VS mass in mixture (g)}
-  For non-vectorized calls, the results is returned invisibly and a easy-to-read summary is printed (see \code{nice} argument).
+  For non-vectorized calls, the results are returned invisibly and a easy-to-read summary is printed (see \code{nice} argument).
 }
 \references{
 Holliger, C., Alves, M., Andrade, D., Angelidaki, I., Astals, S., Baier, U., Bougrier, C., Buffiere, P., Carbella, M., de Wilde, V., Ebertseder, F., Fernandez, B., Ficara, E., Fotidis, I., Frigon, J.-C., Fruteau de Laclos, H., S. M. Ghasimi, D., Hack, G., Hartel, M., Heerenklage, J., Sarvari Horvath, I., Jenicek, P., Koch, K., Krautwald, J., Lizasoain, J., Liu, J., Mosberger, L., Nistor, M., Oechsner, H., Oliveira, J.V., Paterson, M., Pauss, A., Pommier, S., Porqueddu, I., Raposo, F., Ribeiro, T., Rusch Pfund, F., Stromberg, S., Torrijos, M., van Eekert, M., van Lier, J., Wedwitschka, H., Wierinck, I., 2016. Towards a standardization of biomethane potential tests. \emph{Water Science and Technology} \bold{74}, 2515-2522.

@@ -125,7 +125,7 @@ FO2pObj <- function(x, t, y, fit.to = 'yield', t.shift = 0, y.shift = 0, SS = TR
 
 fitFOM <- function(dat, n.pool = 1, 
                    time.name = 'time.d', resp.name = 'cvCH4',
-                   fit.to = 'yield', method = 'LM', abs.err = FALSE, trans = TRUE,
+                   fit.to = 'yield', method = 'Nelder-Mead', abs.err = FALSE, trans = TRUE,
                    init = if (n.pool == 1) c(B = 'yield', k = 0.5) else c(B = 'yield', f = 0.5, k1 = 0.01, k2 = 0.5), 
                    fixed = NULL, fit.last = FALSE, lower = NULL, upper = NULL,
                    lag.phase = FALSE) {
@@ -209,6 +209,10 @@ fitFOM <- function(dat, n.pool = 1,
 
   if (method == 'LM') {
 
+    if (!requireNamespace('minpack.lm')) {
+      stop('You selected method = \'LM\' but the manpack.lm packge is not installed.\nPlease install minpack.lm in order to use this method.')
+    }
+
     if (n.pool == 1) {
 
       mod <- minpack.lm::nls.lm(par = init, 
@@ -249,6 +253,8 @@ fitFOM <- function(dat, n.pool = 1,
 
       mod <- optim(par = init, fn = FO1pObj, resids = FALSE,
                    t = t, y = y, t.shift = t.shift, y.shift = y.shift, SS = !abs.err,
+                   fixed = fixed,
+                   fit.last = fit.last,
                    fit.to = fit.to, 
                    trans = trans,
                    method = method,

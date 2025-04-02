@@ -11,6 +11,7 @@
 \format{
   A data frame with 12 observations on the following 3 variables:
   \describe{
+    \item{\code{descrip}}{description of bottle contents.}
     \item{\code{id}}{identification code, a unique value for each bottle in the dataset. Numeric with all values from 1 to 12.}
     \item{\code{m.inoc}}{mass of inoculum added to the bottle at the start in g, a numeric vector.}
     \item{\code{m.sub.vs}}{mass of volatile solids (VS) of substrate added to the bottle at the start in g, a numeric vector.}
