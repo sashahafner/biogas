@@ -1,18 +1,16 @@
 # Fermentation
 
 source('readFormula.R')
-predFerm('C6H10O5', ace.frac = 0)
-predFerm('C6H10O5', ace.frac = 0.5)
-predFerm('C6H10O5', ace.frac = 1)
-predFerm('C6H10O5', ace.frac = 1)
+form = 'C6H10O5'
+predFerm('C6H10O5', acefrac = 0)
+predFerm('C6H10O5', acefrac = 0.5)
+predFerm('C6H10O5', acefrac = 1)
+predFerm('C6H10O5', acefrac = 1)
 
-predFerm <- function(
-  form = NULL,            # Character chemical formula of substrate
-  ace.frac = 0.5,         # Acetate (vs. H2) fraction
-  fs = 0                  # Fraction substrate going to cell synthesis, fs in Rittmann and McCarty
-  ) {
-
-  fc <- readFormula(form, elements = c('C', 'H', 'O', 'N'))
+# Function to get stoichiometry for custom organic reaction (O-19)
+customOrgStoich <- function(form, elements =  c('C', 'H', 'O', 'N')) {
+  
+  fc <- readFormula(form, elements)
 
   # Use symbols from O-19 in R&M
   n <- as.numeric(fc['C'])
@@ -20,14 +18,35 @@ predFerm <- function(
   b <- as.numeric(fc['O'])
   cc <- as.numeric(fc['N'])
   d <- 4 * n + a - 2 * b - 3 * cc
+  
+  # Put together
+  rr <- c(CO2 = - (n - cc) / d, NH4. = - cc / d, HCO3. = - cc / d)
+  rr[form] <-  1/d
+  
+  return(rr)
+  
+}
 
-  rd <- c(CO2 = - (n - cc) / d, NH4. = - cc / d, HCO3. = - cc / d)
-  rd[form] <-  1/d
+predFerm <- function(
+  subform = NULL,           # Character chemical formula of substrate
+  biomassform = 'C5H7O2N',  # Biomass empirical formula
+  acefrac = 0.5,            # Acetate (vs. H2) fraction
+  fs = 0                    # Fraction substrate going to cell synthesis, fs in Rittmann and McCarty
+  ) {
 
+  # Donor half reaction
+  rd <- customOrgStoich(subform, elements = c('C', 'H', 'O', 'N'))
+
+  # Synthesis half reaction
+  rs <- customOrgStoich(biomassform, elements = c('C', 'H', 'O', 'N'))
+
+  # Acceptor reactions
+  # Acetate production
   raa <- c(CO2 = - 1/8, HCO3. = - 1/8, CH3COO. = 1/8, H2O = 3/8)
+  # Hydrogen production
   rah <- c(H. = - 1, H2 = 1 / 2)
 
-  ii <- unique(names(c(rd, raa, rah)))
+  ii <- unique(names(c(rd, rs, raa, rah)))
 
   # Blanks
   rd[ii[!ii %in% names(rd)]] <- 0
@@ -36,11 +55,12 @@ predFerm <- function(
 
   # Order
   rd <- rd[ii]
+  rs <- rs[ii]
   raa <- raa[ii]
   rah <- rah[ii]
 
   # Combine
-  rtot <- ace.frac * raa + (1 - ace.frac) * rah - rd
+  rtot <- (1 - fs) * (acefrac * raa + (1 - acefrac) * rah - rd) - fs * rs
 
   return(rtot)
 
