@@ -1,11 +1,10 @@
-# Fermentation
-
-source('readFormula.R')
-form = 'C6H10O5'
-predFerm('C6H10O5', acefrac = 0)
-predFerm('C6H10O5', acefrac = 0.5)
-predFerm('C6H10O5', acefrac = 1)
-predFerm('C6H10O5', acefrac = 1)
+# Fermentation stoichiometry
+# Example calls:
+# source('readFormula.R')
+# predFerm('C6H10O5', acefrac = 0, fs = 0.1)
+# predFerm('C6H10O5', acefrac = 0.5, fs = 0.1)
+# predFerm('C6H10O5', acefrac = 1)
+# predFerm('C6H10O5', acefrac = 1)
 
 # Function to get stoichiometry for custom organic reaction (O-19)
 customOrgStoich <- function(form, elements =  c('C', 'H', 'O', 'N')) {
@@ -31,14 +30,15 @@ predFerm <- function(
   subform = NULL,           # Character chemical formula of substrate
   biomassform = 'C5H7O2N',  # Biomass empirical formula
   acefrac = 0.5,            # Acetate (vs. H2) fraction
-  fs = 0                    # Fraction substrate going to cell synthesis, fs in Rittmann and McCarty
+  fs = 0,                    # Fraction substrate going to cell synthesis, fs in Rittmann and McCarty
+  elements = c('C', 'H', 'O', 'N')
   ) {
 
   # Donor half reaction
-  rd <- customOrgStoich(subform, elements = c('C', 'H', 'O', 'N'))
+  rd <- customOrgStoich(subform, elements = elements)
 
   # Synthesis half reaction
-  rs <- customOrgStoich(biomassform, elements = c('C', 'H', 'O', 'N'))
+  rc <- customOrgStoich(biomassform, elements = elements)
 
   # Acceptor reactions
   # Acetate production
@@ -46,21 +46,27 @@ predFerm <- function(
   # Hydrogen production
   rah <- c(H. = - 1, H2 = 1 / 2)
 
-  ii <- unique(names(c(rd, rs, raa, rah)))
+  ii <- unique(names(c(rd, rc, raa, rah)))
 
   # Blanks
   rd[ii[!ii %in% names(rd)]] <- 0
+  rc[ii[!ii %in% names(rc)]] <- 0
   raa[ii[!ii %in% names(raa)]] <- 0
   rah[ii[!ii %in% names(rah)]] <- 0
 
   # Order
   rd <- rd[ii]
-  rs <- rs[ii]
+  rc <- rc[ii]
   raa <- raa[ii]
   rah <- rah[ii]
 
+  # Acceptor reaction
+  ra <- acefrac * raa + (1 - acefrac) * rah - rd
+
+  fe <- 1 - fs
+  
   # Combine
-  rtot <- (1 - fs) * (acefrac * raa + (1 - acefrac) * rah - rd) - fs * rs
+  rtot <- fe * ra + fs * rc  - rd
 
   return(rtot)
 
