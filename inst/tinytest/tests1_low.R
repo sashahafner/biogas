@@ -22,17 +22,17 @@ expect_equal(biogas:::unitConvert(0, 'C', to = 'K'), 273.15)
 
 # readFormula.R
 # readFormula reads correctly the formulas independement from case sensitivity and double letter elements
-expect_equal(readFormula('c6h12o6'), c(c = 6, h = 12, o = 6))
-expect_equal(readFormula('C6H12O6'), c(C = 6, H = 12, O = 6))
-expect_equal(readFormula('NaCl'), c(Na = 1, Cl = 1))
-expect_equal(readFormula('CHONNaClSPK'), c(C = 1, H = 1, O = 1, N = 1, Na = 1, Cl = 1, S = 1, P = 1, K = 1))
+expect_equal(biogas:::readFormula('c6h12o6'), c(c = 6, h = 12, o = 6))
+expect_equal(biogas:::readFormula('C6H12O6'), c(C = 6, H = 12, O = 6))
+expect_equal(biogas:::readFormula('NaCl'), c(Na = 1, Cl = 1))
+expect_equal(biogas:::readFormula('CHONNaClSPK'), c(C = 1, H = 1, O = 1, N = 1, Na = 1, Cl = 1, S = 1, P = 1, K = 1))
 
 # watVap.R
 # results from watVap is stable
 # water vapor at 20 C, 1 atm 
 temp.c <- 20
 wV <- 100*6.1094*exp(17.625*temp.c/(243.04 + temp.c))
-expect_equal(watVap(293.15),wV)
+expect_equal(biogas:::watVap(293.15),wV)
 
 # Functions test with dependencies 
 #------------------------------------
@@ -77,8 +77,8 @@ expect_equal(c(calcCOD('CH3CH2OH'), calcCOD('CH2(CH2)2OH')), calcCOD(c('CH3CH2OH
 # convert 100ml at 35 C, rh = 1, 1 atm to 0 C, rh = 0, 1 atm
 rh <- 1
 # Note new pres.pa argument for enhancement factor
-pH2O <- rh*watVap(273.15 + 35, pres.pa = 101325) 
-dv <- 100*(101325 - pH2O)/101325
+pH2O <- rh * biogas:::watVap(273.15 + 35, pres.pa = 101325) 
+dv <- 100 * (101325 - pH2O) / 101325
 stdv <- dv*273.15 /  (35+273.15)
 expect_equal(stdVol(100, temp = 35, pres = 1, unit.temp = 'C', unit.pres = 'atm'), stdv)
 
@@ -88,20 +88,19 @@ volBg <- stdVol(100, temp = 273.15 + 20, pres = 101325, rh = 1, temp.std = 273.1
 mmb <- 0.65*molMass('CH4') + (1 - 0.65)*molMass('CO2')
 mvb <- 0.65*vmch4 + (1 - 0.65)*vmco2
 db <- mmb/mvb
-pH2O <- 1*watVap(temp.k = 273.15 + 35) 
+pH2O <- 1*biogas:::watVap(temp.k = 273.15 + 35) 
 mH2O <- molMass('H2O')*pH2O/(((1.5 *101325) - pH2O)*mvb)
 mass <- volBg*(db + mH2O)
 
 expect_equal(vol2mass(100, xCH4 = 0.65, temp.hs = 35, temp.vol = 20, pres.hs = 1.5, pres.vol = 1), mass)
 
 # mass2vol.R --- depends on molMass, watVap 
-# NTS : PB with the test vlues, I don't get why -- I must make a mistake somewhere
 # mass2vol non vectorised result is correct
 # Volume of methane if measured mass loss was 3.1 g at 35 C, 1atm, 100% humidity and 65% of methane
 mmb <- 0.65*molMass('CH4') + (1 - 0.65)*molMass('CO2')
 mvBg <- 0.65*vmch4 + (1 - 0.65)*vmco2
 db <- mmb/mvBg
-pH2O <- 1*watVap(temp.k = (273.15 + 35))
+pH2O <- 1*biogas:::watVap(temp.k = (273.15 + 35))
 mH2O <- molMass('H2O')*pH2O/((101325 - pH2O)*mvBg)
 # Biogas volume
 VBg <- 3.1/(db + mH2O)
