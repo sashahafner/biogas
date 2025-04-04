@@ -17,8 +17,8 @@ expect_equal(interp(c(1, 3 , 4), y = c(1, 3, 4), time.out = 0, extrap = TRUE, me
   
 # unitConvert.R
 # NTS can be improved with more tests for each units
-expect_equal(unitConvert(1, 'atm', to = 'Pa'), 101325)
-expect_equal(unitConvert(0, 'C', to = 'K'), 273.15)
+expect_equal(biogas:::unitConvert(1, 'atm', to = 'Pa'), 101325)
+expect_equal(biogas:::unitConvert(0, 'C', to = 'K'), 273.15)
 
 # readFormula.R
 # readFormula reads correctly the formulas independement from case sensitivity and double letter elements
