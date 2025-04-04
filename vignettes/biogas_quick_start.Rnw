@@ -40,7 +40,6 @@ This document describes the use of the high-level functions.
 This vignette does not cover the latest developments in the package, but still provides a good overview.
 The newer \texttt{calcBg*()} functions are described in individual vignettes for the volumetric (\texttt{calcBgVol}) and manometric (\texttt{calcBgMan}) alternatives.
 The gravimetric version (\texttt{calcBgGrav}) is only described in its help file so far.
-% This document describes the use of the high-level functions.
 
 \begin{table}[h!]
   \begin{center}
