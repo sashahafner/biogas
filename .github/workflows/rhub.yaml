@@ -64,7 +64,15 @@ jobs:
       - name: Setup TeX Live
         uses: teatimeguest/setup-texlive-action@v3
         with:
-          packages: scheme-medium          
+          packages:  |
+            scheme-medium
+            xcolor
+            titlesec
+            fancyhdr
+            geometry
+            hyperref
+            graphics
+            framed             
       - uses: r-hub/actions/run-check@v1
         with:
           token: ${{ secrets.RHUB_TOKEN }}
@@ -97,7 +105,15 @@ jobs:
       - name: Setup TeX Live
         uses: teatimeguest/setup-texlive-action@v3
         with:
-          packages: scheme-medium
+          packages: |
+            scheme-medium
+            xcolor
+            titlesec
+            fancyhdr
+            geometry
+            hyperref
+            graphics
+            framed      
       - uses: r-hub/actions/run-check@v1
         with:
           job-config: ${{ matrix.config.job-config }}
