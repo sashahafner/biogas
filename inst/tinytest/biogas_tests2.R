@@ -18,7 +18,7 @@ expect_equal(predBg('C6H10O6'), calcCOD('C6H10O6')*predBg(COD = 1) )
 
 
 # cumBg.R
-# NTS: for the moment everything is tested once, it could be good to separatae tests for - cH4 volume vs biogas volume and rates
+# NTS: for the moment everything is tested once, it could be good to separate tests for - cH4 volume vs biogas volume and rates
 # NTS: might also be good to store the test data frames somewhere
 
 # volume molar values:
