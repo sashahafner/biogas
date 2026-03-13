@@ -69,7 +69,10 @@ calcBgGD <- function(
   checkArgClassValue(temp.std, c('integer', 'numeric'))
   checkArgClassValue(pres.std, c('integer', 'numeric'))
   checkArgClassValue(unit.temp, 'character')
-  checkArgClassValue(unit.pres, 'character')                   
+  checkArgClassValue(unit.pres, 'character')
+
+  dat <- as.data.frame(dat)
+  if (is.data.frame(headspace)) headspace <- as.data.frame(headspace)
 
   # Additional checks
   if (vented.mass & vmethod == 'vol') {

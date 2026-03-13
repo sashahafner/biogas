@@ -67,6 +67,10 @@ calcBgMan <- function(
   checkArgClassValue(unit.temp, 'character')
   checkArgClassValue(unit.pres, 'character')
 
+  dat <- as.data.frame(dat)
+  if (is.data.frame(comp)) comp <- as.data.frame(comp)
+  if (is.data.frame(headspace)) headspace <- as.data.frame(headspace)
+
   # Create logical variable showing whether composition data were included
   have.comp <- TRUE
   if(data.struct == 'longcombo') {

@@ -36,7 +36,11 @@ cumBgDataPrep <- function(
   # Skip imethod, checked in interp
   checkArgClassValue(extrap, 'logical')
   checkArgClassValue(check, 'logical')
-  
+
+  dat <- as.data.frame(dat)
+  if (is.data.frame(comp)) comp <- as.data.frame(comp)
+  if (is.data.frame(headspace)) headspace <- as.data.frame(headspace)
+
   # Check column names in argument data frames
   # comp needs id (time) xCH4, time optional
   if(!is.null(comp) && is.data.frame(comp) && data.struct == 'long') {

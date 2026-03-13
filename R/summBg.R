@@ -122,6 +122,9 @@ summBg <- function(
   checkArgClassValue(show.obs, 'logical')
   checkArgClassValue(sort, 'logical')
 
+  vol <- as.data.frame(vol)
+  setup <- as.data.frame(setup)
+
   # Argument revisions
   if (tolower(when) == 'latest') {
     extrap <- TRUE
