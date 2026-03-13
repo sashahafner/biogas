@@ -6,7 +6,7 @@ predBg <- function(
   mol = NULL,      # Moles of substrate 
   fs = 0,          # Fraction substrate going to cell synthesis, fs in Rittmann and McCarty
   fd = 1,          # Biodegradable fraction of substrate (g/g)
-  mcomp = NULL,    # Macromolecular composition, vector with named elements NTS add details
+  mcomp = NULL,    # Macromolecular composition, vector with named elements
   COD = NULL,      # Substrate total COD (g) (alternative to form or mcomp)
   conc.sub = NULL, # Substrate concentration in g per kg water (only needed for CO2 partitioning)
   pH = NULL,       # Solution pH (only needed for CO2 partitioning) 
@@ -192,9 +192,9 @@ predBg <- function(
   }
 
   # Hydrolytic water consumption, g H2O
-  h <- cH2O*molMass('H2O')*fd*mol # NTS double check
+  h <- cH2O*molMass('H2O')*fd*mol
   # Ammonia requirement, g N substrate (if < 0 then is produced not required)
-  mNH4<- -cNH4*molMass('N')*fd*mol # NTS double check
+  mNH4<- -cNH4*molMass('N')*fd*mol
   # Microbial biomass production
   mBio <- cbio*molMass('C5H7O2N')*fd*mol
   # CH4, CO2, and biogas in g
