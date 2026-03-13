@@ -154,10 +154,21 @@ data("comp")
 data("setup") 
 
 # First need to calculate cumulative methane production data
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1, 
-                  time.name = "days", extrap = TRUE)
+cum.prod <- calcBgVol(vol, comp = comp, temp = 20, pres = 1, 
+                 data.struct = 'long',
+                 id.name = 'id', time.name = 'days', comp.name = 'xCH4', 
+                 vol.name = 'vol', extrap = TRUE)
 
-head(cum.prod)
+# Typical usage is for biochemical methane potential (BMP)
+summBg(vol = cum.prod, setup = setup, time.name = "days", 
+       inoc.name = "inoc", inoc.m.name = "minoc", when = "end", 
+       norm.name = "mvs.sub")
+
+# Because of unusually long test duration, set evaluation time
+# to 60 d
+summBg(vol = cum.prod, setup = setup, time.name = "days", 
+       inoc.name = "inoc", inoc.m.name = "minoc", when = 60, 
+       norm.name = "mvs.sub")
 
 # Cumulative methane production (default) at 30 d 
 # Uses default names for some columns
@@ -188,10 +199,6 @@ summBg(vol = cum.prod, setup = setup, time.name = "days",
        inoc.name = "inoc", inoc.m.name = "minoc", when = 30, 
        norm.name = "mvs.sub", show.obs = TRUE)
 
-# Something different: interpolated biogas production rates
-summBg(vol = cum.prod, setup = setup, time.name = "days", 
-       vol.name = "rvBg", when = 30, show.obs = TRUE)
-
 # The when argument could also be 'meas', 'end', or '1p3d' (or related) for any of these examples 
 summBg(vol = cum.prod, setup = setup, time.name = "days", 
        inoc.name = "inoc", inoc.m.name = "minoc", when = "end", 
@@ -206,39 +213,22 @@ summBg(vol = cum.prod, setup = setup, time.name = "days",
        norm.name = "mvs.sub")
 
 # Or combine multiple values of when in a list
-
 summBg(vol = cum.prod, setup = setup, time.name = "days", 
        inoc.name = "inoc", inoc.m.name = "minoc", 
        when = list(30, "1p3d", "end"), 
        norm.name = "mvs.sub")
 
-# If you want to apply the 1% criterion but also want a single fixed time for all bottles,
-# you have to use two calls
-summBg(vol = cum.prod, setup = setup, time.name = "days", 
-       inoc.name = "inoc", inoc.m.name = "minoc", when = "1p3d", 
-       norm.name = "mvs.sub")
-
-# From the first call, the longest time is 42 days, so use when = 42
-summBg(vol = cum.prod, setup = setup, time.name = "days", 
-       inoc.name = "inoc", inoc.m.name = "minoc", when = 42, 
-       norm.name = "mvs.sub")
-
-# If an error is thrown because a bottle doesn't meet the 1% criterion, use 
+# If an warning is returned because a bottle doesn't meet the 1% criterion, use 
 # show.rates = TRUE to see rates
-\dontrun{
-# Will return error
 cpshort <- cum.prod[cum.prod$days < 10, ]
 summBg(vol = cpshort, setup = setup, time.name = "days", 
        inoc.name = "inoc", inoc.m.name = "minoc", when = "1p", 
        norm.name = "mvs.sub")
-}
 
-# So then use this to see which bottles are causing problems
-cpshort <- cum.prod[cum.prod$days < 10, ]
+# Then use this to see relative rates in rrvCH4 column
 summBg(vol = cpshort, setup = setup, time.name = "days", 
        inoc.name = "inoc", inoc.m.name = "minoc", when = "1p", 
        norm.name = "mvs.sub", show.rates = TRUE)
-
 
 # Example with dataset with different column names
 data("vol2")
@@ -246,19 +236,18 @@ data("comp2")
 data("setup2")
 
 # First need to calculate cumulative methane production data
-cum.prod <- cumBg(vol2, comp = comp2, temp = 20, pres = 1, 
-                  id.name = "bottle", time.name = "days", 
-		  dat.name = "meas.vol", comp.name = "CH4.conc", 
-                  extrap = TRUE)
+cum.prod <- calcBgVol(vol2, comp = comp2, temp = 20, pres = 1, 
+                 data.struct = "long",
+                 id.name = "bottle", time.name = "days", comp.name = "CH4.conc", 
+                 vol.name = "meas.vol", extrap = TRUE)
 
 head(cum.prod)
 
-# Cumulative CH4 production at 30 d, subtract inoculum contribution 
-# and normalise by sub.vs column (mass of substrate VS here) (look at setup2).
+# Calculate BMP
 summBg(vol = cum.prod, setup = setup2, id.name = "bottle", 
        time.name = "days", descrip.name = "description", 
        inoc.name = "Inoculum", inoc.m.name = "inoc.mass", 
-       norm.name = "sub.vs", when = 30)
+       norm.name = "sub.vs", when = 'end')
 
 }
 

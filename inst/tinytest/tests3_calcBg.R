@@ -78,14 +78,17 @@ expect_equal(final.gd[['I1']], 163111.7, tolerance = 1)
 # summBg ------------------------------------------------------------------
 # From help file example: vol/comp/setup datasets, inoculum subtraction,
 # normalization by VS, evaluated at day 30
-# Uses cumBg to generate input (as in help file)
 
 data('vol')
 data('comp')
 data('setup')
-cum.prod <- cumBg(vol, comp = comp, temp = 20, pres = 1,
-                  time.name = 'days', extrap = TRUE, quiet = TRUE)
-s <- summBg(vol = cum.prod, setup = setup, time.name = 'days',
+
+cbg <- calcBgVol(vol, comp = comp, temp = 20, pres = 1, 
+                 data.struct = 'long',
+                 id.name = 'id', time.name = 'days', comp.name = 'xCH4', 
+                 vol.name = 'vol', extrap = TRUE)
+
+s <- summBg(vol = cbg, setup = setup, time.name = 'days',
             inoc.name = 'inoc', inoc.m.name = 'minoc',
             when = 30, norm.name = 'mvs.sub', quiet = TRUE)
 
