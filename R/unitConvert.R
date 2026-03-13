@@ -1,4 +1,3 @@
-# NTS: would be good to switch to Pa and K for base units
 
 unitConvert <- function(x, unit, to) {
 
