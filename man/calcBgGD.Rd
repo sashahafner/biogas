@@ -284,7 +284,8 @@ cbg <- calcBgGD(UQGDBiogas,
                 temp.grav = 30, pres.grav = 1500,
                 id.name = 'id', vol.name = 'vol',
                 m.pre.name = 'mass.init', m.post.name = 'mass.final',
-                time.name = 'time.d', unit.pres = 'mbar')
+                time.name = 'time.d', unit.pres = 'mbar',
+                comp.sub = 'lim')
 
 
 BMP <- summBg(cbg, UQGDSetup, id.name = "id",
