@@ -228,39 +228,9 @@ calcBgGrav <- function(
 
   # Cumulative gas production and rates
   dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-  # Calculate delta t for rates
-  if(inherits(dat[, time.name], c('numeric', 'integer'))) {
-    dt <- c(NA, diff(dat[, time.name]))
-  } else if(inherits(dat[, time.name], c('POSIXct', 'POSIXlt'))) {
-    dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
-  } else {
-    dt <- NA
-    warning('time column in dat data frame not recognized, so rates will not be calculated.')
-  }
-  # Set dt to NA for the first observation for each reactor
-  dt[c(TRUE, dat[, id.name][-1] != dat[, id.name][-nrow(dat)])] <- NA
-
-  for(i in unique(dat[, id.name])) {
-    dat[dat[, id.name]==i, 'cvBg']<- cumsum(dat[dat[, id.name]==i, 'vBg' ])
-    dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
-  }
-
-  # For method 2, when cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, 
-  # because vhsCH4 is added to cvCH4 (correctly)
-  # vBg is not affected by cmethod = 'total'
-  if(cmethod == 'total') {
-    dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
-    for(i in unique(dat[, id.name])) {
-      dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
-    }
-  }
-  
-  # Method 1 & 2
-  # Calculate rates for all cases 
-  for(i in unique(dat[, id.name])) {
-    dat[dat[, id.name]==i, 'rvBg'] <- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
-    dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
-  }
+  dt  <- calcDeltaT(dat, id.name, time.name, quiet)
+  dat <- calcCumVol(dat, id.name, interval = TRUE, have.comp = TRUE, cmethod = cmethod)
+  dat <- calcRates(dat, dt, have.comp = TRUE)
   
   # Drop time 0 or initial times, works even if time column not recognized
   if(!showt0) {

@@ -232,70 +232,11 @@ calcBgVol <- function(
     dat <- rbindf(dat, t0)
   }
   
-  # Calculate delta t for rates
+  # Calculate delta t, cumulative/interval volumes, and rates
   dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-
-  if(inherits(dat[, time.name], c('numeric', 'integer', 'difftime'))) {
-    dt <- c(NA, diff(dat[, time.name]))
-  } else if(inherits(dat[, time.name], c('POSIXct', 'POSIXlt'))) {
-    dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
-    if(!quiet) message('Rates are per *day*.')
-  } else {
-    dt <- NA
-    warning('class of time column in dat data frame not recognized, so rates will not be calculated.')
-  }
-  
-  # Set dt to NA for first observations for each reactor
-  dt[c(TRUE, dat[, id.name][-1] != dat[, id.name][-nrow(dat)])] <- NA 
-  
-  # May already have cumulative production, if so move it to cv*, and calculate v* down below
-  if(!interval) {
-    dat$cvBg <- dat$vBg
-    if(have.comp) {
-      dat$cvCH4 <- dat$vCH4
-    }
-  }
-  
-  # Calculate cumulative production or interval production (depending on interval argument)
-  # Method 1 (and some initial method 2 calcs)
-  if(interval) {
-    for(i in unique(dat[, id.name])) {
-      dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
-      if(have.comp) {
-        dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
-      }
-    } 
-  } else {
-
-    for(i in unique(dat[, id.name])) {
-      dat[dat[, id.name]==i, 'vBg'] <- diff(c(0, dat[dat[, id.name]==i, 'cvBg' ]))
-      if(have.comp) {
-        dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
-      }
-    }
-  }
-  
-  # Method 2
-  # For method 2, cmethod = 'total', add headspace CH4 to cvCH4
-  if(cmethod == 'total') {
-    if(have.comp) {
-      dat$cvCH4 <- dat$cvCH4 + dat$vhsCH4
-      for(i in unique(dat[, id.name])) {
-        # For method 2, when cmethod = 'total', cvCH4 must be (re)calculated from cvCH4, because vhsCH4 is added to cvCH4 (correctly)
-        # vBg is not affected by cmethod = 'total' (calculation is same as in method 1 above)
-        dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
-      }
-    }
-  }
-  
-  # Method 1 & 2
-  # Calculate rates for all cases 
-  for(i in unique(dat[, id.name])) {
-    dat[dat[, id.name]==i, 'rvBg'] <- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
-    if(have.comp) {
-      dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
-    }
-  }
+  dt  <- calcDeltaT(dat, id.name, time.name, quiet)
+  dat <- calcCumVol(dat, id.name, interval, have.comp, cmethod)
+  dat <- calcRates(dat, dt, have.comp)
   
   # Drop t0 if not requested (whether originally present or added)
   if(!showt0) {
@@ -316,41 +257,7 @@ calcBgVol <- function(
   }
   
   # Drop NAs if they extend to the latest time for a given bottle (based on problem with AMPTSII data, sometimes shorter for some bottles)
-  if(any(is.na(dat[, vol.name]))) {
-
-    dat2 <- data.frame()
-
-    for(i in unique(dat[, id.name])) {
-
-      dd <- dat[dat[, id.name] == i, ]
-
-      if(is.na(dd[nrow(dd), vol.name])) {
-        # All NAs
-        i1 <- which(is.na(dd[, vol.name]))
-    
-        # Look for consecutive NAs
-        i1d <- diff(i1)
-    
-        # That are uninterupted by a value
-        if(any(i1d > 1)) {
-          i2 <- max(which(i1d > 1)) + 1 
-        } else {
-          i2 <- 1
-        }
-    
-        i3 <- i1[i2]
-    
-        dat2 <- rbind(dat2, dd[-c(i3:nrow(dd)), ])
-    
-      } else {
-    
-        dat2 <- rbind(dat2, dd)
-    
-      }
-    }
-  
-    dat <- dat2
-  }
+  dat <- trimTrailingNAs(dat, id.name, vol.name)
   
   rownames(dat) <- 1:nrow(dat)
   

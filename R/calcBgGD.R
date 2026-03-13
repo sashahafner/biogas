@@ -174,11 +174,9 @@ calcBgGD <- function(
                     temp.std = temp.std, unit.temp = unit.temp, unit.pres = unit.pres, 
                     std.message = std.message)
 
-  # Calculate cumulative production 
+  # Calculate cumulative production
   dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-  for(i in unique(dat[, id.name])) {
-    dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
-  } 
+  dat$cvBg <- ave(dat$vBg, dat[[id.name]], FUN = cumsum)
 
   # Get biogas composition
   if(averaging != 'fin') {
@@ -267,37 +265,19 @@ calcBgGD <- function(
       t0[, 'vBg'] <- t0[, 'vCH4'] <- 0
     }
 
-    # Calculate delta t for rates
+    # Calculate delta t, cumulative/interval volumes, and rates
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-    if(inherits(dat[, time.name], c('numeric', 'integer', 'difftime'))) {
-      dt <- c(NA, diff(dat[, time.name]))
-    } else if(inherits(dat[, time.name], c('POSIXct', 'POSIXlt'))) {
-      dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
-    } else {
-      dt <- NA
-      warning('class of time column in dat data frame not recognized, so rates will not be calculated.')
-    }
+    dt <- calcDeltaT(dat, id.name, time.name, quiet = TRUE)
 
-    # Set dt to NA for first observations for each reactor
-    dt[c(TRUE, dat[, id.name][-1] != dat[, id.name][-nrow(dat)])] <- NA 
-
-    # Calculate cumulative or interval production 
+    # Calculate cumulative or interval production
     if (averaging == 'cum') {
-      for(i in unique(dat[, id.name])) {
-        dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
-      }
+      dat$vCH4 <- ave(dat$cvCH4, dat[[id.name]], FUN = function(x) diff(c(0, x)))
     } else {
-      for(i in unique(dat[, id.name])) {
-        dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
-        dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
-      } 
+      dat$cvBg  <- ave(dat$vBg,  dat[[id.name]], FUN = cumsum)
+      dat$cvCH4 <- ave(dat$vCH4, dat[[id.name]], FUN = cumsum)
     }
 
-    # Calculate rates for all cases 
-    for(i in unique(dat[, id.name])) {
-      dat[dat[, id.name]==i, 'rvBg'] <- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
-      dat[dat[, id.name]==i, 'rvCH4']<- dat[dat[, id.name]==i, 'vCH4' ]/dt[dat[, id.name]==i]
-    }
+    dat <- calcRates(dat, dt, have.comp = TRUE)
 
     # Drop t0 if not requested (whether originally present or added)
     if(!showt0) {
@@ -363,37 +343,19 @@ calcBgGD <- function(
 
     # Cumulative gas production and rates
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-    # Calculate delta t for rates
-    if(inherits(dat[, time.name], c('numeric', 'integer'))) {
-      dt <- c(NA, diff(dat[, time.name]))
-    } else if(inherits(dat[, time.name], c('POSIXct', 'POSIXlt'))) {
-      dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
-    } else {
-      dt <- NA
-      warning('time column in dat data frame not recognized, so rates will not be calculated.')
-    }
-    # Set dt to NA for the first observation for each reactor
-    dt[c(TRUE, dat[, id.name][-1] != dat[, id.name][-nrow(dat)])] <- NA
+    dt <- calcDeltaT(dat, id.name, time.name, quiet = TRUE)
 
-    # Calculate cumulative or interval production 
-    if (averaging == 'cum') {
-      for(i in unique(dat[, id.name])) {
-        dat[dat[, id.name]==i, 'vCH4'] <- diff(c(0, dat[dat[, id.name]==i, 'cvCH4']))
-        dat[dat[, id.name]==i, 'vBg'] <- diff(c(0, dat[dat[, id.name]==i, 'cvBg']))
-      }
-    } else {
-      for(i in unique(dat[, id.name])) {
-        dat[dat[, id.name]==i, 'cvBg'] <- cumsum(dat[dat[, id.name]==i, 'vBg' ])
-        dat[dat[, id.name]==i, 'cvCH4'] <- cumsum(dat[dat[, id.name]==i, 'vCH4'])
-      } 
-    }
-
-    # Calculate rates for all cases 
+    # Calculate cumulative or interval production
     # Rates (rates and v may be strange for averaging = 'cum')
-    for(i in unique(dat[, id.name])) {
-      dat[dat[, id.name]==i, 'rvBg']<- dat[dat[, id.name]==i, 'vBg' ]/dt[dat[, id.name]==i]
-      dat[dat[, id.name]==i, 'rvCH4'] <- dat[dat[, id.name]==i, 'vCH4']/dt[dat[, id.name]==i]
+    if (averaging == 'cum') {
+      dat$vCH4 <- ave(dat$cvCH4, dat[[id.name]], FUN = function(x) diff(c(0, x)))
+      dat$vBg  <- ave(dat$cvBg,  dat[[id.name]], FUN = function(x) diff(c(0, x)))
+    } else {
+      dat$cvBg  <- ave(dat$vBg,  dat[[id.name]], FUN = cumsum)
+      dat$cvCH4 <- ave(dat$vCH4, dat[[id.name]], FUN = cumsum)
     }
+
+    dat <- calcRates(dat, dt, have.comp = TRUE)
 
     # Sort results
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
