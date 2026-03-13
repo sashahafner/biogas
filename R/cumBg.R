@@ -48,6 +48,11 @@ cumBg <- function(
   ##unit.vol = getOption('unit.vol', 'ml'),
   ##unit.mass = getOption('unit.mass', 'g')
 ){
+  .Deprecated(msg = paste0("'cumBg' is deprecated.\n",
+    "Use 'calcBgVol' (volumetric), 'calcBgMan' (manometric), ",
+    "'calcBgGrav' (gravimetric), or 'calcBgGD' (gas density) instead.\n",
+    "See help('calcBgVol') etc. for details."))
+
   # Check arguments
   checkArgClassValue(dat, 'data.frame')
   checkArgClassValue(dat.type, 'character', expected.values = c('vol', 'mass', 'pres', 'volume', 'pressure', 'gca'), case.sens = FALSE)

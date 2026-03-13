@@ -1,3 +1,9 @@
+# biogas 1.65.0
+## DEPRECATED FUNCTIONS
+* `cumBg()` is now formally deprecated and will be removed in a future version.
+  Use the method-specific replacements: `calcBgVol()` (volumetric), `calcBgMan()` (manometric), `calcBgGrav()` (gravimetric), or `calcBgGD()` (gas density).
+  Calling `cumBg()` will now produce a deprecation warning.
+
 # biogas 1.64.0
 2025 April 4
 ## BUG FIXES

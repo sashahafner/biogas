@@ -5,7 +5,9 @@
   Calculate Cumulative Biogas Production
 }
 \description{
-  \code{cumBg} (for \emph{cum}ulative \emph{b}io\emph{g}as) calculates cumulative biogas, methane production and production rates from individual volume (or mass) and composition measurements for any number of reactors.
+  \strong{Deprecated.} \code{cumBg} (for \emph{cum}ulative \emph{b}io\emph{g}as) calculates cumulative biogas, methane production and production rates from individual volume (or mass) and composition measurements for any number of reactors.
+
+  This function is deprecated. Use the method-specific replacements instead: \code{\link{calcBgVol}} (volumetric), \code{\link{calcBgMan}} (manometric), \code{\link{calcBgGrav}} (gravimetric), or \code{\link{calcBgGD}} (gas density).
 }
 \usage{
 cumBg(
