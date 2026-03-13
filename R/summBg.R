@@ -26,7 +26,6 @@ summBg <- function(
   if(is.list(vol)) {
 
     # Check reserved names
-    # NTS: need to add more reserved names to check
     if (any(set.name == c(names(vol), names(setup), c('mean', 'sd', 'se', 'n')))) {
       stop('Argument set.name matches another column name')
     }
@@ -443,7 +442,6 @@ summBg <- function(
 
   } else {
 
-    # NTS: How did I handle this before 10 Feb 2016?
     summ1[, 'se.inoc'] <- 0
 
   }
@@ -457,8 +455,7 @@ summBg <- function(
   }
 
   # If selected, find times where rate drops below 1%/d of cumulative
-  # NTS WIP Try ALWAYS checking rates?
-  if(length(when) == 1 && pdwhen) { 
+  if(length(when) == 1 && pdwhen) {
 
     # Get cutoff 
     cutoff <- as.numeric(gsub('p.+$', '', when))/100
@@ -578,7 +575,7 @@ summBg <- function(
         # Select times >= max time for this decrip.name level
         ss <- summ1[summ1[, id.name] == j & summ1[, time.name] >= tt, ] 
         if(length(ss) == 0) stop('when = "xpyd" problem. Call function again with show.rates = TRUE')
-        ss <- ss[1, ] # NTS: why not move up to prev command?
+        ss <- ss[1, ]
         summ1temp <- rbind(summ1temp, ss)
       }
 
@@ -625,7 +622,7 @@ summBg <- function(
   # Calculate means and se for a summary
   if(!show.obs) {
     # Summarize by description
-    summ2 <- unique(summ1[, c(time.name, descrip.name)]) # NTS: may want to put time second
+    summ2 <- unique(summ1[, c(time.name, descrip.name)])
 
     for(i in unique(summ1[, descrip.name])){
       dd <- summ1[summ1[, descrip.name]==i, ]

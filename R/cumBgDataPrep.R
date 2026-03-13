@@ -121,7 +121,6 @@ cumBgDataPrep <- function(
   
   # Rearrange longcombo data
   # If there are missing values in a longcombo data frame, switch to long
-  # NTS: this is not the most efficient approach, maybe revisit
   if(have.comp && data.struct == 'longcombo' && any(is.na(dat[, comp.name]))) {
     comp <- dat[, c(id.name, time.name, comp.name)]
     dat <- dat[, names(dat) != comp.name]

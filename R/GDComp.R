@@ -1,8 +1,6 @@
 # Function for calculating biogas composition from gas density
 # Jacob R. Mortensen and Sasha Hafner
 
-# NTS: do we need two pres arguments, for grav calcs and (mH2O) and vol std?
-
 GDComp <- function(
   mass,     # Mass loss in reactor
   vol,      # Standardized (dry, 1 atm, 0C) biogas volume
@@ -17,7 +15,6 @@ GDComp <- function(
 ) {
   
   # Check arguments~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # NTS: are all included? (I think so)
   checkArgClassValue(mass, c('integer', 'numeric'), expected.range = c(0, Inf))
   checkArgClassValue(vol, c('integer', 'numeric'))
   checkArgClassValue(temp, c('integer', 'numeric'))

@@ -53,7 +53,7 @@ calcBgGD <- function(
   checkArgClassValue(averaging, 'character', expected.values = c('int', 'fin', 'cum', 'interval', 'final', 'cumulative'))
   checkArgClassValue(temp.init, c('integer', 'numeric', 'NULL'))
   checkArgClassValue(pres.init, c('integer', 'numeric', 'NULL'))
-  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL')) # NTS: check
+  checkArgClassValue(headspace, c('data.frame', 'integer', 'numeric', 'NULL'))
   checkArgClassValue(vol.hs.name, c('character', 'NULL'))
   checkArgClassValue(headcomp, 'character')
   checkArgClassValue(vmethod, 'character', expected.values = c('vol', 'volume', 'grav', 'gravimetric'))
@@ -117,8 +117,6 @@ calcBgGD <- function(
   } else {
     rh <- 0
   }
-
-  # NTS: Add checks from cumBg()
 
   # Create standardized binary variable that indicates when vBg has been standardized
   standardized <- FALSE
@@ -236,7 +234,6 @@ calcBgGD <- function(
   }
 
   # Proceed with either vol or grav method
-  # NTS: This should ultimately be done in a separate function, also called by cumBg() or cumBgVol()
   # Volumetric
   # Function will work with vol and add columns
   if(vmethod %in% c('vol', 'volume')) {
