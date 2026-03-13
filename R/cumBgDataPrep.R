@@ -45,18 +45,18 @@ cumBgDataPrep <- function(
   # comp needs id (time) xCH4, time optional
   if(!is.null(comp) && is.data.frame(comp) && data.struct == 'long') {
     if(any(missing.col <- !c(id.name, comp.name) %in% names(comp))){
-      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', paste(c(id.name, comp.name)[missing.col], collapse=', '), '.')
+      stop('Specified column(s) not found in comp: ', paste(c(id.name, comp.name)[missing.col], collapse=', '), '.')
     }
   }
   
   # Check missing data in dat data frame (id, time and data)
   if(data.struct %in% c('long', 'longcombo')) {
     if(any(missing.col <- !c(id.name, time.name, dat.name) %in% names(dat))){
-      stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(id.name, time.name, dat.name)[missing.col], collapse = ', '), '.')
+      stop('Specified columns not found in dat: ', paste(c(id.name, time.name, dat.name)[missing.col], collapse = ', '), '.')
     }
   } else if(data.struct == 'wide') {
     if(any(missing.col <- !c(time.name, dat.name) %in% names(dat))){
-      stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(time.name, dat.name)[missing.col], collapse = ', '), '.')
+      stop('Specified columns not found in dat: ', paste(c(time.name, dat.name)[missing.col], collapse = ', '), '.')
     }
   }
   
@@ -154,8 +154,7 @@ cumBgDataPrep <- function(
         if(nrow(dc)==0) stop('No biogas composition data for bottle ', i,' so can\'t interpolate!') 
         if(nrow(dc)>1) {
           # If there is no time column
-          if(!time.name %in% names(comp)) stop('Problem with comp  (', deparse(substitute(comp)), 
-                                               '): a time column was not found but there is > 1 observation at least for bottle ',i, '.')
+          if(!time.name %in% names(comp)) stop('Problem with comp: a time column was not found but there is > 1 observation at least for bottle ', i, '.')
           if(dat.type %in% c('vol', 'volume', 'pres', 'pressure')) {
             mssg.interp <- TRUE
             dat[dat[, id.name]==i, comp.name] <- interp(dc[, time.name], dc[, comp.name], time.out = dat[dat[, id.name]==i, time.name], method = imethod, extrap = extrap)
@@ -197,7 +196,7 @@ cumBgDataPrep <- function(
       dat[, comp.name] <- comp
     } 
 
-    if(!quiet & mssg.no.time) message('A time column was not found in comp (', deparse(substitute(comp)), '), and a single value was used for each bottle.')
+    if(!quiet & mssg.no.time) message('A time column was not found in comp, and a single value was used for each bottle.')
     if(!quiet & mssg.interp) message('Biogas composition is interpolated.')
   } 
   

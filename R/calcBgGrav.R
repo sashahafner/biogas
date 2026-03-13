@@ -78,7 +78,7 @@ calcBgGrav <- function(
   # comp needs id (time) xCH4, time optional
   if(!is.null(comp) && is.data.frame(comp) && data.struct[1] == 'long') {
     if(any(missing.col <- !c(id.name, xCH4.name) %in% names(comp))){
-      stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', paste(c(id.name, xCH4.name)[missing.col], collapse = ', '), '.')
+      stop('Specified column(s) not found in comp: ', paste(c(id.name, xCH4.name)[missing.col], collapse = ', '), '.')
     }
   }
 
@@ -86,12 +86,12 @@ calcBgGrav <- function(
   if(data.struct %in% c('long', 'longcombo')) {
     if(any(!c(id.name, time.name, mass.name) %in% names(dat))){
       missing.col <- !c(id.name, time.name, mass.name) %in% names(dat)
-      stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(id.name, time.name, mass.name)[missing.col], collapse = ', '), '.')
-    } 
+      stop('Specified columns not found in dat: ', paste(c(id.name, time.name, mass.name)[missing.col], collapse = ', '), '.')
+    }
   } else if(data.struct == 'wide') {
     if(any(!c(time.name, mass.name) %in% names(dat))){
       missing.col <- !c(time.name, mass.name) %in% names(dat)
-      stop('Specified columns in dat data frame (', deparse(substitute(dat)), ') not found: ', paste(c(time.name, mass.name)[missing.col], collapse = ', '), '.')
+      stop('Specified columns not found in dat: ', paste(c(time.name, mass.name)[missing.col], collapse = ', '), '.')
     } 
   }
 

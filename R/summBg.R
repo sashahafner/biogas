@@ -147,35 +147,35 @@ summBg <- function(
   }
 
   # Echo response variable
-  if(!quiet) message('Response variable (volume) is ', deparse(substitute(vol)), '$', vol.name, '.')
+  if(!quiet) message('Response variable: ', vol.name, '.')
 
   # Check for missing columns in vol
   if(is.numeric(when)) {
     if(any(missing.col <- !c(id.name, time.name, vol.name) %in% names(vol))){
-      stop('Specified columns in vol data frame (', deparse(substitute(vol)), ') not found: ', paste(c(id.name, time.name, vol.name)[missing.col], collapse=', '), '.')
+      stop('Specified columns not found in vol: ', paste(c(id.name, time.name, vol.name)[missing.col], collapse=', '), '.')
     }
   } else {
     if(any(missing.col <- !c(id.name, vol.name) %in% names(vol))){
-      stop('Specified columns in vol data frame (', deparse(substitute(vol)), ') not found: ', paste(c(id.name, vol.name)[missing.col], collapse=', '), '.')
+      stop('Specified columns not found in vol: ', paste(c(id.name, vol.name)[missing.col], collapse=', '), '.')
     }
   }
 
   # Check for missing columns in setup
   if(any(missing.col <- !c(id.name, descrip.name) %in% names(setup))){
-    stop('Specified columns in setup data frame (', deparse(substitute(setup)), ') not found: ', paste(c(id.name, descrip.name)[missing.col], collapse=', '), '.')
+    stop('Specified columns not found in setup: ', paste(c(id.name, descrip.name)[missing.col], collapse=', '), '.')
   }
 
   # Check that inoc.name and norm.name can be found in setup data frame
   if(!is.null(inoc.name) && !inoc.name %in% setup[, descrip.name]) {
-    stop('inoc.name ', deparse(substitute(inoc.name)), ' not found in ', deparse(substitute(setup)), '$', descrip.name, '.')
+    stop('inoc.name "', inoc.name, '" not found in setup$', descrip.name, '.')
   }
 
   if(!is.null(norm.name) && !norm.name %in% names(setup)) {
-    stop('norm.name ', deparse(substitute(norm.name)), ' not found in the column names of ', deparse(substitute(setup)), '.')
+    stop('norm.name "', norm.name, '" not found in the column names of setup.')
   }
 
   if(!is.null(inoc.m.name) && !inoc.m.name %in% names(setup)) {
-    stop('inoc.m.name ', deparse(substitute(inoc.m.name)), ' not found in the column names of ', deparse(substitute(setup)), '.')
+    stop('inoc.m.name "', inoc.m.name, '" not found in the column names of setup.')
   }
 
   if(!is.null(inoc.name) & is.null(inoc.m.name)) {
@@ -192,7 +192,7 @@ summBg <- function(
   setup <- setup[setup[, id.name] %in% ids, ]
 
   if(!is.null(inoc.name) && !inoc.name %in% setup[, descrip.name]) {
-    stop('inoc.name ', deparse(substitute(inoc.name)), ' no longer in setup after trimming--are reactors present in setup missing in vol?')
+    stop('inoc.name "', inoc.name, '" no longer in setup after trimming--are reactors present in setup missing in vol?')
   }
 
   # Remove inoc ids
