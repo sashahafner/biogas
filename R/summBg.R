@@ -18,60 +18,8 @@ summBg <- function(
   show.rates = FALSE,
   show.more = FALSE,
   sort = TRUE,
-  set.name = 'set',
   quiet = FALSE)
 {
-
-  # For "vectorized" calls, lapply-like behavior
-  if(is.list(vol)) {
-
-    # Check reserved names
-    if (any(set.name == c(names(vol), names(setup), c('mean', 'sd', 'se', 'n')))) {
-      stop('Argument set.name matches another column name')
-    }
-
-    if(is.data.frame(setup)) {
-
-      res.list <- vector('list', length(vol))
-
-      for (i in seq_along(vol)) {
-
-        sb <- summBg(vol = vol[[i]],
-                     setup = setup,
-                     id.name = id.name,
-                     time.name = time.name,
-                     descrip.name = descrip.name,
-                     inoc.name = inoc.name,
-                     inoc.m.name = inoc.m.name,
-                     norm.name = norm.name,
-                     norm.se.name = norm.se.name,
-                     vol.name = vol.name,
-                     imethod = imethod,
-                     extrap = extrap,
-                     when = when,
-                     when.min = when.min,
-                     rate.crit = rate.crit,
-                     show.obs = show.obs,
-                     show.rates = show.rates,
-                     show.more = show.more,
-                     sort = sort,
-                     quiet = quiet)
-
-        sb[, set.name] <- names(vol)[i]
-        sb <- sb[, c(ncol(sb), 1:(ncol(sb) - 1))]
-        res.list[[i]] <- sb
-
-      }
-
-      return(do.call(rbind, res.list))
-
-    } else {
-
-      stop('When vol is a list, setup must be a data frame.')
-
-    }
-
-  }
 
   # When called with multiple response variables
   if(length(vol.name) > 1) {
