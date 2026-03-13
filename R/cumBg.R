@@ -214,18 +214,15 @@ cumBg <- function(
     # Reactor names taken from column names
     ids <- names(dat)[which.first.col:ncol(dat)]
 
-    dat2 <- dat
-    dat <- dat[ , 1:which.first.col]
-    names(dat)[which.first.col] <- dat.name
-    # Note check.names, prevented problem with odd time.name names (OBA issue)
-    dat <- data.frame(idxyz = ids[1], dat, check.names = FALSE)
-
-    for(i in 2:nr - 1) {
-      x <- dat2[ , c(1:(which.first.col - 1), which.first.col + i)]
-      names(x)[which.first.col] <- dat.name
-      x <- data.frame(idxyz = ids[i + 1], x, check.names = FALSE)
-      dat <- rbind(dat, x)
+    # Build list then combine once -- avoids O(n^2) copying from rbind-in-loop
+    # Note check.names = FALSE prevents problems with unusual time.name values (OBA issue)
+    pieces <- vector('list', nr)
+    for (i in seq_len(nr)) {
+      x <- dat[, c(seq_len(which.first.col - 1), which.first.col + i - 1), drop = FALSE]
+      names(x)[ncol(x)] <- dat.name
+      pieces[[i]] <- data.frame(idxyz = ids[i], x, check.names = FALSE)
     }
+    dat <- do.call(rbind, pieces)
 
     # Drop missing dat values and warn
     if (any(is.na(dat[, dat.name]))) {
@@ -244,17 +241,13 @@ cumBg <- function(
       # Number of reactors
       if((ncol(comp) - which.first.col + 1) != nr) stop('Apparent number of reactors in dat and comp do not match. Problem with wide data.struct.')
 
-      comp2 <- comp
-      comp <- comp[ , 1:which.first.col]
-      names(comp)[which.first.col] <- comp.name
-      comp <- data.frame(idxyz = ids[1], comp, check.names = FALSE)
-
-      for(i in 2:nr - 1) {
-        x <- comp2[ , c(1:(which.first.col - 1), which.first.col + i)]
-        names(x)[which.first.col] <- comp.name
-        x <- data.frame(idxyz = ids[i + 1], x, check.names = FALSE)
-        comp <- rbind(comp, x)
+      pieces <- vector('list', nr)
+      for (i in seq_len(nr)) {
+        x <- comp[, c(seq_len(which.first.col - 1), which.first.col + i - 1), drop = FALSE]
+        names(x)[ncol(x)] <- comp.name
+        pieces[[i]] <- data.frame(idxyz = ids[i], x, check.names = FALSE)
       }
+      comp <- do.call(rbind, pieces)
 
       # Fix id name
       names(comp)[names(comp) == 'idxyz'] <- id.name
