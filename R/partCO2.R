@@ -49,7 +49,6 @@ function(
   #P.H2O <- 10^(5.08600 - 1668.21/(temp.c + 228.0))
   P.H2O <- watVap(temp.k = temp.k)
 
-  #NTS check results more closely
   if(method=='cont') {
     # Initial guess for CO2 in biogas is total amount
     vBg <- (nCO2 + nCH4)*R*temp.k/(pres - P.H2O)  
@@ -108,7 +107,6 @@ function(
   # Return xCH4 
   if(value=='xCH4') return(xCH4)
 
-  # Complete results. as.vector just to drop any names that will be added to returned vector names
-  # NTS: is there a better way than as.vector?
-  return(c(nCO2Bg = as.vector(nCO2Bg), nCO2.sol = as.vector(nCO2.sol), cTIC = as.vector(cTIC), xCH4 = as.vector(xCH4)))
+  # Complete results. unname() drops any names on the individual variables to prevent compound names
+  return(c(nCO2Bg = unname(nCO2Bg), nCO2.sol = unname(nCO2.sol), cTIC = unname(cTIC), xCH4 = unname(xCH4)))
 }
