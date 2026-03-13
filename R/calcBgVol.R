@@ -125,15 +125,13 @@ calcBgVol <- function(
   
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'longcombo'
-  dat <- cumBgDataPrep(dat = dat, dat.type = 'vol', dat.name = vol.name, 
-                       comp.name = comp.name, id.name = id.name, 
-                       time.name = time.name, data.struct = data.struct, comp = comp, 
+  dat <- cumBgDataPrep(dat = dat, dat.type = 'vol', dat.name = vol.name,
+                       comp.name = comp.name, id.name = id.name,
+                       time.name = time.name, data.struct = data.struct, comp = comp,
                        have.comp = have.comp,
-                       interval = interval, imethod = imethod, extrap = extrap, 
-                       headspace = headspace, vol.hs.name = vol.hs.name, 
-                       temp = temp, pres = pres, rh = rh, empty.name = empty.name, 
-                       temp.std = temp.std, pres.std = pres.std, unit.temp = unit.temp,
-                       unit.pres = unit.pres, std.message = std.message, check = check)
+                       interval = interval, imethod = imethod, extrap = extrap,
+                       headspace = headspace, vol.hs.name = vol.hs.name,
+                       check = check)
 
   # Temperature and pressure were added to dat if single numeric values were provided
   if(!is.null(temp)) {
@@ -158,9 +156,22 @@ calcBgVol <- function(
     }
   }
   
-  # Mixed data is standardized in cumBgDataPrep() and changed to interval
+  # Mixed interval/cumulative: standardize volumes and convert to interval
   if(!is.null(empty.name)) {
-    vol.name <- paste0(vol.name, '.std.interval')
+    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
+    dat[, empty.name] <- as.logical(dat[, empty.name])
+    dat[is.na(dat[, empty.name]), empty.name] <- FALSE
+    dat[, paste0(vol.name, '.std')] <- stdVol(dat[, vol.name], temp = dat[, temp],
+                                              pres = dat[, pres], rh = rh, pres.std = pres.std,
+                                              temp.std = temp.std, unit.temp = unit.temp,
+                                              unit.pres = unit.pres, std.message = std.message)
+    std.name <- paste0(vol.name, '.std.interval')
+    for(i in unique(dat[, id.name])) {
+      emptyvols <- dat[dat[, id.name]==i, empty.name] * dat[dat[, id.name]==i, paste0(vol.name, '.std')]
+      ccvv <- c(0, cumsum(emptyvols)[- length(emptyvols)]) + dat[dat[, id.name]==i, paste0(vol.name, '.std')]
+      dat[dat[, id.name]==i, std.name] <- diff(c(0, ccvv))
+    }
+    vol.name <- std.name
     standardized <- TRUE
     interval <- TRUE
   }

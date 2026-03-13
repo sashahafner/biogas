@@ -114,15 +114,13 @@ calcBgMan <- function(
 
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'longcombo'
-  dat <- cumBgDataPrep(dat = dat, dat.type = 'pres', dat.name = pres.name, 
-                       comp.name = comp.name, id.name = id.name, time.name = time.name, 
-                       data.struct = data.struct, comp = comp, 
+  dat <- cumBgDataPrep(dat = dat, dat.type = 'pres', dat.name = pres.name,
+                       comp.name = comp.name, id.name = id.name, time.name = time.name,
+                       data.struct = data.struct, comp = comp,
                        have.comp = have.comp,
-                       interval = interval, imethod = imethod, 
-                       headspace = headspace, vol.hs.name = vol.hs.name, 
-                       temp = temp, pres = NULL, rh = rh, extrap = extrap, 
-                       temp.std = temp.std, pres.std = pres.std, unit.temp = unit.temp,
-                       unit.pres = unit.pres, std.message = std.message, check = check)
+                       interval = interval, imethod = imethod,
+                       headspace = headspace, vol.hs.name = vol.hs.name,
+                       extrap = extrap, check = check)
   
   # Temperature was added to dat if single numeric values were provided
   if(!is.null(temp)) {

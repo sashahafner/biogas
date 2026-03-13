@@ -70,7 +70,7 @@ function(
   form <- gsub(' ', '', form)
   # And drop coefficients of 1
   form <- gsub('([a-zA-Z])1([a-zA-Z])', '\\1\\2', form)
-  form <- gsub('([a-zA-Z])1$', '\\1\\2', form)
+  form <- gsub('([a-zA-Z])1$', '\\1', form)
   
   # Check for minimum set of elements
   if(!is.null(min.elements)) if(any(!min.elements %in% names(fc)) | any(fc[min.elements] == 0)) stop('Minimum elements required are ', min.elements, ' (from min.elements argument), but form is ', form.orig, ', interpreted as ', form)

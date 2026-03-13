@@ -125,15 +125,13 @@ calcBgGrav <- function(
 
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'longcombo'
-  dat <- cumBgDataPrep(dat = dat, dat.type = 'mass', dat.name = mass.name, 
-                       comp.name = xCH4.name, id.name = id.name, 
-                       time.name = time.name, data.struct = data.struct, comp = comp, 
+  dat <- cumBgDataPrep(dat = dat, dat.type = 'mass', dat.name = mass.name,
+                       comp.name = xCH4.name, id.name = id.name,
+                       time.name = time.name, data.struct = data.struct, comp = comp,
                        have.comp = TRUE,
-                       interval = FALSE, imethod = imethod, extrap = extrap, 
-                       headspace = headspace, vol.hs.name = vol.hs.name, 
-                       temp = temp, pres = pres, rh = rh,
-                       temp.std = temp.std, pres.std = pres.std, unit.temp = unit.temp,
-                       unit.pres = unit.pres, std.message = std.message, check = check)
+                       interval = FALSE, imethod = imethod, extrap = extrap,
+                       headspace = headspace, vol.hs.name = vol.hs.name,
+                       check = check)
 
 
   # Add temperature and pressure to dat if single numeric values were provided

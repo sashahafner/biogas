@@ -3,9 +3,6 @@ cumBgDataPrep <- function(
   dat,
   dat.type = 'vol',
   comp = NULL,                # Composition of gas measurement. Leave NULL for wide and longcombo
-  temp = NULL,                # Temperature for biogas volume measurement
-  pres = NULL,                # Pressure for biogas volume measurement
-  rh,
   interval = TRUE,            # When empty.name is used, there is a mix, and interval is ignored
   data.struct = 'longcombo',  # long, wide, longcombo
   # Column names
@@ -19,15 +16,7 @@ cumBgDataPrep <- function(
   # Calculation method and other settings
   imethod = 'linear',         # Method for interpolation of xCH4
   extrap = FALSE,
-  # Additional argument for volumetric data only 
-  empty.name = NULL,          # Column name for binary/logical column for when cum vol was reset to zero
-  # Units
-  temp.std,
-  pres.std,
-  unit.temp,
-  unit.pres,
   # Warnings and messages
-  std.message = !quiet,
   check = TRUE,
   quiet = FALSE
 ){
@@ -36,8 +25,6 @@ cumBgDataPrep <- function(
   checkArgClassValue(dat, 'data.frame')
   checkArgClassValue(dat.type, 'character', expected.values = c('vol', 'mass', 'pres', 'volume', 'pressure', 'gca'), case.sens = FALSE)
   checkArgClassValue(comp, c('data.frame', 'integer', 'numeric', 'NULL'))
-  checkArgClassValue(temp, c('integer', 'numeric', 'character', 'NULL'))
-  checkArgClassValue(pres, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(interval, 'logical')
   checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
   checkArgClassValue(id.name, 'character')
@@ -48,8 +35,6 @@ cumBgDataPrep <- function(
   checkArgClassValue(vol.hs.name, 'character')
   # Skip imethod, checked in interp
   checkArgClassValue(extrap, 'logical')
-  checkArgClassValue(empty.name, c('character', 'NULL'))
-  checkArgClassValue(std.message, 'logical')
   checkArgClassValue(check, 'logical')
   
   # Check column names in argument data frames
@@ -240,34 +225,6 @@ cumBgDataPrep <- function(
       warning('Methane concentration was > 1.0 mol/mol for at least one observation, so is assumed to be a percentage, and was corrected by dividing by 100. ',
               'Range of new values: ', min(na.omit(dat[, comp.name])), '-', max(na.omit(dat[, comp.name])))
     }
-  }
-  
-  # Now that all data are in longcombo structure sort out mixed interval/cumulative data followed by standardizing vBg
-  # Only applies to mixed interval/cumulative data
-  if(!is.null(empty.name)) {
-    # Sort by id and time
-    dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-    
-    # Make empty.name logical
-    dat[, empty.name] <- as.logical(dat[, empty.name])
-    
-    # Set missing values to FALSE
-    dat[is.na(dat[, empty.name]), empty.name] <- FALSE
-    
-    # Standardize biogas volume (needed in order to get interval production, and cannot use cum prod because composition wouldn't work)
-    dat[, paste0(dat.name, '.std')] <- stdVol(dat[, dat.name], temp = dat[, temp], 
-                                              pres = dat[, pres], rh = rh, pres.std = pres.std, 
-                                              temp.std = temp.std, unit.temp = unit.temp, 
-                                              unit.pres = unit.pres, std.message = std.message)
-    
-    # Sum final volumes to get cumulative volumes, then interval from them (must have interval data here, because that is what biogas composition is for)
-    for(i in unique(dat[, id.name])) {
-      emptyvols <- dat[dat[, id.name]==i, empty.name] * dat[dat[, id.name]==i, paste0(dat.name, '.std')]
-      ccvv <- c(0, cumsum(emptyvols)[- length(emptyvols)]) + dat[dat[, id.name]==i, paste0(dat.name, '.std')]
-      dat[dat[, id.name]==i, dnn <- paste0(dat.name, '.std.interval')] <- diff(c(0, ccvv))
-    }
-    
-    dat.name <- dnn
   }
   
   return(dat)
