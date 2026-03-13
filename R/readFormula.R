@@ -1,5 +1,5 @@
 # Modified: 4 April 2016 SDH
-# NTS: apparently *not* vectorized! Revisit. Had to modify calcCOD 10 Mar 2017 to fix it.
+# Note: not vectorized. calcCOD works around this.
 
 readFormula <-
 function(
