@@ -23,7 +23,7 @@ summBg <- function(
 {
 
   # For "vectorized" calls, lapply-like behavior
-  if(class(vol)[1] == 'list') {
+  if(is.list(vol)) {
 
     # Check reserved names
     # NTS: need to add more reserved names to check
@@ -31,7 +31,7 @@ summBg <- function(
       stop('Argument set.name matches another column name')
     }
 
-    if(any(class(setup) == 'data.frame')) {
+    if(is.data.frame(setup)) {
 
       res <- data.frame()
 
@@ -207,7 +207,7 @@ summBg <- function(
   if(!quiet) message('Response variable (volume) is ', deparse(substitute(vol)), '$', vol.name, '.')
 
   # Check for missing columns in vol
-  if(class(when) %in% c('numeric', 'integer')) {
+  if(is.numeric(when)) {
     if(any(missing.col <- !c(id.name, time.name, vol.name) %in% names(vol))){
       stop('Specified columns in vol data frame (', deparse(substitute(vol)), ') not found: ', paste(c(id.name, time.name, vol.name)[missing.col], collapse=', '), '.')
     }
@@ -292,7 +292,7 @@ summBg <- function(
   # Interpolate cvCH4 to common time for each reactor~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Or select values for analysis (when = 'end' or 'meas')
 
-  if(class(when) %in% c('numeric', 'integer')) {
+  if(is.numeric(when)) {
     summ1 <- expand.grid(id = ids, time = when)
     names(summ1) <- c(id.name, time.name)
 

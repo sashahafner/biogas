@@ -92,7 +92,7 @@ calcBgVol <- function(
   }
   
   # Check for mixed interval/cumulative data
-  if(!is.null(empty.name) & !class(dat[, empty.name])[1] %in% c('logical', 'integer', 'numeric')) {
+  if(!is.null(empty.name) & !inherits(dat[, empty.name], c('logical', 'integer', 'numeric'))) {
     stop('The empty.name column must be integer, numeric, or logical.')
   }
   
@@ -213,7 +213,7 @@ calcBgVol <- function(
 
   # Add t0 row if requested
   # Not added if column is not numeric, integer, or difftime (e.g., date/time)
-  if(addt0 & !class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) addt0 <- FALSE
+  if(addt0 & !inherits(dat[, time.name], c('numeric', 'integer', 'difftime'))) addt0 <- FALSE
   # Not added if there are already zeroes present!
   if(addt0 & !any(dat[, time.name]==0)) {
     t0 <- data.frame(id = unique(dat[, id.name]), tt = 0, check.names = FALSE)
@@ -235,9 +235,9 @@ calcBgVol <- function(
   # Calculate delta t for rates
   dat <- dat[order(dat[, id.name], dat[, time.name]), ]
 
-  if(class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) {
+  if(inherits(dat[, time.name], c('numeric', 'integer', 'difftime'))) {
     dt <- c(NA, diff(dat[, time.name]))
-  } else if(class(dat[, time.name])[1] %in% c('POSIXct', 'POSIXlt')) {
+  } else if(inherits(dat[, time.name], c('POSIXct', 'POSIXlt'))) {
     dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
     if(!quiet) message('Rates are per *day*.')
   } else {

@@ -72,7 +72,7 @@ calcBgGrav <- function(
   # Check of column names in argument data frames 
   # Also occurs in cumBgDataPrep() but some column names are only available here
   # comp needs id (time) xCH4, time optional
-  if(!is.null(comp) && any(class(comp) == 'data.frame') && data.struct[1] == 'long') {
+  if(!is.null(comp) && is.data.frame(comp) && data.struct[1] == 'long') {
     if(any(missing.col <- !c(id.name, xCH4.name) %in% names(comp))){
       stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', paste(c(id.name, xCH4.name)[missing.col], collapse = ', '), '.')
     }
@@ -229,9 +229,9 @@ calcBgGrav <- function(
   # Cumulative gas production and rates
   dat <- dat[order(dat[, id.name], dat[, time.name]), ]
   # Calculate delta t for rates
-  if(class(dat[, time.name])[1] %in% c('numeric', 'integer')) {
+  if(inherits(dat[, time.name], c('numeric', 'integer'))) {
     dt <- c(NA, diff(dat[, time.name]))
-  } else if(class(dat[, time.name])[1] %in% c('POSIXct', 'POSIXlt')) {
+  } else if(inherits(dat[, time.name], c('POSIXct', 'POSIXlt'))) {
     dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
   } else {
     dt <- NA

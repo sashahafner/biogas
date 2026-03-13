@@ -39,7 +39,7 @@ cumBgDataPrep <- function(
   
   # Check column names in argument data frames
   # comp needs id (time) xCH4, time optional
-  if(!is.null(comp) && any(class(comp) == 'data.frame') && data.struct == 'long') {
+  if(!is.null(comp) && is.data.frame(comp) && data.struct == 'long') {
     if(any(missing.col <- !c(id.name, comp.name) %in% names(comp))){
       stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', paste(c(id.name, comp.name)[missing.col], collapse=', '), '.')
     }
@@ -145,7 +145,7 @@ cumBgDataPrep <- function(
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     dat[, comp.name] <- NA
     
-    if(any(class(comp) == 'data.frame')){
+    if(is.data.frame(comp)){
       
       # Drop NAs from comp - this applies to wide, long, and longcombo data.struct
       comp <- comp[!is.na(comp[, comp.name]), ]
@@ -195,7 +195,7 @@ cumBgDataPrep <- function(
           }
         }
       }
-    } else if (class(comp)[1] %in% c('numeric', 'integer') && length(comp)==1) {
+    } else if (is.numeric(comp) && length(comp)==1) {
       # Or if a single value is given, use it
       if (!quiet) message('Only a single value was provided for biogas composition (', comp, '), so applying it to all observations.')
       dat[, comp.name] <- comp

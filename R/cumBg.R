@@ -93,7 +93,7 @@ cumBg <- function(
 
   # Check column names in argument data frames
   # comp needs id (time) xCH4, time optional
-  if(!is.null(comp) && any(class(comp) == 'data.frame') && data.struct[1] == 'long') {
+  if(!is.null(comp) && is.data.frame(comp) && data.struct[1] == 'long') {
     if(any(missing.col <- !c(id.name, comp.name) %in% names(comp))){
       stop('Specified column(s) in comp data frame (', deparse(substitute(comp)), ') not found: ', paste(c(id.name, comp.name)[missing.col], collapse=', '), '.')
     }
@@ -132,7 +132,7 @@ cumBg <- function(
   }
 
   # And more
-  if(!is.null(empty.name[1]) && !class(dat[, empty.name])[1] %in% c('logical', 'integer', 'numeric')) {
+  if(!is.null(empty.name[1]) && !inherits(dat[, empty.name], c('logical', 'integer', 'numeric'))) {
     stop('The empty.name column must be integer, numeric, or logical.')
   }
 
@@ -232,7 +232,7 @@ cumBg <- function(
     names(dat)[names(dat) == 'idxyz'] <- id.name
 
     # Now for comp
-    if(!is.numeric(comp) && any(class(comp) == 'data.frame')) {
+    if(!is.numeric(comp) && is.data.frame(comp)) {
       which.first.col <- which(names(comp) == comp.name)
       comp.name <- 'xCH4'
 
@@ -283,7 +283,7 @@ cumBg <- function(
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     dat[, comp.name] <- NA
 
-    if(!is.null(comp)[1] && any(class(comp) == 'data.frame')){
+    if(!is.null(comp)[1] && is.data.frame(comp)){
 
       # Drop NAs from comp--this applies to wide, long, and longcombo data.struct
       comp <- comp[!is.na(comp[, comp.name]), ]
@@ -333,7 +333,7 @@ cumBg <- function(
           }
         }
       }
-    } else if (!is.null(comp)[1] && class(comp)[1] %in% c('numeric', 'integer') && length(comp)==1) {
+    } else if (!is.null(comp)[1] && is.numeric(comp) && length(comp)==1) {
       # Or if a single value is given, use it
       if (!quiet[1]) message('Only a single value was provided for biogas composition (', comp, '), so applying it to all observations.')
       dat[, comp.name] <- comp
@@ -542,7 +542,7 @@ cumBg <- function(
 
     # Add t0 row if requested
     # Not added if there are already zeroes present!
-    if(addt0[1] && !class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) addt0 <- FALSE
+    if(addt0[1] && !inherits(dat[, time.name], c('numeric', 'integer', 'difftime'))) addt0 <- FALSE
     if(addt0[1] && !any(dat[, time.name]==0)) {
       t0 <- data.frame(id = unique(dat[, id.name]), tt = 0, check.names = FALSE)
       names(t0) <- c(id.name, time.name)
@@ -557,9 +557,9 @@ cumBg <- function(
 
     # Calculate delta t for rates
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-    if(class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) {
+    if(inherits(dat[, time.name], c('numeric', 'integer', 'difftime'))) {
       dt <- c(NA, diff(dat[, time.name]))
-    } else if(class(dat[, time.name])[1] %in% c('POSIXct', 'POSIXlt')) {
+    } else if(inherits(dat[, time.name], c('POSIXct', 'POSIXlt'))) {
       dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
     } else {
       dt <- NA
@@ -713,9 +713,9 @@ cumBg <- function(
     # Cumulative gas production and rates
     mass <- mass[order(mass[, id.name], mass[, time.name]), ]
     # Calculate delta t for rates
-    if(class(mass[, time.name])[1] %in% c('numeric', 'integer')) {
+    if(inherits(mass[, time.name], c('numeric', 'integer'))) {
       dt <- c(NA, diff(mass[, time.name]))
-    } else if(class(mass[, time.name])[1] %in% c('POSIXct', 'POSIXlt')) {
+    } else if(inherits(mass[, time.name], c('POSIXct', 'POSIXlt'))) {
       dt <- c(NA, as.numeric(diff(mass[, time.name]), units = 'days'))
     } else {
       dt <- NA
@@ -779,7 +779,7 @@ cumBg <- function(
     }
 
     # Add t0?
-    if(addt0[1] && !class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) addt0 <- FALSE
+    if(addt0[1] && !inherits(dat[, time.name], c('numeric', 'integer', 'difftime'))) addt0 <- FALSE
     if(addt0[1] && !any(dat[, time.name]==0)) {
       t0 <- data.frame(id = unique(dat[, id.name]), tt = 0, check.names = FALSE)
       names(t0) <- c(id.name, time.name)

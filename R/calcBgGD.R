@@ -260,7 +260,7 @@ calcBgGD <- function(
 
     # Add t0 row if requested
     # Not added if there are already zeroes present!
-    if(addt0 & !class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) addt0 <- FALSE
+    if(addt0 & !inherits(dat[, time.name], c('numeric', 'integer', 'difftime'))) addt0 <- FALSE
     if(addt0 & !any(dat[, time.name]==0)) {
       t0 <- data.frame(id = unique(dat[, id.name]), tt = 0, check.names = FALSE)
       names(t0) <- c(id.name, time.name)
@@ -269,9 +269,9 @@ calcBgGD <- function(
 
     # Calculate delta t for rates
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
-    if(class(dat[, time.name])[1] %in% c('numeric', 'integer', 'difftime')) {
+    if(inherits(dat[, time.name], c('numeric', 'integer', 'difftime'))) {
       dt <- c(NA, diff(dat[, time.name]))
-    } else if(class(dat[, time.name])[1] %in% c('POSIXct', 'POSIXlt')) {
+    } else if(inherits(dat[, time.name], c('POSIXct', 'POSIXlt'))) {
       dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
     } else {
       dt <- NA
@@ -364,9 +364,9 @@ calcBgGD <- function(
     # Cumulative gas production and rates
     dat <- dat[order(dat[, id.name], dat[, time.name]), ]
     # Calculate delta t for rates
-    if(class(dat[, time.name])[1] %in% c('numeric', 'integer')) {
+    if(inherits(dat[, time.name], c('numeric', 'integer'))) {
       dt <- c(NA, diff(dat[, time.name]))
-    } else if(class(dat[, time.name])[1] %in% c('POSIXct', 'POSIXlt')) {
+    } else if(inherits(dat[, time.name], c('POSIXct', 'POSIXlt'))) {
       dt <- c(NA, as.numeric(diff(dat[, time.name]), units = 'days'))
     } else {
       dt <- NA
