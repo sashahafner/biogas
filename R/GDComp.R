@@ -26,7 +26,7 @@ GDComp <- function(
   checkArgClassValue(unit.pres, c('character'))
 
   # Unit conversion
-  # NTS: are these needed? Can't we just use stdVol() with input arguments as in cumBg()? This applies to other functions as well. . .
+  # K and pa used for water vapor below
   pres.pa <- unitConvert(x = pres, unit = unit.pres, to = 'Pa')
   temp.k <- unitConvert(x = temp, unit = unit.temp, to = 'K')
   if(!is.null(temp.init)) temp.init.k <- unitConvert(x = temp.init, unit = unit.temp, to = 'K')

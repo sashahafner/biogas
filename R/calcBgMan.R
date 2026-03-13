@@ -82,10 +82,6 @@ calcBgMan <- function(
     }
   }
   
-
-  # Hard-wire rh for now at least
-  rh <- 1 # NTS: would it make sense to make this an argument instead? 
-  
   # Check for input errors in reactor identification code column
   if(!is.null(id.name) & id.name %in% names(dat)) {
     if(any(is.na(dat[, id.name]))) {
@@ -178,7 +174,8 @@ calcBgMan <- function(
   
   # Standardize total gas volumes and calculate biogas and methane production     
   # Standardized headspace volume before venting
-  vHS <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres.name], rh = rh, 
+  # Hard-code rh to 1
+  vHS <- stdVol(dat[, vol.hs.name], temp = dat[, temp], pres = dat[, pres.name], rh = 1, 
                 pres.std = pres.std, temp.std = temp.std, unit.temp = unit.temp, 
                 unit.pres = unit.pres, std.message = FALSE, warn = FALSE) 
     

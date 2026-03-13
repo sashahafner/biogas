@@ -10,8 +10,14 @@ airDens <- function(
   tp.message = TRUE
 ) {
 
-  # NTS: Needs some checks
-  #checkArgClassValue(gas, expected.values = names(vol.mol))
+  # Check arguments
+  checkArgClassValue(temp, c('integer', 'numeric'))
+  checkArgClassValue(pres, c('integer', 'numeric'))
+  checkArgClassValue(rh, c('integer', 'numeric'), expected.range = c(0, 1))
+  checkArgClassValue(unit.temp, 'character')
+  checkArgClassValue(unit.pres, 'character')
+  checkArgClassValue(xdryair, c('integer', 'numeric'))
+  checkArgClassValue(tp.message, 'logical')
 
   pres.pa <- unitConvert(x = pres, unit = unit.pres, to = 'Pa')
   temp.k <- unitConvert(x = temp, unit = unit.temp, to = 'K')
