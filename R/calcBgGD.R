@@ -197,6 +197,10 @@ calcBgGD <- function(
         vol.hs <- NULL
       }
 
+      if (sum(dat[which.id, mass.name] < 0)) {
+        stop(paste0('Mass *gain* found for ', dat[which.id, id.name][[1]], ' in position ', paste(iii <- which(dat[which.id, mass.name] < 0), collapse = ' '), '.\n See ', dat[which.id, m.post.name][[iii]]))
+      }
+
       dat[which.id, comp.name] <- GDComp(mass = sum(dat[which.id, mass.name]), 
                                          vol = sum(dat[which.id, std.vol.name]), 
                                          temp = dat[which.id, temp.grav][1], 
