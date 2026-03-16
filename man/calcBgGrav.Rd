@@ -93,7 +93,7 @@ calcBgGrav(
   }
   
   \item{xCH4.name}{
-      name of column containing biogas mole fraction of methane in \code{comp} data frame. Default is \code{"xCH4"}. Must be normalised so xCH4 + xCO2 = 1.0 unless \code{cmethod = "total"}.
+      name of column containing biogas mole fraction of methane in \code{dat} or \code{comp} data frame. Default is \code{"xCH4"}. Must be normalised so xCH4 + xCO2 = 1.0 unless \code{cmethod = "total"}.
   }
   
   \item{xCO2.name}{

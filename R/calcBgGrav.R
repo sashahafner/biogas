@@ -131,8 +131,8 @@ calcBgGrav <- function(
   # Returns dat as data.struct = 'longcombo'
   dat <- cumBgDataPrep(dat = dat, dat.type = 'mass', dat.name = mass.name,
                        comp.name = xCH4.name, id.name = id.name,
-                       time.name = time.name, data.struct = data.struct, comp = comp,
-                       have.comp = TRUE,
+                       time.name = time.name, data.struct = data.struct, 
+		       comp = comp, have.comp = TRUE,
                        interval = FALSE, imethod = imethod, extrap = extrap,
                        headspace = headspace, vol.hs.name = vol.hs.name,
                        check = check)

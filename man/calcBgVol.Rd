@@ -253,7 +253,7 @@ s3lcombo
 
 # Calculate cumulative production and rates from s3lcombo
 # With default data structure comp argument is not needed
-# Necessary to extrapolate because first observations are missing xCH4
+# Necessary to extrapolate for this particular case because first observations are missing xCH4
 cbg <- calcBgVol(s3lcombo, 
                  temp = 25, pres = 1,
                  id.name = 'id', time.name = 'time.d', 
