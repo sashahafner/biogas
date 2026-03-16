@@ -50,7 +50,7 @@ calcBgGrav(
   }
   
   \item{comp}{
-      (optional) a data frame with the columns bottle identification code; time of measurement, (as \code{numeric}, or \code{POSIX}); and methane concentration within dry biogas as a mole fraction, considering only methane and carbon dioxide (unless \code{cmethod = "total"}) or a single numeric value.
+      (optional) a data frame with the columns bottle identification code; time of measurement, (as \code{numeric}, or \code{POSIX}); and methane concentration within dry biogas as a mole fraction, considering only methane and carbon dioxide (unless \code{cmethod = "total"}).
       The names of these columns are specified with \code{id.name}, \code{time.name}, and \code{xCH4.name}.
       Default is \code{NULL}.
   }

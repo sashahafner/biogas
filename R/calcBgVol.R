@@ -35,7 +35,7 @@ calcBgVol <- function(
   
   # Check arguments
   checkArgClassValue(dat, 'data.frame')
-  checkArgClassValue(comp, c('data.frame', 'integer', 'numeric', 'NULL'))
+  checkArgClassValue(comp, c('data.frame', 'NULL'))
   checkArgClassValue(temp, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(pres, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(interval, 'logical')

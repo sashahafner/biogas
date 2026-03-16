@@ -24,7 +24,7 @@ cumBgDataPrep <- function(
   # Check arguments
   checkArgClassValue(dat, 'data.frame')
   checkArgClassValue(dat.type, 'character', expected.values = c('vol', 'mass', 'pres', 'volume', 'pressure', 'gca'), case.sens = FALSE)
-  checkArgClassValue(comp, c('data.frame', 'integer', 'numeric', 'NULL'))
+  checkArgClassValue(comp, c('data.frame', 'NULL'))
   checkArgClassValue(interval, 'logical')
   checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
   checkArgClassValue(id.name, 'character')
@@ -93,27 +93,25 @@ cumBgDataPrep <- function(
     
     # Now for comp
     if(have.comp) {
-      if(!is.numeric(comp)) { # If comp is numeric it is added to data frame below
-        which.first.col <- which(names(comp) == comp.name)
-        comp.name <- 'xCH4'
-        
-        # Reactor names taken from column names--these could differ between comp and vol
-        ids <- names(comp)[which.first.col:ncol(comp)]
-        
-        # Number of bottles
-        if((ncol(comp) - which.first.col + 1) != nr) stop('Apparent number of bottles in dat and comp do not match. Problem with wide data.struct.')
-        
-        pieces <- vector('list', nr)
-        for (i in seq_len(nr)) {
-          x <- comp[, c(seq_len(which.first.col - 1), which.first.col + i - 1), drop = FALSE]
-          names(x)[ncol(x)] <- comp.name
-          pieces[[i]] <- data.frame(idxyz = ids[i], x, check.names = FALSE)
-        }
-        comp <- do.call(rbind, pieces)
-        
-        # Fix id name
-        names(comp)[names(comp) == 'idxyz'] <- id.name
+      which.first.col <- which(names(comp) == comp.name)
+      comp.name <- 'xCH4'
+
+      # Reactor names taken from column names--these could differ between comp and vol
+      ids <- names(comp)[which.first.col:ncol(comp)]
+
+      # Number of bottles
+      if((ncol(comp) - which.first.col + 1) != nr) stop('Apparent number of bottles in dat and comp do not match. Problem with wide data.struct.')
+
+      pieces <- vector('list', nr)
+      for (i in seq_len(nr)) {
+        x <- comp[, c(seq_len(which.first.col - 1), which.first.col + i - 1), drop = FALSE]
+        names(x)[ncol(x)] <- comp.name
+        pieces[[i]] <- data.frame(idxyz = ids[i], x, check.names = FALSE)
       }
+      comp <- do.call(rbind, pieces)
+
+      # Fix id name
+      names(comp)[names(comp) == 'idxyz'] <- id.name
     }
     data.struct <- 'long'
   }
@@ -190,11 +188,7 @@ cumBgDataPrep <- function(
           }
         }
       }
-    } else if (is.numeric(comp) && length(comp)==1) {
-      # Or if a single value is given, use it
-      if (!quiet) message('Only a single value was provided for biogas composition (', comp, '), so applying it to all observations.')
-      dat[, comp.name] <- comp
-    } 
+    }
 
     if(!quiet & mssg.no.time) message('A time column was not found in comp, and a single value was used for each bottle.')
     if(!quiet & mssg.interp) message('Biogas composition is interpolated.')

@@ -39,7 +39,7 @@ calcBgMan <- function(
 
   # Check arguments
   checkArgClassValue(dat, 'data.frame')
-  checkArgClassValue(comp, c('data.frame', 'integer', 'numeric', 'NULL'))
+  checkArgClassValue(comp, c('data.frame', 'NULL'))
   checkArgClassValue(temp, c('integer', 'numeric', 'character'))
   checkArgClassValue(interval, 'logical')
   checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
