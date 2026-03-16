@@ -10,7 +10,7 @@
 \usage{
 calcBgVol(
   # Main arguments
-  dat, comp = NULL, temp = NULL,
+  dat, comp = NULL, xCH4 = NULL, temp = NULL,
   pres = NULL, interval = TRUE, 
   data.struct = 'longcombo',
   # Column names
@@ -45,9 +45,14 @@ calcBgVol(
 
   \item{comp}{
     (optional) a data frame with the columns bottle identification code; time of measurement, (as \code{numeric}, or \code{POSIX}); and methane concentration within dry biogas as a mole fraction, considering only methane and carbon dioxide (unless \code{cmethod = "total"}).
-    If omitted, cumulative biogas volume will still be calculated and returned (but no methane data will be returned).
+    If both \code{comp} and \code{xCH4} are omitted, cumulative biogas volume will still be calculated and returned (but no methane data will be returned).
     The names of these columns are specified with \code{id.name}, \code{time.name}, and \code{comp.name}.
     Default is \code{NULL}.
+}
+  \item{xCH4}{
+    (optional) a single numeric value giving the methane mole fraction in dry biogas, applied as a constant to all observations.
+    An alternative to \code{comp} for cases where a fixed composition is appropriate (e.g., data from an AMPTS II or similar instrument that measures only biogas volume).
+    Must be between 0 and 1. Default is \code{NULL}.
 }
   \item{temp}{
     the temperature at which biogas volume was measured.
@@ -278,9 +283,10 @@ data("feedVol")
 head(feedVol)
 
 # By default biogas is assumed to be saturated with water vapor
+# Composition is assumed to be pure methane (xCH4 = 1, e.g. AMPTS II)
 # Data are cumulative
 args(calcBgVol)
-cbg <- calcBgVol(feedVol, temp = 0, pres = 1,
+cbg <- calcBgVol(feedVol, xCH4 = 1, temp = 0, pres = 1,
                  interval = FALSE, data.struct = 'wide',
                  id.name = "id", time.name = 'time.d', vol.name = '1',
                  dry = TRUE)

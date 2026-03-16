@@ -2,6 +2,7 @@ calcBgVol <- function(
   # Main arguments
   dat,
   comp = NULL,                # Composition of gas measurement
+  xCH4 = NULL,               # Single numeric methane mole fraction, alternative to comp
   temp = NULL,                # Temperature for biogas volume measurement
   pres = NULL,                # Pressure for biogas volume measurement
   interval = TRUE,            # When empty.name is used, there is a mix, and interval is ignored
@@ -9,7 +10,7 @@ calcBgVol <- function(
   # Column names
   id.name = 'id',             # Name of column containing reactor identification code
   time.name = 'time',         # Name of time column 
-  vol.name = 'vol',           # Name of column containing respons variable, as-measured volume (generally not standardized)
+  vol.name = 'vol',           # Name of column containing response variable, as-measured volume (generally not standardized)
   comp.name = NULL,           # Name of xCH4 column in the data frame
   # Additional arguments
   headspace = NULL,           # Required if cmethod = 'total'
@@ -36,6 +37,8 @@ calcBgVol <- function(
   # Check arguments
   checkArgClassValue(dat, 'data.frame')
   checkArgClassValue(comp, c('data.frame', 'NULL'))
+  checkArgClassValue(xCH4, c('integer', 'numeric', 'NULL'), expected.range = c(0, 1))
+  if (!is.null(comp) && !is.null(xCH4)) stop('Provide either comp or xCH4, not both.')
   checkArgClassValue(temp, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(pres, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(interval, 'logical')
@@ -67,11 +70,11 @@ calcBgVol <- function(
   # Create logical variable showing whether composition data were included
   have.comp <- TRUE
   if(data.struct == 'longcombo') {
-    if(is.null(comp.name)) {
+    if(is.null(comp.name) && is.null(xCH4)) {
       have.comp <- FALSE
     }
   } else {
-    if(is.null(comp)) {
+    if(is.null(comp) && is.null(xCH4)) {
       have.comp <- FALSE
     }
   }
@@ -126,13 +129,16 @@ calcBgVol <- function(
   if(data.struct == 'wide' & is.null(comp.name)) {
     comp.name <- 'xCH4'
   }
-  
+  if(!is.null(xCH4) && is.null(comp.name)) {
+    comp.name <- 'xCH4'
+  }
+
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'longcombo'
   dat <- cumBgDataPrep(dat = dat, dat.type = 'vol', dat.name = vol.name,
                        comp.name = comp.name, id.name = id.name,
                        time.name = time.name, data.struct = data.struct, comp = comp,
-                       have.comp = have.comp,
+                       xCH4 = xCH4, have.comp = have.comp,
                        interval = interval, imethod = imethod, extrap = extrap,
                        headspace = headspace, vol.hs.name = vol.hs.name,
                        check = check)

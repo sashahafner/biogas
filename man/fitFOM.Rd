@@ -110,16 +110,15 @@ fitFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
 
 \examples{ 
 # First use example data to generate a specific methane potential (SMP) curve
-library(biogas)
 data('feedVol')
 data('feedSetup')
 
 # Cumulative biogas and CH4 production
-cbg <- calcBgVol(feedVol, comp = 1, temp = 0, pres = 1,
+cbg <- calcBgVol(feedVol, xCH4 = 1, temp = 0, pres = 1,
                  interval = FALSE, data.struct = 'wide',
-                 id.name = 'id', time.name = 'time.d', vol.name = '1', 
+                 id.name = 'id', time.name = 'time.d', vol.name = '1',
                  dry = TRUE)
-
+devtools::load_all()
 # Get SMP
 SMP <- summBg(vol = cbg, setup = feedSetup, time.name = 'time.d', 
                inoc.name = 'BK', inoc.m.name = 'm.inoc', when = 'meas',
@@ -150,7 +149,7 @@ mod2 <- fitFOM(s9, n.pool = 2, time.name = 'time.d', resp.name = 'cvCH4')
 mod2$summ
 
 # First pool effectively ignored in the fit
-# Try different method (this one required minpack.lm package)
+# Try different method (this one requires minpack.lm package)
 \dontrun{
 mod2 <- fitFOM(s9, n.pool = 2, time.name = 'time.d', resp.name = 'cvCH4', method = 'LM')
 mod2$summ

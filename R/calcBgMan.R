@@ -2,6 +2,7 @@ calcBgMan <- function(
   # Main arguments
   dat,
   comp = NULL,                # Composition of biogas measurement
+  xCH4 = NULL,               # Single numeric methane mole fraction, alternative to comp
   temp,                       # Temperature for biogas measurement
   interval = TRUE,            # Indicates if pressure measurements are from time interval only 
   data.struct = 'longcombo',  # long, wide, longcombo
@@ -40,6 +41,8 @@ calcBgMan <- function(
   # Check arguments
   checkArgClassValue(dat, 'data.frame')
   checkArgClassValue(comp, c('data.frame', 'NULL'))
+  checkArgClassValue(xCH4, c('integer', 'numeric', 'NULL'), expected.range = c(0, 1))
+  if (!is.null(comp) && !is.null(xCH4)) stop('Provide either comp or xCH4, not both.')
   checkArgClassValue(temp, c('integer', 'numeric', 'character'))
   checkArgClassValue(interval, 'logical')
   checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
@@ -74,14 +77,14 @@ calcBgMan <- function(
   # Create logical variable showing whether composition data were included
   have.comp <- TRUE
   if(data.struct == 'longcombo') {
-    if(is.null(comp.name)) {
+    if(is.null(comp.name) && is.null(xCH4)) {
       have.comp <- FALSE
     }
   } else {
-    if(is.null(comp.name)) {
+    if(is.null(comp.name) && is.null(xCH4)) {
       stop('comp.name argument needed if data.struct != "longcombo".')
     }
-    if(is.null(comp)) {
+    if(is.null(comp) && is.null(xCH4)) {
       have.comp <- FALSE
     }
   }
@@ -112,12 +115,16 @@ calcBgMan <- function(
   # Create standardized binary variable that indicates when vBg has been standardized
   standardized <- FALSE
 
+  if(!is.null(xCH4) && is.null(comp.name)) {
+    comp.name <- 'xCH4'
+  }
+
   # Data preparation (structuring and sorting)
   # Returns dat as data.struct = 'longcombo'
   dat <- cumBgDataPrep(dat = dat, dat.type = 'pres', dat.name = pres.name,
                        comp.name = comp.name, id.name = id.name, time.name = time.name,
                        data.struct = data.struct, comp = comp,
-                       have.comp = have.comp,
+                       xCH4 = xCH4, have.comp = have.comp,
                        interval = interval, imethod = imethod,
                        headspace = headspace, vol.hs.name = vol.hs.name,
                        extrap = extrap, check = check)

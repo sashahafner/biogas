@@ -3,6 +3,7 @@ cumBgDataPrep <- function(
   dat,
   dat.type = 'vol',
   comp = NULL,                # Composition of gas measurement. Leave NULL for wide and longcombo
+  xCH4 = NULL,               # Single numeric methane mole fraction, alternative to comp data frame
   interval = TRUE,            # When empty.name is used, there is a mix, and interval is ignored
   data.struct = 'longcombo',  # long, wide, longcombo
   # Column names
@@ -25,6 +26,7 @@ cumBgDataPrep <- function(
   checkArgClassValue(dat, 'data.frame')
   checkArgClassValue(dat.type, 'character', expected.values = c('vol', 'mass', 'pres', 'volume', 'pressure', 'gca'), case.sens = FALSE)
   checkArgClassValue(comp, c('data.frame', 'NULL'))
+  checkArgClassValue(xCH4, c('integer', 'numeric', 'NULL'), expected.range = c(0, 1))
   checkArgClassValue(interval, 'logical')
   checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
   checkArgClassValue(id.name, 'character')
@@ -92,7 +94,7 @@ cumBgDataPrep <- function(
     names(dat)[names(dat) == 'idxyz'] <- id.name
     
     # Now for comp
-    if(have.comp) {
+    if(have.comp && is.null(xCH4)) {
       which.first.col <- which(names(comp) == comp.name)
       comp.name <- 'xCH4'
 
@@ -115,7 +117,12 @@ cumBgDataPrep <- function(
     }
     data.struct <- 'long'
   }
-  
+
+  # If a constant xCH4 value was provided, apply it now (before longcombo handling)
+  if (!is.null(xCH4)) {
+    dat[, comp.name] <- xCH4
+  }
+
   # Remove missing values for cumulative data only
   if(!interval) {
     dat <- dat[!is.na(dat[, dat.name]), ]
@@ -132,7 +139,7 @@ cumBgDataPrep <- function(
   
   # Sort out composition data for long data structure
   # GCA method has no biogas composition
-  if(have.comp && data.struct == 'long' && dat.type != 'gca') {
+  if(is.null(xCH4) && have.comp && data.struct == 'long' && dat.type != 'gca') {
     
     mssg.no.time <- mssg.interp <- FALSE
     # First sort to identify first observation for mass data in order to ignore it

@@ -11,7 +11,8 @@
 calcBgGrav(
   # Main arguments
   dat,
-  comp = NULL,              
+  comp = NULL,
+  xCH4 = NULL,
   temp = NULL,
   pres = NULL,
   data.struct = 'longcombo',
@@ -53,6 +54,11 @@ calcBgGrav(
       (optional) a data frame with the columns bottle identification code; time of measurement, (as \code{numeric}, or \code{POSIX}); and methane concentration within dry biogas as a mole fraction, considering only methane and carbon dioxide (unless \code{cmethod = "total"}).
       The names of these columns are specified with \code{id.name}, \code{time.name}, and \code{xCH4.name}.
       Default is \code{NULL}.
+  }
+  \item{xCH4}{
+      (optional) a single numeric value giving the methane mole fraction in dry biogas, applied as a constant to all observations.
+      An alternative to \code{comp} for cases where a fixed composition is appropriate.
+      Must be between 0 and 1. Default is \code{NULL}.
   }
   \item{temp}{
       the temperature of biogas just prior to venting.

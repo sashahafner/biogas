@@ -95,3 +95,42 @@ s <- summBg(vol = cbg, setup = setup, time.name = 'days',
 expect_equal(s[s$descrip == 'A',     'mean'],  157.5845, tolerance = 0.001)
 expect_equal(s[s$descrip == 'B',     'mean'],  124.7890, tolerance = 0.001)
 expect_equal(s[s$descrip == 'cellu', 'mean'],  417.9794, tolerance = 0.001)
+
+# xCH4 argument tests --------------------------------------------------------
+
+# calcBgVol: wide + xCH4 = 1 at STP with dry = TRUE, so cvCH4 must equal cvBg exactly
+data('feedVol')
+cbg.vol.xCH4.wide <- calcBgVol(feedVol, xCH4 = 1, temp = 0, pres = 1,
+                                interval = FALSE, data.struct = 'wide',
+                                id.name = 'id', time.name = 'time.d', vol.name = '1',
+                                dry = TRUE, quiet = TRUE)
+expect_equal(cbg.vol.xCH4.wide$cvCH4, cbg.vol.xCH4.wide$cvBg)
+
+# calcBgVol: error when both comp and xCH4 provided
+expect_error(calcBgVol(s3lcombo, comp = s3lcombo, xCH4 = 0.65,
+                       temp = 25, pres = 1,
+                       id.name = 'id', time.name = 'time.d', vol.name = 'vol.ml'))
+
+# calcBgVol: longcombo + xCH4 gives same result as equivalent constant xCH4 column
+dat.const.xCH4 <- s3lcombo
+dat.const.xCH4$xCH4 <- 0.65
+cbg.vol.xCH4.lc <- calcBgVol(s3lcombo[, !names(s3lcombo) %in% 'xCH4'],
+                              xCH4 = 0.65, temp = 25, pres = 1,
+                              id.name = 'id', time.name = 'time.d',
+                              vol.name = 'vol.ml', quiet = TRUE)
+cbg.vol.col.lc  <- calcBgVol(dat.const.xCH4, temp = 25, pres = 1,
+                              id.name = 'id', time.name = 'time.d',
+                              vol.name = 'vol.ml', comp.name = 'xCH4', quiet = TRUE)
+expect_equal(cbg.vol.xCH4.lc$cvCH4, cbg.vol.col.lc$cvCH4)
+
+# calcBgGrav: xCH4 arg gives same result as equivalent constant xCH4 column
+dat.no.xCH4.grav <- UQGravBiogas[, !names(UQGravBiogas) %in% 'xCH4']
+dat.const.xCH4.grav <- UQGravBiogas
+dat.const.xCH4.grav$xCH4 <- 0.65
+cbg.grav.xCH4 <- calcBgGrav(dat.no.xCH4.grav, xCH4 = 0.65, temp = 35, pres = 1.5,
+                             id.name = 'id', time.name = 'day',
+                             mass.name = 'mass.final', quiet = TRUE)
+cbg.grav.col  <- calcBgGrav(dat.const.xCH4.grav, temp = 35, pres = 1.5,
+                             id.name = 'id', time.name = 'day',
+                             mass.name = 'mass.final', xCH4.name = 'xCH4', quiet = TRUE)
+expect_equal(cbg.grav.xCH4$cvCH4, cbg.grav.col$cvCH4)

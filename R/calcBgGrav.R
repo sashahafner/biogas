@@ -2,6 +2,7 @@ calcBgGrav <- function(
   # Main arguments
   dat,
   comp = NULL, # Leave NULL for wide and both combos
+  xCH4 = NULL,               # Single numeric methane mole fraction, alternative to comp
   temp = NULL,
   pres = NULL,
   data.struct = 'longcombo', # long, wide, longcombo, widecombo
@@ -39,6 +40,8 @@ calcBgGrav <- function(
   # Check arguments
   checkArgClassValue(dat, 'data.frame')
   checkArgClassValue(comp, c('data.frame', 'NULL'))
+  checkArgClassValue(xCH4, c('integer', 'numeric', 'NULL'), expected.range = c(0, 1))
+  if (!is.null(comp) && !is.null(xCH4)) stop('Provide either comp or xCH4, not both.')
   checkArgClassValue(temp, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(pres, c('integer', 'numeric', 'character', 'NULL'))
   checkArgClassValue(data.struct, 'character', expected.values = c('long', 'wide', 'longcombo'))
@@ -131,8 +134,8 @@ calcBgGrav <- function(
   # Returns dat as data.struct = 'longcombo'
   dat <- cumBgDataPrep(dat = dat, dat.type = 'mass', dat.name = mass.name,
                        comp.name = xCH4.name, id.name = id.name,
-                       time.name = time.name, data.struct = data.struct, 
-		       comp = comp, have.comp = TRUE,
+                       time.name = time.name, data.struct = data.struct,
+                       comp = comp, xCH4 = xCH4, have.comp = TRUE,
                        interval = FALSE, imethod = imethod, extrap = extrap,
                        headspace = headspace, vol.hs.name = vol.hs.name,
                        check = check)
