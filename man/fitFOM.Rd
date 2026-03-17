@@ -52,7 +52,7 @@ fitFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
     Should parameter values be transformed for fitting?
     If \code{TRUE}, the \code{k} parameter(s) are log10-transformed and (if relevant) \code{f} is transformed with the standard logistic function.
     This ensures logical values (positive \code{k}, \code{f} between 0 and 1) and may result in better estimates.
-    Default is \code{FALSE}.
+    Default is \code{TRUE}.
     Length-one logical vector.
   }
   \item{init}{

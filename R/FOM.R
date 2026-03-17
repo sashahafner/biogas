@@ -7,11 +7,6 @@ FO1pCalc <- function(t, B, k, t.shift = 0, y.shift = 0) {
 
   return(y)
 
-  #if (fit.to == 'yield') return(y)
-
-  ## Otherwise, return rates
-  #r <- c(0, diff(y)/diff(t))
-  #return(r)
 }
 
 
@@ -76,15 +71,7 @@ FO2pCalc <- function(t, B, f, k1, k2, t.shift = 0, y.shift = 0) {
 
   return(y)
 
-  #if (fit.to == 'yield') return(y)
-
-  ## Otherwise, return rates
-  #r <- c(0, diff(y)/diff(t))
-  #return(r)
 }
-
-
-
 
 FO2pObj <- function(x, t, y, fit.to = 'yield', t.shift = 0, y.shift = 0, SS = TRUE, trans = FALSE, resids = FALSE) {
 
@@ -179,7 +166,6 @@ fitFOM <- function(dat, n.pool = 1,
       }
     }
   }
-
 
   # Transform init etc.
   if (trans) {
