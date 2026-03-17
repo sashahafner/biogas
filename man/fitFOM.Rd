@@ -93,8 +93,18 @@ fitFOM(dat, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4',
 }
 
 \value{
-  A list with parameter estimates and additional information.
-  Most useful elements are \code{coefs} and \code{coef.tab} (best-fit parameter values), \code{summ} (a summary that includes model efficiency, error, and convergence information), and \code{pred} (model predicted or fitted values).
+  A list with the following elements:
+  \item{model}{Raw output from the optimizer (\code{\link{optim}} or \code{nls.lm}).}
+  \item{tlag}{Lag phase start time (0 if \code{lag.phase = FALSE}).}
+  \item{ylag}{Cumulative yield at lag phase start (0 if \code{lag.phase = FALSE}).}
+  \item{coef}{Named numeric vector of best-fit parameter estimates (\code{B}, \code{k} for one pool; \code{B}, \code{f}, \code{k1}, \code{k2} for two pools). Rate constants are back-transformed from log10 scale if \code{trans = TRUE}.}
+  \item{coef.se}{Named numeric vector of standard errors for parameter estimates. \code{NA} for methods that do not provide standard errors (all except \code{'LM'}).}
+  \item{coef.tab}{Matrix of parameter estimates and (where available) standard errors, one row per parameter.}
+  \item{fitted}{Fitted values. When \code{fit.to = 'yield'}, these are fitted cumulative yields; when \code{fit.to = 'rate'}, fitted average production rates (with a leading \code{NA}).}
+  \item{fitted.df}{Data frame with columns for time, fitted cumulative yield, and fitted average production rate.}
+  \item{residuals}{Residuals (fitted minus observed) on the scale of \code{fit.to}.}
+  \item{fit.stats}{Named numeric vector of goodness-of-fit statistics: \code{NSE} (Nash-Sutcliffe efficiency), \code{RMSE} (root mean squared error), and \code{MAE} (mean absolute error), calculated on the scale of \code{fit.to}.}
+  \item{summ}{A one-row data frame combining lag phase information, sample size, \code{max.delta}, parameter estimates and standard errors, goodness-of-fit statistics, and convergence information. Convenient for collecting results across many fits with \code{rbind}.}
 }
 
 \references{
@@ -118,7 +128,6 @@ cbg <- calcBgVol(feedVol, xCH4 = 1, temp = 0, pres = 1,
                  interval = FALSE, data.struct = 'wide',
                  id.name = 'id', time.name = 'time.d', vol.name = '1',
                  dry = TRUE)
-devtools::load_all()
 # Get SMP
 SMP <- summBg(vol = cbg, setup = feedSetup, time.name = 'time.d', 
                inoc.name = 'BK', inoc.m.name = 'm.inoc', when = 'meas',
@@ -133,8 +142,11 @@ mod1 <- fitFOM(s9, n.pool = 1, time.name = 'time.d', resp.name = 'cvCH4')
 # View summary
 mod1$summ
 
+# Or just coefficients, for example
+mod1$coef
+
 # Add model predictions
-s9$cvCH4.pred <- mod1$pred
+s9$cvCH4.pred <- mod1$fitted
 
 # And plot
 plot(cvCH4 ~ time.d, data = s9, type = 'o')
@@ -146,18 +158,18 @@ mod1b$summ
 
 # Try 2 pools
 mod2 <- fitFOM(s9, n.pool = 2, time.name = 'time.d', resp.name = 'cvCH4')
-mod2$summ
+mod2$coef
 
 # First pool effectively ignored in the fit
 # Try different method (this one requires minpack.lm package)
 \dontrun{
 mod2 <- fitFOM(s9, n.pool = 2, time.name = 'time.d', resp.name = 'cvCH4', method = 'LM')
-mod2$summ
+mod2$coef
 }
 
-# Unfortunately, here is a big effect of method on the result!
+# Here is a big effect of fitting method on the result!
 
-s9$cvCH4.pred2 <- mod2$pred
+s9$cvCH4.pred2 <- mod2$fitted
 
 plot(cvCH4 ~ time.d, data = s9, type = 'o')
 lines(cvCH4.pred ~ time.d, data = s9, col = 'red')
@@ -166,9 +178,9 @@ lines(cvCH4.pred2 ~ time.d, data = s9, col = 'blue')
 # Drop (exclude) lag phase
 mod3 <- fitFOM(s9, n.pool = 2, time.name = 'time.d', resp.name = 'cvCH4', lag.phase = TRUE)
 mod3$summ
-s9$cvCH4.pred3 <- mod3$pred
+s9$cvCH4.pred3 <- mod3$fitted
 
-lines(cvCH4.pred3 ~ time.d, data = s9, col = 'darkgreen')
+lines(cvCH4.pred3 ~ time.d, data = s9, col = 'green')
 
 }
 

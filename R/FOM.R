@@ -285,26 +285,29 @@ fitFOM <- function(dat, n.pool = 1,
   }
 
   # Model predictions
+  has.se <- ncol(coef.tab) >= 2
+
   if (n.pool == 1) {
     B <- coef.tab['B', 1]
-    B.se <- coef.tab['B', 2]
+    B.se <- if (has.se) coef.tab['B', 2] else NA
     k <- coef.tab['k', 1]
-    k.se <- coef.tab['k', 2]
-    
+    k.se <- if (has.se) coef.tab['k', 2] else NA
+
     if (trans) k <- 10^k
-    coefs <- c(B = B, k = k, B.se = B.se, k.se = k.se)
-    preds <- data.frame(t = t, y = FO1pCalc(t = t, B = B, k = k,
+    coef <- c(B = B, k = k)
+    coef.se <- c(B.se = B.se, k.se = k.se)
+    fitted.df <- data.frame(t = t, y = FO1pCalc(t = t, B = B, k = k,
                                             t.shift = t.shift, y.shift = y.shift))
   } else {
 
     B <- coef.tab['B', 1]
-    B.se <- coef.tab['B', 2]
+    B.se <- if (has.se) coef.tab['B', 2] else NA
     f <- coef.tab['f', 1]
-    f.se <- coef.tab['f', 2]
+    f.se <- if (has.se) coef.tab['f', 2] else NA
     k1 <- coef.tab['k1', 1]
-    k1.se <- coef.tab['k1', 2]
+    k1.se <- if (has.se) coef.tab['k1', 2] else NA
     k2 <- coef.tab['k2', 1]
-    k2.se <- coef.tab['k2', 2]
+    k2.se <- if (has.se) coef.tab['k2', 2] else NA
 
     if (trans) {
       f <- logistic(f)
@@ -322,8 +325,9 @@ fitFOM <- function(dat, n.pool = 1,
       k2.se <- k1.set
     }
 
-    coefs <- c(B = B, f = f, k1 = k1, k2 = k2, B.se = B.se, f.se = f.se, k1.se = k1.se, k2.se = k2.se)
-    preds <- data.frame(t = t, y = FO2pCalc(t = t, B = B, f = f, k1 = k1, k2 = k2,
+    coef <- c(B = B, f = f, k1 = k1, k2 = k2)
+    coef.se <- c(B.se = B.se, f.se = f.se, k1.se = k1.se, k2.se = k2.se)
+    fitted.df <- data.frame(t = t, y = FO2pCalc(t = t, B = B, f = f, k1 = k1, k2 = k2,
                                             t.shift = t.shift, y.shift = y.shift))
   }
 
@@ -333,41 +337,43 @@ fitFOM <- function(dat, n.pool = 1,
   nn <- sum(!is.na(dat[, resp.name]))
 
   if (fit.to == 'rate') {
-    preds$r <- c(NA, diff(preds$y)/diff(preds$t))
-    pred <- preds[, 3]
-    resid <- pred - r
-    names(preds) <- c(time.name, resp.name, 'rate')
-    ME <- me(r[i.eval][-1], pred[i.eval][-1])
-    RMSE <- rmse(r[i.eval][-1], pred[i.eval][-1])
-    MAE <- mae(r[i.eval][-1], pred[i.eval][-1])
-    fit <- c(ME = ME, RMSE = RMSE, MAE = MAE)
+    fitted.df$r <- c(NA, diff(fitted.df$y)/diff(fitted.df$t))
+    fitted <- fitted.df[, 3]
+    residuals <- fitted - r
+    names(fitted.df) <- c(time.name, resp.name, 'rate')
+    NSE <- me(r[i.eval][-1], fitted[i.eval][-1])
+    RMSE <- rmse(r[i.eval][-1], fitted[i.eval][-1])
+    MAE <- mae(r[i.eval][-1], fitted[i.eval][-1])
+    fit.stats <- c(NSE = NSE, RMSE = RMSE, MAE = MAE)
     nn <- nn - 1
     r <-  diff(dat[, resp.name])/diff(dat[, time.name])
     dr <- diff(r)
     max.delta <- min(c(0, dr)) / max(r)
   } else {
-    preds$r <- c(NA, diff(preds$y)/diff(preds$t))
-    pred <- preds[, 2]
-    resid <- pred - y
-    names(preds) <- c(time.name, resp.name, 'rate')
-    ME <- me(y[i.eval], pred[i.eval])
-    RMSE <- rmse(y[i.eval], pred[i.eval])
-    MAE <- mae(y[i.eval], pred[i.eval])
-    fit <- c(ME = ME, RMSE = RMSE, MAE = MAE)
+    fitted.df$r <- c(NA, diff(fitted.df$y)/diff(fitted.df$t))
+    fitted <- fitted.df[, 2]
+    residuals <- fitted - y
+    names(fitted.df) <- c(time.name, resp.name, 'rate')
+    NSE <- me(y[i.eval], fitted[i.eval])
+    RMSE <- rmse(y[i.eval], fitted[i.eval])
+    MAE <- mae(y[i.eval], fitted[i.eval])
+    fit.stats <- c(NSE = NSE, RMSE = RMSE, MAE = MAE)
     dy <- diff(dat[, resp.name])
     max.delta <- max(c(0, dy)) / max(dat[, resp.name])
   }
 
   # max.delta is maximum change in either yield or rate as a fraction of maximum value
 
-  return(list(model = mod, ilag = l, tlag = t.shift, ylag = y.shift, 
-              n = nn, max.delta = max.delta,
-              coefs = coefs, coef.tab = coef.tab, preds = preds, 
-              pred = pred, fit = fit, resid = resid,
-              converge = converge, converge.mssg = converge.mssg,
-              summ = data.frame(ilag = l, tlag = t.shift, ylag = y.shift, 
+  return(list(model = mod,
+              tlag = t.shift, ylag = y.shift,
+              coef = coef, coef.se = coef.se, coef.tab = coef.tab,
+              fitted = fitted, fitted.df = fitted.df,
+              residuals = residuals,
+              fit.stats = fit.stats,
+              summ = data.frame(ilag = l, tlag = t.shift, ylag = y.shift,
                                 n = nn, max.delta = max.delta,
-                                t(coefs), t(fit), converge = converge, converge.mssg = converge.mssg)
+                                t(coef), t(coef.se), t(fit.stats),
+                                converge = converge, converge.mssg = converge.mssg)
              )
        )
 
