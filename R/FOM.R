@@ -196,7 +196,7 @@ fitFOM <- function(dat, n.pool = 1,
   if (method == 'LM') {
 
     if (!requireNamespace('minpack.lm')) {
-      stop('You selected method = \'LM\' but the manpack.lm packge is not installed.\nPlease install minpack.lm in order to use this method.')
+      stop('You selected method = \'LM\' but the minpack.lm packge is not installed.\nPlease install minpack.lm in order to use this method.')
     }
 
     if (n.pool == 1) {
